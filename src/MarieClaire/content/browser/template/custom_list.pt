@@ -1,0 +1,54 @@
+<script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/event.js"></script>
+<link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
+<body>
+    <div>
+        <form action="add_event">
+            <input type="text" value="add_custom" name="goto" class="hide" />
+            <button class="add_btn">新增</button>
+        </form>
+
+        <table id="event_table">
+            <tr>
+                <th>標題</th>
+                <th>描述</th>
+                <th>開始時間</th>
+                <th>結束時間</th>
+                <th>功能</th>
+            </tr>
+            <tr tal:define="datas python:view.get_event_data()"
+                tal:repeat="data datas">
+                <td tal:content="data/Title"></td>
+                <td tal:content="data/Description"></td>
+                <td tal:content="data/start"></td>
+                <td tal:content="data/end"></td>
+                <td>
+                    <button class="edit_btn">
+                        <a tal:attributes="href string:${data/getURL}/edit" class="event_a">
+                            修改
+                        </a>
+                    </button>
+                    <form action="delete_content">
+
+                        <input type="text" value="custom_list" name="from" class="hide"/>
+                        <input type="text" tal:attributes="value data/id" 
+                            name="event_id" class="hide"/>
+
+                        <span class="check_del_span">刪除</span>
+
+                        <div class="check_box animate">
+                            <div class="box_content">
+                                <h1 class="center">確定要刪除<span tal:content="data/id" class="event_id"></span>嘛</h1>
+                                <div class="center">
+                                    <button type="submit" class="del_btn">確定</button>
+                                    <span class="go_back">返回</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>

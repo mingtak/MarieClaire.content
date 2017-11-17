@@ -1,0 +1,79 @@
+<script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/custom.js"></script>
+<link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+<link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
+<body>
+    <form action="do_add_content" class="add_content_form">
+        <h1 class="add_content_header">新增活動</h1>
+
+        <input type="text" class="add_content_input" name="event_title"/>
+
+        <br/>
+        <input type="text" class="add_content_input" name="event_desc"/>
+        <br/>
+
+        <p class="time_title" >開始時間</p>
+        <input type="text" id="start_date" name="event_start_date" /> 
+        <select name="start_time" class="start_time" >
+            <option value="0:0">00:00</option>
+            <option value="1:0">1:00</option>
+            <option value="2:0">2:00</option>
+            <option value="3:0">3:00</option>
+            <option value="4:0">4:00</option>
+            <option value="5:0">5:00</option>
+            <option value="6:0">6:00</option>
+            <option value="7:0">7:00</option>
+            <option value="8:0">8:00</option>
+            <option value="9:0">9:00</option>
+            <option value="10:0">10:00</option>
+            <option value="11:0">11:00</option>
+            <option value="12:0">12:00</option>
+            <option value="13:0">13:00</option>
+            <option value="14:0">14:00</option>
+            <option value="15:0">15:00</option>
+            <option value="16:0">16:00</option>
+            <option value="17:0">17:00</option>
+            <option value="18:0">18:00</option>
+            <option value="19:0">19:00</option>
+            <option value="20:0">20:00</option>
+            <option value="21:0">21:00</option>
+            <option value="22:0">22:00</option>
+            <option value="23:0">23:00</option>
+        </select>
+        <br/>
+
+        <p class="time_title" >結束時間</p>
+        <input type="text" id="end_date" name="event_end_date" />
+        <select name="end_time" class="end_time" >
+             <option value="0:0">00:00</option>
+            <option value="1:0">1:00</option>
+            <option value="2:0">2:00</option>
+            <option value="3:0">3:00</option>
+            <option value="4:0">4:00</option>
+            <option value="5:0">5:00</option>
+            <option value="6:0">6:00</option>
+            <option value="7:0">7:00</option>
+            <option value="8:0">8:00</option>
+            <option value="9:0">9:00</option>
+            <option value="10:0">10:00</option>
+            <option value="11:0">11:00</option>
+            <option value="12:0">12:00</option>
+            <option value="13:0">13:00</option>
+            <option value="14:0">14:00</option>
+            <option value="15:0">15:00</option>
+            <option value="16:0">16:00</option>
+            <option value="17:0">17:00</option>
+            <option value="18:0">18:00</option>
+            <option value="19:0">19:00</option>
+            <option value="20:0">20:00</option>
+            <option value="21:0">21:00</option>
+            <option value="22:0">22:00</option>
+            <option value="23:0">23:00</option>
+        </select>
+        <br/>
+
+        <input type="text" value="event_list" class="hide" name="which_from" />
+        <button type="submit" class="add_content_btn">送出</button>
+    </form>
+</body>

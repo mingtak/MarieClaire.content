@@ -1,0 +1,4 @@
+graft src/MarieClaire
+graft docs
+include *.rst
+global-exclude *.pyc

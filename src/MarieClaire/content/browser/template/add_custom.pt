@@ -1,0 +1,12 @@
+<body>
+    <form action="do_add_content" class="add_event_form">
+        <h1 class="add_event_header">新增客戶</h1>
+
+        <input type="text" class="add_event_title" name="event_title"/>
+
+        <br/>
+        <input type="text" class="add_event_description" name="event_desc"/>
+        <br/>
+        <button type="submit" class="add_event_btn">送出</button>
+    </form>
+</body>

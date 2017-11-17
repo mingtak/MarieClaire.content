@@ -1,0 +1,6 @@
+[report]
+include =
+    src/MarieClaire/*
+omit =
+    */test*
+    */upgrades/*

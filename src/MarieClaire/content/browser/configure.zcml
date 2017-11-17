@@ -1,0 +1,76 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="MarieClaire.content">
+
+  <!-- Set overrides folder for Just-a-Bunch-Of-Templates product -->
+  <include package="z3c.jbot" file="meta.zcml" />
+  <browser:jbot
+      directory="overrides"
+      layer="MarieClaire.content.interfaces.IMarieclaireContentLayer"
+      />
+
+  <!-- Publish static files -->
+  <plone:static
+      name="MarieClaire.content"
+      type="plone"
+      directory="static"
+      />
+  <browser:page
+      name="manage_list"
+      for="*"
+      class=".views.Manage_list"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="welcome"
+      for="*"
+      class=".views.Welcome"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="event_list"
+      for="*"
+      class=".views.Event_list"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="add_event"
+      for="*"
+      class=".views.Add_event"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="do_add_content"
+      for="*"
+      class=".views.Do_add_content"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="delete_content"
+      for="*"
+      class=".views.Delete_content"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+<browser:page
+      name="ads_list"
+      for="*"
+      class=".views.Ads_list"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+<browser:page
+      name="custom_list"
+      for="*"
+      class=".views.Custom_list"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+</configure>
