@@ -1,19 +1,21 @@
 <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-<script src="/Plone/++plone++MarieClaire.content/custom.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/date_picker.js"></script>
 <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
 <link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
 <body>
     <form action="do_add_content" class="add_content_form">
         <h1 class="add_content_header">新增活動</h1>
 
-        <input type="text" class="add_content_input" name="event_title"/>
+        <input type="text" class="add_content_input" name="event_title"
+                placeholder="請輸入標題"/>
 
         <br/>
-        <input type="text" class="add_content_input" name="event_desc"/>
+        <input type="text" class="add_content_input" name="event_desc"
+                placeholder="請輸入描述"/>
         <br/>
 
-        <p class="time_title" >開始時間</p>
+        <p class="time_title" >開始時間:</p>
         <input type="text" id="start_date" name="event_start_date" /> 
         <select name="start_time" class="start_time" >
             <option value="0:0">00:00</option>
@@ -43,7 +45,7 @@
         </select>
         <br/>
 
-        <p class="time_title" >結束時間</p>
+        <p class="time_title" >結束時間:</p>
         <input type="text" id="end_date" name="event_end_date" />
         <select name="end_time" class="end_time" >
              <option value="0:0">00:00</option>

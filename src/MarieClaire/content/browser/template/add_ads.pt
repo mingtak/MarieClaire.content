@@ -3,11 +3,14 @@
     <form action="do_add_content" class="add_content_form">
         <h1 class="add_content_header">新增廣告</h1>
 
-        <input type="text" class="add_content_input" name="ads_title"/>
+        <input type="text" class="add_content_input" name="ads_title" 
+                placeholder="請輸入標題" />
         <br/>
-        <input type="text" class="add_content_input" name="ads_content"/>
+        <input type="text" class="add_content_input" name="ads_content"
+                placeholder="請輸入內容" />
         <br/>
-        <input type="number" step="0.1" class="add_content_input" name="ads_weighted"/>
+        <input type="number" step="0.1" class="add_content_input" name="ads_weighted"
+                placeholder="請輸入權重" />
 
         <input type="text"  value="ads_list" class="hide" name="which_from" />
         <button type="submit" class="add_content_btn">送出</button>

@@ -1,5 +1,6 @@
 <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="/Plone/++plone++MarieClaire.content/event.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/alert_box.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/trace.js"></script>
 <link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
 <body>
     <div>

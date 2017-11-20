@@ -59,17 +59,31 @@
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
-<browser:page
+  <browser:page
       name="ads_list"
       for="*"
       class=".views.Ads_list"
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
-<browser:page
+  <browser:page
       name="custom_list"
       for="*"
       class=".views.Custom_list"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="show_trace"
+      for="*"
+      class=".trace.Show_trace"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="save_trace_page"
+      for="*"
+      class=".trace.Save_trace_page"
       layer="zope.interface.Interface"
       permission="zope2.View"
       />

@@ -1,5 +1,6 @@
 <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="/Plone/++plone++MarieClaire.content/event.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/alert_box.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/trace.js"></script>
 <link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
 <body>
     <div>
@@ -7,21 +8,21 @@
             <input type="text" value="add_custom" name="goto" class="hide" />
             <button class="add_btn">新增</button>
         </form>
+        <form action="show_trace">
+            <button type="submit">追蹤</button>
+        </form>
 
         <table id="event_table">
             <tr>
-                <th>標題</th>
-                <th>描述</th>
-                <th>開始時間</th>
-                <th>結束時間</th>
+                <th>姓名</th>
+                <th>廣告</th>
                 <th>功能</th>
             </tr>
             <tr tal:define="datas python:view.get_event_data()"
                 tal:repeat="data datas">
                 <td tal:content="data/Title"></td>
-                <td tal:content="data/Description"></td>
-                <td tal:content="data/start"></td>
-                <td tal:content="data/end"></td>
+                <td tal:define="ads_list python:view.get_ads_list(data)"
+                    tal:content="ads_list"></td>
                 <td>
                     <button class="edit_btn">
                         <a tal:attributes="href string:${data/getURL}/edit" class="event_a">

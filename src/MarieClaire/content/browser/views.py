@@ -2,6 +2,9 @@
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from plone import api
+from z3c.relationfield import RelationValue
+from zope.app.intid.interfaces import IIntIds
+from zope import component
 import datetime
 import time
 import sys
@@ -42,7 +45,18 @@ class Custom_list(BrowserView):
         brains = api.content.find(
             context=api.portal.get(), portal_type='Custom', sort_on='created', 
                         sort_order='reverse')
+        
         return brains
+
+    def get_ads_list(self, brain):
+        ads_list = []
+
+        item = brain.getObject()
+        for ads in item.advertisement:
+            ads_list.append(ads.to_path.split('/')[2])
+        ads_list = ",".join(str(x) for x in ads_list)
+
+        return ads_list
 
     def __call__(self):
         return self.template()
@@ -64,10 +78,18 @@ class Ads_list(BrowserView):
 
 class Add_event(BrowserView):
     template = ViewPageTemplateFile('template/add_event.pt')
+    def get_uid(self, item):
+        portal = api.portal.get()
+        contact = portal[item.getId]
+        uid = api.content.get_uuid(obj=contact)
+        return uid
+
     def __call__(self):
         goto = self.request.get('goto')
         url = 'template/{}.pt'.format(goto)
+
         template = ViewPageTemplateFile(url)
+
         return template(self)
 
 
@@ -110,6 +132,20 @@ class Do_add_content(BrowserView):
             title=title,
             content=content,
             weighted=weighted,
+            container=portal)
+        else:
+            title = self.request.get('custom_title')
+            ads = self.request.get('ads')
+            intIds = component.getUtility(IIntIds)
+            relval_list = []
+            for ad in ads:
+                obj_ad = api.content.find(UID=ad)[0].getObject()
+                relval_list.append(RelationValue(intIds.getId(obj_ad)))
+
+            obj = api.content.create(
+            type='Custom',
+            title=title,
+            advertisement=relval_list,
             container=portal)
 
         self.request.response.redirect('{}/{}'.format(url, which_from))

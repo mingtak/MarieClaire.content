@@ -7,9 +7,9 @@
 <metal:block define-macro="content-core">
 <link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
 
-    <iframe src="index" frameborder="0" class="manage_iframe"></iframe>
+    <iframe src="custom_list" frameborder="0" class="manage_iframe"></iframe>
 
-<script src="/Plone/++plone++MarieClaire.content/custom.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/choice_manage.js"></script>
 
 </metal:block>
 </metal:content-core>

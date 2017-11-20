@@ -53,6 +53,7 @@
     color: white;
     border-radius: 4px;
     font-size: 18px;
+    cursor: pointer;
 }
 .check_box {
     position: fixed; /* Stay in place */
@@ -88,6 +89,7 @@
     font-size: 17px;
     padding: 6px;
     margin-right: 15px;
+    cursor: pointer;
 }
 .event_id{
     background: #FDDD8A;
@@ -101,6 +103,7 @@
     border-radius: 4px;
     font-size: 17px;
     padding: 8px;
+    cursor: pointer;
 }
 
 /*  */
