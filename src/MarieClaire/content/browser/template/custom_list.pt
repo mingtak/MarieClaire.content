@@ -4,12 +4,12 @@
 <link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
 <body>
     <div>
-        <form action="add_event">
+        <form action="add_event" class="form_custom">
             <input type="text" value="add_custom" name="goto" class="hide" />
             <button class="add_btn">新增</button>
         </form>
-        <form action="show_trace">
-            <button type="submit">追蹤</button>
+        <form action="show_trace" class="form_custom">
+            <button type="submit" class="trace_btn" >追蹤</button>
         </form>
 
         <table id="event_table">

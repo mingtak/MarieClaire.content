@@ -13,14 +13,16 @@
             from plone import api
             context = api.content.find(context=api.portal.get(), portal_type='Advertisement')
         ?>
-        <label for="">
-            <input type="checkbox" name="" id="check_all" />全選
-        </label>
-        <br/>
+        <div class="add_content_checkbox_content">
         
-        <input type="checkbox" tal:repeat="item context" tal:content="item/Title" 
+            <label for="">
+                <input type="checkbox" name="" id="check_all" />全選
+            </label>
+            <br/>
+            <input type="checkbox" tal:repeat="item context" tal:content="item/Title" 
                name="ads" tal:attributes="value python:view.get_uid(item)" />
-
+            
+        </div>
         <br/>
         <input type="text"  value="custom_list" class="hide" name="which_from" />
         <button type="submit" class="add_content_btn">送出</button>

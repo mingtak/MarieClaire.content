@@ -87,4 +87,11 @@
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
+  <browser:page 
+      name="select_trace_page"
+      for="*"
+      class=".trace.Select_trace_page"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
 </configure>

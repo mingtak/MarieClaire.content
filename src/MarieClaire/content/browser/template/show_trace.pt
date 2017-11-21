@@ -2,14 +2,23 @@
 <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="/Plone/++plone++MarieClaire.content/ShowTracePage.js"></script>
+<script src="/Plone/++plone++MarieClaire.content/show_trace_page.js"></script>
+<link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css"/>
 
 <body>
+      <div class="show_trace_content">
+            <label>請選擇網站
+                  <select name="url" id="url" class="show_trace_select show_trace_select_margin">
+                        <option tal:define="url_list python:view.get_trace_list()"
+                              tal:repeat="url url_list" tal:content="url/url"
+                              tal:attributes="value url/url"></option>
+                  </select>
+            </label>
 
-      <label>Web Site<input type="text" id='url' /></label>
-      <p>Start Date: <input type="text" id="start_date"></p>
-      <p>End Date: <input type="text" id="end_date"></p>
-      <button id='btn'>送出</button><br/>
-      <svg id='s'></svg>
+            <p>開始日期: <input type="text" id="start_date"></p>
+            <p>結束日期: <input type="text" id="end_date"></p>
+            <button id='btn' class="show_trace_btn" >送出</button><br/>
+      </div>
+      <svg id='svg'  ></svg>
 
 </body>
