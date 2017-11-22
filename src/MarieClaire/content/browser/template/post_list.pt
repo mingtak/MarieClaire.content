@@ -4,36 +4,24 @@
 <link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
 <body>
     <div>
-        <form action="add_event" class="form_custom">
-            <input type="text" value="add_custom" name="goto" class="hide" />
+
+        <form action="add_event">
+            <input type="text" value="add_post" name="goto" class="hide" />
             <button class="add_btn">新增</button>
         </form>
-        
 
         <table id="event_table">
             <tr>
-                <th>姓名</th>
-                <th>廣告</th>
-                <th>貼文</th>
+                <th>標題</th>
+                <th>網址</th>
                 <th>功能</th>
             </tr>
-
-            <tr tal:define="datas python:view.get_custom_data()"
+            <tr tal:define="datas python:view.get_post_data()"
                 tal:repeat="data datas">
                 <td tal:content="data/Title"></td>
-                <td tal:define="ads_list python:view.get_ads_list(data)"
-                    tal:content="ads_list"></td>
-                <td tal:define="post_list python:view.get_post_list(data)"
-                    tal:content="python:post_list[0]"></td>
+                <td tal:define="obj_data python:data.getObject()"
+                    tal:content="obj_data/web_site"></td>
                 <td>
-                    <form action="show_trace" class="form_custom">
-                        <input type="text" name="ads" tal:define="ads_list python:view.get_ads_list(data)" 
-                                tal:attributes="value ads_list" class="hide"/>
-                        <input type="text" class="hide" tal:define="post_list python:view.get_post_list(data)"
-                                tal:attributes="value python:post_list[1]" name="web_site"/>
-                        <button type="submit" class="trace_btn" >追蹤</button>
-                    </form>
-
                     <button class="edit_btn">
                         <a tal:attributes="href string:${data/getURL}/edit" class="event_a">
                             修改
@@ -41,9 +29,9 @@
                     </button>
                     <form action="delete_content">
 
-                        <input type="text" value="custom_list" name="from" class="hide"/>
-                        <input type="text" tal:attributes="value data/id" 
-                            name="event_id" class="hide"/>
+                        <input type="text" value="post_list" name="from" class="hide"/>
+                        <input type="text" tal:attributes="value data/id"
+                                name="event_id" class="hide"/>
 
                         <span class="check_del_span">刪除</span>
 

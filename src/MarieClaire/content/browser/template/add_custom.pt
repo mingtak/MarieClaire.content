@@ -12,8 +12,15 @@
         <?python
             from plone import api
             context = api.content.find(context=api.portal.get(), portal_type='Advertisement')
+            post_list = api.content.find(context=api.portal.get(), portal_type='Post')
         ?>
-        <div class="add_content_checkbox_content">
+        <label class="margin_lr">請選擇貼文</label>
+        <select name="web_site" class="add_content_input">
+            <option  tal:repeat="post post_list" tal:content="post/Title"
+                name="web_site" tal:attributes="value python:view.get_uid(post)"></option>
+        </select>
+
+        <div class="margin_lr">
         
             <label for="">
                 <input type="checkbox" name="" id="check_all" />全選
@@ -24,6 +31,7 @@
             
         </div>
         <br/>
+        
         <input type="text"  value="custom_list" class="hide" name="which_from" />
         <button type="submit" class="add_content_btn">送出</button>
 

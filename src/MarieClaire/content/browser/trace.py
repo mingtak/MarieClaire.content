@@ -7,26 +7,19 @@ import json
 class Show_trace(BrowserView):
     template = ViewPageTemplateFile('template/show_trace.pt')
     def get_trace_list(self):
-        connection = pymysql.connect(
-            host='localhost',
-            user='root',
-            password='henry!QAZ@WSX',
-            db='MarieClaire',
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        try:
-            with connection.cursor() as cursor:
-                
-                sql = """SELECT DISTINCT url FROM `trace_page`"""
-                cursor.execute(sql)
-                result = cursor.fetchall()
-                return result
-
-            connection.commit()
-
-        finally:
-            connection.close()
+        web_site = self.request.get('web_site')
+        length = len(web_site.split('http'))
+        count = 1
+        url_list = []
+        while count < length:
+            url_list.append('http'+web_site.split('http')[count])
+            count+=1
+        return url_list
+    
+    def get_ads_list(self):
+        ads_list = self.request.get('ads')
+        split_ads = ads_list.split(',')
+        return split_ads
 
     def __call__(self):
         return self.template()
@@ -59,6 +52,7 @@ class Select_trace_page(BrowserView):
         url = self.request.get('url')
         start_date = self.request.get('start_date')
         end_date = self.request.get('end_date')
+        select_all = self.request.get('select_all')
 
         connection = pymysql.connect(
             host='localhost',
@@ -70,20 +64,25 @@ class Select_trace_page(BrowserView):
         )
         try:
             with connection.cursor() as cursor:
+                if select_all == 'true':
+                    sql = """SELECT year(time) as year,month(time) as month,day(time) as day, 
+                    COUNT(day(time)) as count FROM trace_page WHERE time BETWEEN'{}' 
+                    AND '{}' GROUP BY year(time),month(time),day(time)""".format(start_date, end_date)
+                else:
+                    sql = """SELECT url,year(time) as year,month(time)as month,day(time) as day
+                    ,COUNT(day(time))as count FROM trace_page as tp WHERE url='{}' AND time 
+                    BETWEEN '{}' AND '{}' GROUP BY year(time),month(time),day(time)""".format(url, start_date, end_date)
 
-                sql = """SELECT url,year(time) as year,month(time)as month,day(time) as day
-                ,COUNT(day(time))as count FROM trace_page as tp WHERE url='{}' AND time 
-                BETWEEN '{}' AND '{}' GROUP BY year(time),month(time),day(time)""".format(url, start_date, end_date)
                 cursor.execute(sql)
-
                 trace_list = cursor.fetchall()
+
                 data = []
                 for trace in trace_list:
                     data.append({
-                        'url':trace['url'],
                         'date_time':'{}-{}-{}'.format(trace['year'],trace['month'],trace['day']),
                         'count':trace['count']
                     })
+                
                 json_data = json.dumps(data, default=str)
                 return json_data
 

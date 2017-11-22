@@ -16,7 +16,7 @@
                 <th>權重</th>
                 <th>功能</th>
             </tr>
-            <tr tal:define="datas python:view.get_event_data()"
+            <tr tal:define="datas python:view.get_ads_data()"
                 tal:repeat="data datas">
                 <td tal:content="data/Title"></td>
                 <td tal:define="item python:data.getObject()"

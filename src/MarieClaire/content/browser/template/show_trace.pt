@@ -7,17 +7,29 @@
 
 <body>
       <div class="show_trace_content">
-            <label>請選擇網站
+            <label>請選擇網址
                   <select name="url" id="url" class="show_trace_select show_trace_select_margin">
                         <option tal:define="url_list python:view.get_trace_list()"
-                              tal:repeat="url url_list" tal:content="url/url"
-                              tal:attributes="value url/url"></option>
+                              tal:repeat="url url_list" tal:content="url"></option>
                   </select>
             </label>
+            <br/>
+            <input type="checkbox" value="select_all" id="select_all"/>全選
 
             <p>開始日期: <input type="text" id="start_date"></p>
             <p>結束日期: <input type="text" id="end_date"></p>
             <button id='btn' class="show_trace_btn" >送出</button><br/>
+            
+            <?python
+                  from plone import api
+                  event_list = api.content.find(
+                        context=api.portal.get(), portal_type='Event')
+            ?>
+            <div tal:repeat="event event_list">
+                  <input  tal:attributes="data-start event/start;data-end event/end"
+                          type="checkbox" />
+                  <span  tal:content="event/Title"></span>
+            </div>
       </div>
       <svg id='svg'  ></svg>
 

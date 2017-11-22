@@ -5,30 +5,30 @@ $(function () {
 });
 $(document).ready(function () {
   $('#btn').click(function (e) {
-    e.preventDefault();
-    var url = $("#url").find("option:selected").val();
+    var select_all = $('#select_all').prop("checked");
+    var url = $("#url").find("option:selected").text()
     var start_date = $('#start_date').val();
     var end_date = $('#end_date').val();
-
+    
     data = {
       'url': url,
       'start_date': start_date,
-      'end_date': end_date
+      'end_date': end_date,
+      'select_all':select_all
     }
+
     $.ajax({
       type: "POST",
       url: "http://localhost:8080/Plone/select_trace_page",
       data: data,
       success: function (response) {
         data = JSON.parse(response)
-        console.log(data)
         drawmap(start_date, end_date, data);
       },
     });
   });
 
   function drawmap(start_date, end_date, data) {
-    // days=DateDifference(start_date,end_date)
     
     var data_list = []
     
@@ -38,12 +38,13 @@ $(document).ready(function () {
         data[i]['count']
       ])
     }
+    console.log(data_list)
 
     var width = 720;
     var height = 450;
     
     var border_color = "#9DE0AD";
-    var fillcolor = "#EEEEEE";
+    var fillcolor = "#CCC";
     var dotcolor = "#222831";
     var line_color = '#3490DE';
 
@@ -101,7 +102,7 @@ $(document).ready(function () {
         'transform': 'translate(60,' + (height + 20) + ')'
       });
 
-      svg.append('g')
+    svg.append('g')
       .call(axisYGrid)
       .attr({
         'fill': 'none',
@@ -153,18 +154,19 @@ $(document).ready(function () {
       .attr("d", area(data_list))
       .attr("fill",fillcolor)
       .attr("stroke-width","0");
-    
+
     function do_animation(path) {
       var totalLength = path.node().getTotalLength();
       path
         .attr("stroke-dasharray", totalLength + " " + totalLength)
         .attr("stroke-dashoffset", totalLength)
         .transition()
-          .duration(1500)
+          .duration(1000)
           .ease("linear")
           .attr("stroke-dashoffset", 0);
     }
-    new_svg.selectAll("dot")
+ 
+  new_svg.selectAll("dot")
     .data(data_list)
     .enter()
     .append("circle")
@@ -173,6 +175,23 @@ $(document).ready(function () {
     .attr("cy", function(d) { return y(d[1]); })
     .attr("fill",dotcolor)
     .attr("stroke-width","0")
- }
+  aa=[['2017-11-21',20],['2017-11-22',10],['2017-11-19',30]]
+  new_svg.selectAll("dot")
+    .data(aa)
+    .enter()
+    .append("line")
+    .attr("x1", function(d) { return x(format.parse(d[0])); })
+    .attr("y1", function(d) { return y(d[1]); })
+    .attr("x2",function(d) { return x(format.parse(d[0])); })
+    .attr("y2",height)
+    .attr("stroke-width","2")
+    .attr('stroke', 'red')
+  }
 
+  $('input[type=checkbox]').change(function (e) { 
+    var start_date = e.currentTarget.dataset.start;
+    var end_date = e.currentTarget.dataset.end;
+    console.log(start_date, end_date)
+  });
 })
+

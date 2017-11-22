@@ -35,11 +35,15 @@ class ICustom(Interface):
     )
     advertisement = RelationList(
         title=_(u"Advertisement"),
-        value_type=RelationChoice(title=_(u"Choice"),
+        value_type=RelationChoice(title=_(u"Choice Advertisement"),
                                   source=CatalogSource(Type='Advertisement'),),
         required=False,
     )
-
+    post = RelationChoice(
+        title=_(u'Post'),
+        source=CatalogSource(Type="Post"),
+        required=True,
+    )
 
 class IAdvertisement(Interface):
 
@@ -55,4 +59,15 @@ class IAdvertisement(Interface):
         title=_(u'Weighted'),
         required=False,
         default=1.0
+    )
+
+class IPost(Interface):
+
+    title = schema.TextLine(
+        title=_(u'Name'),
+        required=True
+    )
+    web_site = schema.Text(
+        title=_(u'Web_site'),
+        required=True
     )

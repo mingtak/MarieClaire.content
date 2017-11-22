@@ -73,6 +73,13 @@
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
+  <browser:page 
+      name="post_list"
+      for="*"
+      class=".views.Post_list"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
   <browser:page
       name="show_trace"
       for="*"
@@ -94,4 +101,5 @@
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
+
 </configure>
