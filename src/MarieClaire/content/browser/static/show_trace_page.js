@@ -9,7 +9,9 @@ $(document).ready(function () {
     $('#url').prop('disabled', function(i, v) { return !v; });
   });
   $('#btn').click(function (e) {
+
     $('.show_trace_checkbox').css('display','inline-block')
+
     var select_all = $('#select_all').prop("checked");
     var url = $("#url").find("option:selected").text()
     var start_date = $('#start_date').val();
@@ -43,7 +45,7 @@ $(document).ready(function () {
         data[i]['count']
       ])
     }
-
+    debugger
     var width = 720;
     var height = 450;
     

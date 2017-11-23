@@ -53,17 +53,19 @@ class Custom_list(BrowserView):
 
         item = brain.getObject()
         for ads in item.advertisement:
-            ads_list.append(ads.to_path.split('/')[2])
+            ads_list.append(ads.to_object.title)
         ads_list = ",".join(str(x) for x in ads_list)
-
         return ads_list
     
     def get_post_list(self, brain):
         item = brain.getObject()
-        
-        title = item.post.to_object.title
-        web_site = item.post.to_object.web_site
 
+        try:
+            title = item.post.to_object.title
+            web_site = item.post.to_object.web_site
+        except:
+            title = ''
+            web_site = ''
         post_list = []
         post_list.append(title)
         post_list.append(web_site)
@@ -161,35 +163,37 @@ class Do_add_content(BrowserView):
         elif which_from == 'custom_list':
             title = self.request.get('custom_title')
             ads = self.request.get('ads')
-            web_site = self.request.get('web_site')
+            post = self.request.get('post')
             intIds = component.getUtility(IIntIds)
 
-            if type(ads) == str:
-                one_ads = []
-                one_ads.append(ads)
-
-            website_list = []
-
-            obj_website = api.content.find(UID=web_site)[0].getObject()
-            if obj_website:
-                obj_website = obj_website[0].getObject()
-            website_list.append(RelationValue(intIds.getId(obj_website)))
-            
-            relation_list = []
-            try:
-                obj_ad = api.content.find(UID=one_ads[0])[0].getObject()
-                relation_list.append(RelationValue(intIds.getId(obj_ad)))
-            except:
-                for ad in ads:
-                    obj_ad = api.content.find(UID=ad)[0].getObject()
-                    relation_list.append(RelationValue(intIds.getId(obj_ad)))
-            
+            if post != '':
+                obj_post = api.content.find(UID=post)[0].getObject()
+                realation_post = RelationValue(intIds.getId(obj_post))
+            else:
+                realation_post = ''
+            # if obj_post:
+            #     obj_post = obj_post[0].getObject()
+            # post_list.append(RelationValue(intIds.getId(obj_post)))
+            relation_ads = []
+            if ads != None:
+                if type(ads) == str:
+                    one_ads = []
+                    one_ads.append(ads)
+                try:
+                    obj_ad = api.content.find(UID=one_ads[0])[0].getObject()
+                    relation_ads.append(RelationValue(intIds.getId(obj_ad)))
+                except:
+                    for ad in ads:
+                        obj_ad = api.content.find(UID=ad)[0].getObject()
+                        relation_ads.append(RelationValue(intIds.getId(obj_ad)))
+                
             obj = api.content.create(
             type='Custom',
             title=title,
-            advertisement=relation_list,
-            post=RelationValue(intIds.getId(obj_website)),
+            advertisement=relation_ads,
+            post=realation_post,
             container=portal)
+
         elif which_from == 'post_list':
             title = self.request.get('post_title')
             web_site = self.request.get('post_website')

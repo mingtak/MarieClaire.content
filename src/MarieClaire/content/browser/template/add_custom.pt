@@ -19,9 +19,10 @@
             post_list = api.content.find(context=api.portal.get(), portal_type='Post')
         ?>
         <label class="margin_lr">請選擇貼文</label>
-        <select name="web_site" class="add_content_input">
+        <select name="post" class="add_content_input">
+            <option value=""></option>
             <option  tal:repeat="post post_list" tal:content="post/Title"
-                name="web_site" tal:attributes="value python:view.get_uid(post)"></option>
+                name="post" tal:attributes="value python:view.get_uid(post)"></option>
         </select>
 
         <div class="margin_lr">

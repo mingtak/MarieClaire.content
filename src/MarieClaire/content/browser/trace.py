@@ -39,16 +39,19 @@ class Save_trace_page(BrowserView):
         )
         try:
             with connection.cursor() as cursor:
+                today = datetime.date.today().strftime('%Y-%m-%d')
                 try:
-                    sql = """SELECT day_count FROM trace_page WHERE url='{}'""".format(url)
+                    sql = """SELECT day_count FROM trace_page WHERE url='{}' 
+                        AND date='{}' """.format(url,today)
                     cursor.execute(sql)
                     result = cursor.fetchone()
                     result['day_count']+=1
-                    sql = """UPDATE trace_page SET day_count={} WHERE url='{}'""".format(result['day_count'], url)
+
+                    sql = """UPDATE trace_page SET day_count={} WHERE url='{}' 
+                        AND date='{}' """.format(result['day_count'], url, today)
                     cursor.execute(sql)
                 except:
-                    today = datetime.date.today().strftime('%Y-%m-%d')
-                    sql = """INSERT INTO trace_page(url,date) VALUES ('{}',{})""".format(url,today)
+                    sql = """INSERT INTO trace_page(url,date,day_count) VALUES ('{}','{}',1)""".format(url,today)
                     cursor.execute(sql)
 
             connection.commit()
@@ -63,7 +66,7 @@ class Select_trace_page(BrowserView):
         start_date = self.request.get('start_date')
         end_date = self.request.get('end_date')
         select_all = self.request.get('select_all')
-
+        
         connection = pymysql.connect(
             host='localhost',
             user='root',
@@ -75,22 +78,19 @@ class Select_trace_page(BrowserView):
         try:
             with connection.cursor() as cursor:
                 if select_all == 'true':
-                    sql = """SELECT year(time) as year,month(time) as month,day(time) as day, 
-                    COUNT(day(time)) as count FROM trace_page WHERE time BETWEEN'{}' 
-                    AND '{}' GROUP BY year(time),month(time),day(time)""".format(start_date, end_date)
+                    sql = """SELECT  year(date),month(date),day(date),SUM(day_count) FROM trace_page WHERE date 
+                        BETWEEN '{}' AND '{}' GROUP BY year(date),month(date),day(date)""".format(start_date, end_date)
                 else:
-                    sql = """SELECT url,year(time) as year,month(time)as month,day(time) as day
-                    ,COUNT(day(time))as count FROM trace_page as tp WHERE url='{}' AND time 
-                    BETWEEN '{}' AND '{}' GROUP BY year(time),month(time),day(time)""".format(url, start_date, end_date)
-
+                    sql = """SELECT day_count,date FROM trace_page WHERE url='{}' 
+                        AND date BETWEEN '{}' AND '{}'""".format(url, start_date, end_date)
                 cursor.execute(sql)
                 trace_list = cursor.fetchall()
 
                 data = []
                 for trace in trace_list:
                     data.append({
-                        'date_time':'{}-{}-{}'.format(trace['year'],trace['month'],trace['day']),
-                        'count':trace['count']
+                        'date_time':trace['date'],
+                        'count':trace['day_count']
                     })
                 
                 json_data = json.dumps(data, default=str)
