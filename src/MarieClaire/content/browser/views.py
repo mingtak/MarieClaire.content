@@ -169,7 +169,10 @@ class Do_add_content(BrowserView):
                 one_ads.append(ads)
 
             website_list = []
+
             obj_website = api.content.find(UID=web_site)[0].getObject()
+            if obj_website:
+                obj_website = obj_website[0].getObject()
             website_list.append(RelationValue(intIds.getId(obj_website)))
             
             relation_list = []
