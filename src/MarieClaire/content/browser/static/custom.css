@@ -227,7 +227,7 @@
     display: none;
 }
 .show_trace_content{
-    background: #69F0D6;
+    background: #66C6BA;
     padding: 15px;
     border-radius: 5px;
 }
@@ -236,4 +236,7 @@
 }
 .event_line{
     margin-left: 3px;
+}
+.disabled_select{
+    background: #ccc;
 }

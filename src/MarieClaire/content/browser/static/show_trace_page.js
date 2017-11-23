@@ -4,13 +4,17 @@ $(function () {
   });
 });
 $(document).ready(function () {
+  $('#select_all').click(function (e) { 
+    $('#url').toggleClass('disabled_select');
+    $('#url').prop('disabled', function(i, v) { return !v; });
+  });
   $('#btn').click(function (e) {
     $('.show_trace_checkbox').css('display','inline-block')
     var select_all = $('#select_all').prop("checked");
     var url = $("#url").find("option:selected").text()
     var start_date = $('#start_date').val();
     var end_date = $('#end_date').val();
-    
+
     data = {
       'url': url,
       'start_date': start_date,

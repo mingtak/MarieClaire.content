@@ -12,7 +12,7 @@
 <body>
       <div class="show_trace_content">
             <label>請選擇網址
-                  <select name="url" id="url" class="show_trace_select show_trace_select_margin">
+                  <select  name="url" id="url" class="show_trace_select show_trace_select_margin">
                         <option tal:define="url_list python:view.get_trace_list()"
                               tal:repeat="url url_list" tal:content="url"></option>
                   </select>
