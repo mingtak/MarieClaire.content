@@ -3,6 +3,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from plone import api
 import pymysql
 import json
+import datetime
 
 class Show_trace(BrowserView):
     template = ViewPageTemplateFile('template/show_trace.pt')
@@ -38,9 +39,18 @@ class Save_trace_page(BrowserView):
         )
         try:
             with connection.cursor() as cursor:
-                
-                sql = """INSERT INTO trace_page(url) VALUES ('{}')""".format(url)
-                cursor.execute(sql)
+                try:
+                    sql = """SELECT day_count FROM trace_page WHERE url='{}'""".format(url)
+                    cursor.execute(sql)
+                    result = cursor.fetchone()
+                    result['day_count']+=1
+                    sql = """UPDATE trace_page SET day_count={} WHERE url='{}'""".format(result['day_count'], url)
+                    cursor.execute(sql)
+                except:
+                    today = datetime.date.today().strftime('%Y-%m-%d')
+                    sql = """INSERT INTO trace_page(url,date) VALUES ('{}',{})""".format(url,today)
+                    cursor.execute(sql)
+
             connection.commit()
 
         finally:

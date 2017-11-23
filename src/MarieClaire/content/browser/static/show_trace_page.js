@@ -187,7 +187,8 @@ $(document).ready(function () {
         var start_date = $(this).attr('data-start').slice(0,10);
         var end_date = $(this).attr('data-end').slice(0,10);
         var title = $(this).attr('data-title');
-        color_list = ["#F08A5D","#00B8A9","#FF2E63","#311D3F","#88304E","#62D2A2"]
+        color_list = ["#F08A5D","#FF9A00","#FF2E63","#311D3F","#284184","#62D2A2","#04837B","#B80257"
+                      ,"#F08A5D","#FF9A00","#FF2E63","#311D3F","#284184","#62D2A2","#04837B","#B80257"]
 
         event_date = []
         event_date.push([start_date,title+'  開始'])
@@ -210,14 +211,19 @@ $(document).ready(function () {
           .enter()
           .append("text")
           .attr('class','event_line')
-          .attr("x",function(d) { return x(format.parse(d[0])); })
-          .attr("y",e*25)
+          .attr("x",function(d){
+            time=format.parse(d[0])
+            date = time.getHours()
+            time.setHours(date+=1)
+            return x(time)
+          })
+          .attr("y",e*27)
           .attr('fill',color_list[e])
           .attr('font-size','17px')
           .text(function(d) {  return d[1] })
-      }
-    })
-  });
+          
+        }
+      })
+    });
   }
 })
-

@@ -26,13 +26,18 @@
 
         <div class="margin_lr">
         
-            <label for="">
+            <label class="select_all_container">
                 <input type="checkbox" name="" id="check_all" />全選
             </label>
-            <br/>
-            <input type="checkbox" tal:repeat="item context" tal:content="item/Title" 
-               name="ads" tal:attributes="value python:view.get_uid(item)" />
-            
+
+            <br/><br/>
+
+            <label tal:repeat="item context" class="add_custon_checkbox">
+                <input type="checkbox" name="ads" tal:attributes="value python:view.get_uid(item)" 
+                        class="vertical_mid"/>
+                <span tal:content="item/Title"></span>
+            </label>
+
         </div>
         <br/>
         
