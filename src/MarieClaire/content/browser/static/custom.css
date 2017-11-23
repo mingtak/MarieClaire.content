@@ -153,9 +153,9 @@
     background-image: -o-linear-gradient(left, #c4e17f, #c4e17f 12.5%, #f7fdca 12.5%, #f7fdca 25%, #fecf71 25%, #fecf71 37.5%, #f0776c 37.5%, #f0776c 50%, #db9dbe 50%, #db9dbe 62.5%, #c49cde 62.5%, #c49cde 75%, #669ae1 75%, #669ae1 87.5%, #62c2e4 87.5%, #62c2e4);
 }
 .add_content_input,.show_trace_select{
-    width: 75%;
+    width: 65%;
     height: 35px;
-    margin: 0 7.5% 15px 7.5%;
+    margin: 0 0 15px 7.5%;
     padding: 5px 10px ;
     font-size: 17px;    
     background: white;
@@ -186,7 +186,7 @@
     vertical-align: top;
     width: 80%;
     height: 54px;
-    margin: 0 10%; 
+    margin: 0 10% 10px 10%; 
     padding: 0;
     font-size: 22px;
     color: white;
@@ -233,10 +233,25 @@
 }
 .show_trace_checkbox{
     display: none;
+    background: #2980B9;
+    padding: 4px;
+    border-radius: 3px;
+    margin-top: 5px;
+    cursor: pointer;
 }
 .event_line{
     margin-left: 3px;
 }
 .disabled_select{
     background: #ccc;
+}
+.vertical_mid{
+    vertical-align: middle;
+}
+.select_all_container{
+    background: #F0D43A;
+    width: 57px;
+    padding: 7px;
+    border-radius: 3px;
+    cursor: pointer;
 }
