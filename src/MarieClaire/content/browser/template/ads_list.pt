@@ -1,7 +1,11 @@
+<?python
+        from plone import api
+        url = api.portal.get().absolute_url()
+?>
 <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="/Plone/++plone++MarieClaire.content/alert_box.js"></script>
-<script src="/Plone/++plone++MarieClaire.content/trace.js"></script>
-<link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
+<script src="${url}/++plone++MarieClaire.content/alert_box.js"></script>
+<script src="${url}/++plone++MarieClaire.content/trace.js"></script>
+<link rel="stylesheet" href="${url}/++plone++MarieClaire.content/custom.css" />
 <body>
     <div>
         <form action="add_event">

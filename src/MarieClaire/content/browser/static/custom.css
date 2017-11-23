@@ -231,3 +231,9 @@
     padding: 15px;
     border-radius: 5px;
 }
+.show_trace_checkbox{
+    display: none;
+}
+.event_line{
+    margin-left: 3px;
+}

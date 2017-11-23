@@ -5,6 +5,7 @@ $(function () {
 });
 $(document).ready(function () {
   $('#btn').click(function (e) {
+    $('.show_trace_checkbox').css('display','inline-block')
     var select_all = $('#select_all').prop("checked");
     var url = $("#url").find("option:selected").text()
     var start_date = $('#start_date').val();
@@ -38,7 +39,6 @@ $(document).ready(function () {
         data[i]['count']
       ])
     }
-    console.log(data_list)
 
     var width = 720;
     var height = 450;
@@ -175,23 +175,45 @@ $(document).ready(function () {
     .attr("cy", function(d) { return y(d[1]); })
     .attr("fill",dotcolor)
     .attr("stroke-width","0")
-  aa=[['2017-11-21',20],['2017-11-22',10],['2017-11-19',30]]
-  new_svg.selectAll("dot")
-    .data(aa)
-    .enter()
-    .append("line")
-    .attr("x1", function(d) { return x(format.parse(d[0])); })
-    .attr("y1", function(d) { return y(d[1]); })
-    .attr("x2",function(d) { return x(format.parse(d[0])); })
-    .attr("y2",height)
-    .attr("stroke-width","2")
-    .attr('stroke', 'red')
-  }
 
-  $('input[type=checkbox]').change(function (e) { 
-    var start_date = e.currentTarget.dataset.start;
-    var end_date = e.currentTarget.dataset.end;
-    console.log(start_date, end_date)
+  $('input[type=checkbox]').change(function (e) {
+    new_svg.selectAll('.event_line').remove()
+    $('input[type=checkbox]').each(function(e){
+      if(this.checked == true && $(this).attr('data-start')!= undefined){
+        var start_date = $(this).attr('data-start').slice(0,10);
+        var end_date = $(this).attr('data-end').slice(0,10);
+        var title = $(this).attr('data-title');
+        color_list = ["#F08A5D","#00B8A9","#FF2E63","#311D3F","#88304E","#62D2A2"]
+
+        event_date = []
+        event_date.push([start_date,title+'  開始'])
+        event_date.push([end_date,title+'  結束'])
+
+        new_svg.selectAll("dot")
+          .data(event_date)
+          .enter()
+          .append("line")
+          .attr('class','event_line')
+          .attr("x1", function(d) { return x(format.parse(d[0])); })
+          .attr("y1",0)
+          .attr("x2",function(d) { return x(format.parse(d[0])); })
+          .attr("y2",height)
+          .attr("stroke-width","2")
+          .attr('stroke', color_list[e])
+          
+        new_svg.selectAll("dot")
+          .data(event_date)
+          .enter()
+          .append("text")
+          .attr('class','event_line')
+          .attr("x",function(d) { return x(format.parse(d[0])); })
+          .attr("y",e*25)
+          .attr('fill',color_list[e])
+          .attr('font-size','17px')
+          .text(function(d) {  return d[1] })
+      }
+    })
   });
+  }
 })
 

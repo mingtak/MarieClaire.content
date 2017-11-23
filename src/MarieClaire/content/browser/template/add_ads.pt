@@ -1,4 +1,8 @@
-<link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
+<?python
+        from plone import api
+        url = api.portal.get().absolute_url()
+?>
+<link rel="stylesheet" href="${url}/++plone++MarieClaire.content/custom.css" />
 <body>
     <form action="do_add_content" class="add_content_form">
         <h1 class="add_content_header">新增廣告</h1>

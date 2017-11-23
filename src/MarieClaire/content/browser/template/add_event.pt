@@ -1,8 +1,12 @@
+<?python
+        from plone import api
+        url = api.portal.get().absolute_url()
+?>
 <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-<script src="/Plone/++plone++MarieClaire.content/date_picker.js"></script>
+<script src="${url}/++plone++MarieClaire.content/date_picker.js"></script>
 <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
-<link rel="stylesheet" href="/Plone/++plone++MarieClaire.content/custom.css" />
+<link rel="stylesheet" href="${url}/++plone++MarieClaire.content/custom.css" />
 <body>
     <form action="do_add_content" class="add_content_form">
         <h1 class="add_content_header">新增活動</h1>
