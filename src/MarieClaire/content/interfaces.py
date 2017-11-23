@@ -42,7 +42,7 @@ class ICustom(Interface):
     post = RelationChoice(
         title=_(u'Post'),
         source=CatalogSource(Type="Post"),
-        required=True,
+        required=False,
     )
 
 class IAdvertisement(Interface):
