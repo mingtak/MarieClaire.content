@@ -2,6 +2,10 @@
         from plone import api
         url = api.portal.get().absolute_url()
 ?>
+<script>
+var PORTAL_URL = '${url}'
+</script>
+
 <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="${url}/++plone++MarieClaire.content/alert_box.js"></script>
 <script src="${url}/++plone++MarieClaire.content/trace.js"></script>

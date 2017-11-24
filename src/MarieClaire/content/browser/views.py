@@ -186,23 +186,44 @@ class Do_add_content(BrowserView):
                     for ad in ads:
                         obj_ad = api.content.find(UID=ad)[0].getObject()
                         relation_ads.append(RelationValue(intIds.getId(obj_ad)))
-                
+
+
+            if portal.get('custom', None):
+                container = portal['custom']
+            else:
+                container = api.content.create(
+                    type='Folder',
+                    title='Custom',
+                    container=portal,
+                )
+
             obj = api.content.create(
-            type='Custom',
-            title=title,
-            advertisement=relation_ads,
-            post=realation_post,
-            container=portal)
+                type='Custom',
+                title=title,
+                advertisement=relation_ads,
+                post=realation_post,
+                container=container,
+            )
 
         elif which_from == 'post_list':
             title = self.request.get('post_title')
             web_site = self.request.get('post_website')
 
+            if portal.get('post', None):
+                container = portal['post']
+            else:
+                container = api.content.create(
+                    type='Folder',
+                    title='post',
+                    container=portal,
+                )
+
             obj = api.content.create(
-            type='Post',
-            title=title,
-            web_site=web_site,
-            container=portal)
+                type='Post',
+                title=title,
+                web_site=web_site,
+                container=container
+            )
 
         self.request.response.redirect('{}/{}'.format(url, which_from))
 
