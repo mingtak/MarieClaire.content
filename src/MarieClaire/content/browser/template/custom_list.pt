@@ -41,12 +41,9 @@ var PORTAL_URL = '${url}'
                                 tal:attributes="value python:post_list[1]" name="web_site"/>
                         <button type="submit" class="trace_btn" >追蹤</button>
                     </form>
-
-<!--                    <button class="edit_btn"> -->
                         <a tal:attributes="href string:${data/getURL}/edit" class="event_a edit_btn">
                             修改
                         </a>
-<!--                    </button> -->
                     <form action="delete_content">
 
                         <input type="text" value="custom_list" name="from" class="hide"/>

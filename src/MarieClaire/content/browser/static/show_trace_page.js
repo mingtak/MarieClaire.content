@@ -8,14 +8,12 @@ $(document).ready(function () {
     $('#url').toggleClass('disabled_select');
     $('#url').prop('disabled', function(i, v) { return !v; });
   });
-  $('#btn').click(function (e) {
-
-    $('.show_trace_checkbox').css('display','inline-block')
-
+  $('.show_trace_btn').click(function (e) {    
     var select_all = $('#select_all').prop("checked");
-    var url = $("#url").find("option:selected").text()
+    var url = $("#url").find("option:selected").val()
     var start_date = $('#start_date').val();
     var end_date = $('#end_date').val();
+    var chosen = $(this).val();
 
     data = {
       'url': url,
@@ -30,22 +28,34 @@ $(document).ready(function () {
       data: data,
       success: function (response) {
         data = JSON.parse(response)
-        drawmap(start_date, end_date, data);
+        $('#url').prop('disabled', '');
+        $('#url').removeClass('disabled_select');
+        $('input[type=checkbox]').prop('checked',false)
+        if(chosen == 'line'){
+          $('.show_trace_checkbox').css('display','inline-block')
+          draw_line(start_date, end_date, data);
+        }else if(chosen == 'pie'){
+          $('.show_trace_checkbox').css('display','none')
+          draw_pie(start_date, end_date, data);
+        }else if(chosen == 'bar'){
+          $('.show_trace_checkbox').css('display','none')
+          draw_bar(start_date, end_date, data);
+        }
       },
     });
   });
 
-  function drawmap(start_date, end_date, data) {
+  function draw_line(start_date, end_date, data) {
     
     var data_list = []
     
     for(i=0;i<data.length;i++){
       data_list.push([
         data[i]['date_time'],
-        data[i]['count']
+        parseInt(data[i]['count'])
       ])
     }
-    debugger
+
     var width = 720;
     var height = 450;
     
@@ -57,6 +67,10 @@ $(document).ready(function () {
     var svg = d3.select('#svg').html('svg')
               .attr('width', width)
               .attr('height', height);
+
+    var mouse_text = d3.select("#svg").append('div')
+              .attr("class", "tooltip02")
+              .style("opacity", 0);
 
     var margin = {top: 20, right: 25, bottom: 100, left: 60};
       width = width - margin.left - margin.right,
@@ -172,15 +186,35 @@ $(document).ready(function () {
           .attr("stroke-dashoffset", 0);
     }
  
-  new_svg.selectAll("dot")
-    .data(data_list)
-    .enter()
-    .append("circle")
-    .attr("r", 3)
-    .attr("cx", function(d) { return x(format.parse(d[0])); })
-    .attr("cy", function(d) { return y(d[1]); })
-    .attr("fill",dotcolor)
-    .attr("stroke-width","0")
+    new_svg.selectAll("dot")
+      .data(data_list)
+      .enter()
+      .append("circle")
+      .attr("r", 3)
+      .attr("cx", function(d) { return x(format.parse(d[0])); })
+      .attr("cy", function(d) { return y(d[1]); })
+      .attr("fill",dotcolor)
+      .attr("stroke-width","0")
+      .on("mouseover",function(d,i){
+        d3.select(this)
+          .attr("r","6")
+          .attr("fill","orange")
+        new_svg.append("text").attr({
+          x: function() { return x(format.parse(d[0])); },
+          y: function() { return y(d[1]+1); },
+        })
+      .attr("class","mouse_text")
+      .attr('font-size','17px')
+      .text(function() {
+        return d[1];  // Value of the text
+        });
+      })
+      .on("mouseout",function(d,i){
+        d3.select(this)
+        .attr("r","3")
+        .attr("fill","black")
+        d3.select('.mouse_text').remove()
+      })
 
   $('input[type=checkbox]').change(function (e) {
     new_svg.selectAll('.event_line').remove()
@@ -228,4 +262,113 @@ $(document).ready(function () {
       })
     });
   }
+
+  function draw_pie(start_date, end_date, data){
+    
+    var w = 720,                       
+    h = 600,                            
+    r = 170,                            
+    color = d3.scale.category20c();     
+
+    var vis = d3.select("#svg")
+      .html("svg")              
+      .data([data])                   
+          .attr("width", w)           
+          .attr("height", h)
+      .append("svg:g")                
+          .attr("transform", "translate(" + r + "," + r + ")")    
+
+    var arc = d3.svg.arc()               
+      .outerRadius(r);
+
+    var pie = d3.layout.pie()           
+      .value(function(d) { return d.count; });    
+
+    var arcs = vis.selectAll("g.slice")    
+      .data(pie)                          
+      .enter()                    
+          .append("svg:g")             
+              .attr("class", "slice");    
+
+      arcs.append("svg:path")
+              .attr("fill", function(d, i) { return color(i); } ) 
+              .attr("d", arc);                                   
+
+      arcs.append("svg:text")                                     
+          .attr("transform", function(d) {                   
+          d.innerRadius = 0;
+          d.outerRadius = r;
+          return "translate(" + arc.centroid(d) + ")";        
+      })
+      .attr("text-anchor", "middle")
+      .attr('font-size','20px')        
+      .text(function(d, i) {
+        text=''+data[i].date_time+':'+data[i].count+'次';
+        return text
+      });    
+  }
+
+  function draw_bar(start_date, end_date, data){
+    var data_list = []
+    
+    for(i=0;i<data.length;i++){
+      data_list.push([
+        data[i]['date_time'],
+        parseInt(data[i]['count'])
+      ])
+    }
+    var margin = {top: 20, right: 20, bottom: 70, left: 40},
+    width = 720 - margin.left - margin.right,
+    height = 450 - margin.top - margin.bottom;
+
+    var	parseDate = d3.time.format("%Y-%m-%d").parse;
+
+    var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+    var y = d3.scale.linear().range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+        .tickFormat(d3.time.format("%Y-%m-%d"));
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(10);
+
+    var svg = d3.select("#svg").html("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
+
+    x.domain([parseDate(data_list[0][0]),
+    parseDate(data_list[data_list.length-1][0])])
+    y.domain([0, d3.max(data_list, function(d) { return d[1]; })*1.3]);
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+      .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", "-.55em")
+        .attr("transform", "rotate(-90)" );
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+
+    svg.selectAll("bar")
+      .data(data_list)
+      .enter()
+      .append("rect")
+        .style("fill", "steelblue")
+        .attr("x", function(d) { return x(parseDate(d[0])); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d[1]); })
+        .attr("height", function(d) { return height - y(d[1]); });
+    };
 })

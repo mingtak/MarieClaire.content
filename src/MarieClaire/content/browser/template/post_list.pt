@@ -30,11 +30,9 @@ var PORTAL_URL = '${url}'
                 <td tal:define="obj_data python:data.getObject()"
                     tal:content="obj_data/web_site"></td>
                 <td>
-                    <button class="edit_btn">
-                        <a tal:attributes="href string:${data/getURL}/edit" class="event_a">
+                    <a tal:attributes="href string:${data/getURL}/edit" class="event_a edit_btn">
                             修改
-                        </a>
-                    </button>
+                    </a>
                     <form action="delete_content">
 
                         <input type="text" value="post_list" name="from" class="hide"/>

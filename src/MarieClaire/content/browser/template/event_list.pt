@@ -29,11 +29,9 @@
                 <td tal:content="data/start"></td>
                 <td tal:content="data/end"></td>
                 <td>
-                    <button class="edit_btn">
-                        <a tal:attributes="href string:${data/getURL}/edit" class="event_a">
+                    <a tal:attributes="href string:${data/getURL}/edit" class="event_a edit_btn">
                             修改
-                        </a>
-                    </button>
+                    </a>
                     <form action="delete_content">
 
                         <input type="text" value="event_list" name="from" class="hide"/>

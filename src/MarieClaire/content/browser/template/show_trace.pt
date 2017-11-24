@@ -18,7 +18,8 @@ var PORTAL_URL = '${url}'
             <label>請選擇網址
                   <select  name="url" id="url" class="show_trace_select show_trace_select_margin">
                         <option tal:define="url_list python:view.get_trace_list()"
-                              tal:repeat="url url_list" tal:content="url"></option>
+                              tal:repeat="url url_list" tal:content="python:url[0]"
+                              tal:attributes="value python:url[1]"></option>
                   </select>
             </label>
 
@@ -28,13 +29,17 @@ var PORTAL_URL = '${url}'
 
             <p>開始日期: <input type="text" id="start_date"></p>
             <p>結束日期: <input type="text" id="end_date"></p>
-            <button id='btn' class="show_trace_btn" >送出</button><br/>
-            
+            <div class="show_trace_btn_content">
+                  <button class="show_trace_btn btn_color_pink" value="pie">圓餅圖</button>
+                  <button class="show_trace_btn btn_color_blue" value="line">折線圖</button>
+                  <button class="show_trace_btn btn_color_yellow" value="bar">長餅圖</button>
+            </div>
             <?python
                   from plone import api
                   event_list = api.content.find(
                         context=api.portal.get(), portal_type='Event')
             ?>
+            
             <label tal:repeat="event event_list" class="show_trace_checkbox">
                   <input  tal:attributes="data-start event/start;data-end event/end;
                                           data-title event/Title"

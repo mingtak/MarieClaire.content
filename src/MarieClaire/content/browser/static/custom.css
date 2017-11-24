@@ -39,7 +39,7 @@
 .event_a{
     color: white; 
     text-decoration: none;
-    padding: 5px 4px;
+    padding: 5px 10px;
 }
 .edit_btn{
     background: #284184;
@@ -182,7 +182,7 @@
 .show_trace_select_margin{
     margin-left: 9px;
 }
-.add_content_btn,.show_trace_btn{
+.add_content_btn{
     position: relative;
     vertical-align: top;
     width: 80%;
@@ -200,6 +200,34 @@
     cursor: pointer;
     -webkit-box-shadow: inset 0 -2px #d76b60;
     box-shadow: inset 0 -2px #d76b60;
+}
+.show_trace_btn{
+    border: 0;
+    font-size: 20px;
+    width: 20%;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color:white;
+}
+.btn_color_pink{
+    border-bottom: 2px solid #d76b60;
+    background: #f0776c;
+    box-shadow: inset 0 -2px #d76b60;
+}
+.btn_color_blue{
+    border-bottom: 2px solid #337DA1;
+    background: #58BAEB;
+    box-shadow: inset 0 -2px #337DA1;
+}
+.btn_color_yellow{
+    border-bottom: 2px solid #F07B3F;
+    background: #E7B536;
+    box-shadow: inset 0 -2px #F07B3F;
+}
+.show_trace_btn_content{
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-around;
 }
 .add_date_picker_content{
     margin: 0 7.5%;
