@@ -26,7 +26,7 @@ $(document).ready(function () {
 
     $.ajax({
       type: "POST",
-      url: "http://localhost:8080/Plone/select_trace_page",
+      url: PORTAL_URL + "/select_trace_page",
       data: data,
       success: function (response) {
         data = JSON.parse(response)

@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from plone import api
 import pymysql
 import json
 import datetime
+from MarieClaire.content import mysqlInfo
+
 
 class Show_trace(BrowserView):
     template = ViewPageTemplateFile('template/show_trace.pt')
@@ -29,12 +32,15 @@ class Show_trace(BrowserView):
 class Save_trace_page(BrowserView):
     def __call__(self):
         url = self.request.get('url')
+        title = self.request.get('title')
+        if not title:
+            title = '無標題貼文'.decode('utf-8')
         connection = pymysql.connect(
-            host='localhost',
-            user='root',
-            password='henry!QAZ@WSX',
-            db='MarieClaire',
-            charset='utf8mb4',
+            host=mysqlInfo['host'],
+            user=mysqlInfo['id'],
+            password=mysqlInfo['password'],
+            db=mysqlInfo['dbName'],
+            charset=mysqlInfo['charset'],
             cursorclass=pymysql.cursors.DictCursor
         )
         try:
@@ -51,11 +57,10 @@ class Save_trace_page(BrowserView):
                         AND date='{}' """.format(result['day_count'], url, today)
                     cursor.execute(sql)
                 except:
-                    sql = """INSERT INTO trace_page(url,date,day_count) VALUES ('{}','{}',1)""".format(url,today)
+                    sql = """INSERT INTO trace_page(title, url, date, day_count) VALUES ('{}', '{}','{}',1)""".format(title, url, today)
                     cursor.execute(sql)
 
             connection.commit()
-
         finally:
             connection.close()
 
@@ -66,13 +71,13 @@ class Select_trace_page(BrowserView):
         start_date = self.request.get('start_date')
         end_date = self.request.get('end_date')
         select_all = self.request.get('select_all')
-        
+
         connection = pymysql.connect(
-            host='localhost',
-            user='root',
-            password='henry!QAZ@WSX',
-            db='MarieClaire',
-            charset='utf8mb4',
+            host=mysqlInfo['host'],
+            user=mysqlInfo['id'],
+            password=mysqlInfo['password'],
+            db=mysqlInfo['dbName'],
+            charset=mysqlInfo['charset'],
             cursorclass=pymysql.cursors.DictCursor
         )
         try:
