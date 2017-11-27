@@ -82,8 +82,11 @@ class Ads_list(BrowserView):
     def get_ads_data(self):
         portal = api.portal.get()
         brains = api.content.find(
-            context=api.portal.get(), portal_type='Advertisement', sort_on='created', 
-                        sort_order='reverse')
+            context=api.portal.get(),
+            portal_type='Advertisement',
+            sort_on='created', 
+            sort_order='reverse'
+        )
         return brains
 
     def __call__(self):
@@ -92,10 +95,7 @@ class Ads_list(BrowserView):
 
 class Add_event(BrowserView):
     def get_uid(self, item):
-        portal = api.portal.get()
-        contact = portal[item.getId]
-        uid = api.content.get_uuid(obj=contact)
-        return uid
+        return item.UID
 
     def __call__(self):
         goto = self.request.get('goto')
