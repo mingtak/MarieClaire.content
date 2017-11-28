@@ -102,4 +102,22 @@
       permission="zope2.View"
       />
 
+
+
+  <browser:page
+      name="mana_custom_list"
+      for="plone.app.contenttypes.interfaces.IFolder"
+      class=".manage.ManaCustomList"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      name="custom_report"
+      for="MarieClaire.content.interfaces.ICustom"
+      class=".manage.CustomReport"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+
 </configure>

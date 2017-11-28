@@ -1,0 +1,96 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="MarieClaire.content">
+
+
+
+<body>
+<metal:content-core fill-slot="content-core">
+<metal:block define-macro="content-core">
+
+<?python
+from DateTime import DateTime
+?>
+
+<h4>查看報表</h4>
+<ul class="nav nav-pills">
+  <li class="active"><a data-toggle="pill" href="#dfp-line">DFP折線圖</a></li>
+  <li><a data-toggle="pill" href="#dfp-bar">DFP柱型圖</a></li>
+  <li><a data-toggle="pill" href="#dfp-pie">DFP圓餅圖</a></li>
+<!--  <li><a data-toggle="pill" href="#post-line">貼文追蹤折線圖</a></li>
+  <li><a data-toggle="pill" href="#post-bar">貼文追蹤柱型圖</a></li>
+  <li><a data-toggle="pill" href="#post-pie">貼文追蹤圖餅圖</a></li>
+-->
+</ul>
+
+<div class="tab-content">
+  <div id="dfp-line" class="tab-pane fade in active">
+      <br>
+      <div tal:define="orders view/getOrder">
+            <label>請選擇檔期</label><br>
+            <span class="order-label">
+            <input type="checkbox" value="select_all" id="dfp-select-all"/>全選</span><br>
+            <tal:repeat repeat="item orders">
+                <span class="order-label">
+                    <input type="checkbox" class="dfp-order"
+                           value="${python:item['ORDER_ID']}" name="dfp-order" />${python:item['ORDER_NAME']}
+                </span>
+            </tal:repeat>
+            <br><br>
+            <p>開始日期:
+               <input class="pat-pickadate" name="start_date" value="${python:DateTime().year()}-01-01" data-pat-pickadate="time:false"/>
+            </p>
+            <p>結束日期:
+               <input class="pat-pickadate" name="end_date" value="${python:DateTime().year()}-12-31" data-pat-pickadate="time:false"/>
+            </p>
+      </div>
+      <hr>
+
+
+
+
+圖在這{{ message }}
+
+
+  </div>
+  <div id="dfp-bar" class="tab-pane fade">
+    <h3>DFP柱型圖</h3>
+    <p>Some content in menu 1.</p>
+  </div>
+  <div id="dfp-pie" class="tab-pane fade">
+    <h3>DFP圓餅圖</h3>
+    <p>Some content in menu 2.</p>
+  </div>
+</div>
+
+    <script src="https://unpkg.com/vue@2.5.2/dist/vue.js"></script>    
+    <script src="${portal_url}/++plone++MarieClaire.content/d3.v4.min.js"></script>  
+
+
+<script>
+$(document).ready(function(){
+alert('aaa')
+    var dfpLine = new Vue({
+        el: '#dfp-line',
+        data: {
+            message: 'Hello Vue!'
+        }
+    })
+alert('bbb')
+})
+
+</script>
+
+
+
+</metal:block>
+</metal:content-core>
+
+</body>
+</html>
+

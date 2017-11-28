@@ -13,3 +13,6 @@ mysqlInfo = {
     'dbName': 'MarieClaire',
     'charset': 'utf8mb4',
 }
+
+# mysql參數
+DBSTR = 'mysql+mysqldb://MarieClaire:MarieClaire@localhost/MarieClaire?charset=utf8mb4'
