@@ -8,7 +8,7 @@ from plone import api
 import datetime
 from DateTime import DateTime
 import logging
-
+import json
 from MarieClaire.content import DBSTR
 from sqlalchemy import create_engine
 
@@ -57,6 +57,31 @@ class CustomReport(ManaBasic):
 
         return self.template()
 
+
+class GetDfpReport(ManaBasic):
+#    template = ViewPageTemplateFile('template/custom_report.pt')
+
+    def __call__(self):
+        if self.isAnonymous():
+            return
+        context = self.context
+        request = self.request
+        orderList = request.form['orderList[]']
+
+        execStr = """\
+            SELECT dfp_ad_server.*, dfp_order.ORDER_NAME
+            FROM dfp_ad_server, dfp_order
+            WHERE dfp_order.ORDER_ID = dfp_ad_server.ORDER_ID
+                  and dfp_order.ORDER_ID IN {}
+            ORDER BY DATE""".format(tuple(orderList))
+
+        result = self.execSql(execStr)
+        toList = []
+        for item in result:
+            tmp = dict(item)
+            tmp['DATE'] = str(tmp['DATE'])
+            toList.append(tmp)
+        return json.dumps(toList)
 
 """
 class ManaCustomAdd(ManaBasic):

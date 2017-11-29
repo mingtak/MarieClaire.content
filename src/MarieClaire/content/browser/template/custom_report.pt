@@ -8,6 +8,15 @@
       i18n:domain="MarieClaire.content">
 
 
+<metal:styleslot fill-slot="style_slot">
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/bootstrap.min.css">
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
+    <script src="${portal_url}/++plone++MarieClaire.content/d3.v4.min.js"></script>
+    <script src="${portal_url}/++plone++MarieClaire.content/vue.min.js"></script>
+</metal:styleslot>
+<metal:jsslot fill-slot="javascript_head_slot">
+    <script src="${portal_url}/++plone++MarieClaire.content/bootstrap.min.js"></script>
+</metal:jsslot>
 
 <body>
 <metal:content-core fill-slot="content-core">
@@ -68,26 +77,10 @@ from DateTime import DateTime
   </div>
 </div>
 
-    <script src="https://unpkg.com/vue@2.5.2/dist/vue.js"></script>    
-    <script src="${portal_url}/++plone++MarieClaire.content/d3.v4.min.js"></script>  
-
-
-<script>
-$(document).ready(function(){
-alert('aaa')
-    var dfpLine = new Vue({
-        el: '#dfp-line',
-        data: {
-            message: 'Hello Vue!'
-        }
-    })
-alert('bbb')
-})
-
-</script>
 
 
 
+    <script src="${portal_url}/++plone++MarieClaire.content/custom.js"></script>
 </metal:block>
 </metal:content-core>
 
