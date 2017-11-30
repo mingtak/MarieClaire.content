@@ -29,8 +29,7 @@
         <div class="col-md-1">${repeat/item/number}</div>
         <div class="col-md-8">${item/Title}</div>
         <div class="col-md-3">
-            <a href="${python:'%s/edit' % item.getURL()}">Edit</a>
-            <a href="${python:'%s/delete_confirmation' % item.getURL()}">Delete</a>
+            <a href="${python:'%s/custom_edit' % item.getURL()}">Edit</a>
             <a href="${python:'%s/custom_report' % item.getURL()}">Report</a>
         </div>
     </div>

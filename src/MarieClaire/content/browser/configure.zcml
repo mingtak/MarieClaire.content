@@ -121,6 +121,22 @@
       />
 
   <browser:page
+      name="custom_edit"
+      for="MarieClaire.content.interfaces.ICustom"
+      class=".manage.CustomEdit"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      name="update_weight"
+      for="MarieClaire.content.interfaces.ICustom"
+      class=".manage.UpdateWeight"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+
+  <browser:page
       name="get_dfp_report"
       for="MarieClaire.content.interfaces.ICustom"
       class=".manage.GetDfpReport"

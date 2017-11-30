@@ -33,6 +33,24 @@ class ManaBasic(BrowserView):
         return api.user.is_anonymous()
 
 
+class UpdateWeight(ManaBasic):
+
+    def __call__(self):
+        if self.isAnonymous():
+            return
+
+        request = self.request
+        order_id = request.form.get('order_id')
+        weight_name = request.form.get('weight_name')
+        weight = request.form.get('weight')
+
+        execStr = """\
+            UPDATE dfp_ad_server
+            SET {} = {} WHERE ORDER_ID = '{}'""".format(weight_name, weight, order_id)
+        self.execSql(execStr)
+        return 'Already Update OK.'
+
+
 class ManaCustomList(ManaBasic):
     template = ViewPageTemplateFile('template/mana_custom_list.pt')
 
@@ -58,8 +76,50 @@ class CustomReport(ManaBasic):
         return self.template()
 
 
+class CustomEdit(ManaBasic):
+    template = ViewPageTemplateFile('template/custom_edit.pt')
+
+    def getOrderList(self):
+        id = self.context.id
+        execStr = """\
+            SELECT dfp_ad_server.*, dfp_order.ORDER_NAME
+            FROM dfp_ad_server, dfp_order
+            WHERE dfp_order.ORDER_ID = dfp_ad_server.ORDER_ID
+                  and dfp_ad_server.ADVERTISER_ID = '{}'
+            ORDER BY DATE""".format(id)
+        return self.execSql(execStr)
+
+    def __call__(self):
+        if self.isAnonymous():
+            return
+
+        orderList = self.getOrderList()
+
+        orderIds = []
+        orderData = {}
+        for item in orderList:
+            tmp = dict(item)
+            if tmp['ORDER_ID'] not in orderIds:
+                orderIds.append(tmp['ORDER_ID'])
+            if not orderData.has_key(tmp['ORDER_ID']):
+                orderData[tmp['ORDER_ID']] = {
+                    'ORDER_NAME': tmp['ORDER_NAME'],
+                    'AD_SERVER_IMPRESSIONS': tmp['AD_SERVER_IMPRESSIONS'],
+                    'AD_SERVER_CLICKS': tmp['AD_SERVER_CLICKS'],
+                    'im_weight': tmp['im_weight'],
+                    'cli_weight': tmp['cli_weight'],
+                }
+            else:
+                orderData[tmp['ORDER_ID']]['AD_SERVER_IMPRESSIONS'] += tmp['AD_SERVER_IMPRESSIONS']
+                orderData[tmp['ORDER_ID']]['AD_SERVER_CLICKS'] += tmp['AD_SERVER_CLICKS']
+
+        self.orderIds = orderIds
+        self.orderData = orderData
+
+        return self.template()
+
+
 class GetDfpReport(ManaBasic):
-#    template = ViewPageTemplateFile('template/custom_report.pt')
 
     def __call__(self):
 
@@ -67,14 +127,23 @@ class GetDfpReport(ManaBasic):
             return
         context = self.context
         request = self.request
-        orderList = request.form['orderList[]']
+        orderList = request.form.get('orderList[]')
+        startDate = request.form.get('start')
+        endDate = request.form.get('end')
+
+        if orderList is None:
+            return json.dumps([{}, {}])
+
+        if type(orderList) == str:
+            orderList = [orderList, 'zzzzz'] # tuple在單筆資料時最後面會出現逗號，sql查詢會出錯，所以加一筆'zzzz'避開
 
         execStr = """\
             SELECT dfp_ad_server.*, dfp_order.ORDER_NAME
             FROM dfp_ad_server, dfp_order
             WHERE dfp_order.ORDER_ID = dfp_ad_server.ORDER_ID
                   and dfp_order.ORDER_ID IN {}
-            ORDER BY DATE""".format(tuple(orderList))
+                  and (DATE BETWEEN '{}' AND '{}')
+            ORDER BY DATE""".format(tuple(orderList), startDate, endDate)
 
         result = self.execSql(execStr)
         toList = []
@@ -112,10 +181,10 @@ class GetDfpReport(ManaBasic):
                     ['%s CTR' % item['ORDER_NAME'], ( round(float(item['AD_SERVER_CLICKS']) / float(item['AD_SERVER_IMPRESSIONS']), 6) )],
                 ]
 
-
         return json.dumps([xs, drawData])
 
-"""
+
+""" 尚未使用
 class ManaCustomAdd(ManaBasic):
     template = ViewPageTemplateFile('template/mana_custom_add.pt')
     def __call__(self):

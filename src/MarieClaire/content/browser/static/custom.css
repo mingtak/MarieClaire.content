@@ -312,3 +312,12 @@ div.table .row div a {
 .tab-content span input {
     margin-right:3px;
 }
+.tab-content span.datepicker {
+    margin-right: 20px
+}
+.template-custom_edit div.record div{
+    height:42px
+}
+.template-custom_edit div.record div input {
+    width:40%;
+}

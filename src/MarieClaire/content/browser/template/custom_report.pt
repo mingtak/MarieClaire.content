@@ -53,24 +53,18 @@ from DateTime import DateTime
                 </span>
             </tal:repeat>
             <br><br>
-            <p>開始日期:
-               <input class="pat-pickadate" name="start_date" value="${python:DateTime().year()}-01-01" data-pat-pickadate="time:false"/>
-            </p>
-            <p>結束日期:
-               <input class="pat-pickadate" name="end_date" value="${python:DateTime().year()}-12-31" data-pat-pickadate="time:false"/>
+            <p><span class="datepicker">開始日期:
+                   <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
+               </span>
+               結束日期:
+               <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
             </p>
       </div>
       <hr>
 
-
-
-
-圖在這{{ message }}
-<div class="chart">
-    <div id="line-chart"/>
-</div>
-
-
+      <div class="chart"> <!-- Line Chart 在這 -->
+          <div id="line-chart"/>
+      </div>
 
   </div>
   <div id="dfp-bar" class="tab-pane fade">
@@ -82,10 +76,6 @@ from DateTime import DateTime
     <p>Some content in menu 2.</p>
   </div>
 </div>
-
-
-
-
 
     <script src="${portal_url}/++plone++MarieClaire.content/custom.js"></script>
 </metal:block>
