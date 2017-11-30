@@ -62,6 +62,7 @@ class GetDfpReport(ManaBasic):
 #    template = ViewPageTemplateFile('template/custom_report.pt')
 
     def __call__(self):
+
         if self.isAnonymous():
             return
         context = self.context
@@ -81,7 +82,38 @@ class GetDfpReport(ManaBasic):
             tmp = dict(item)
             tmp['DATE'] = str(tmp['DATE'])
             toList.append(tmp)
-        return json.dumps(toList)
+
+        drawData = {}
+        xs = {}
+        for item in toList:
+            orderId = item['ORDER_ID']
+            orderDate = item['DATE']
+
+            # 以下配合c3.js產出對應格式
+            # 是否有order
+            if drawData.has_key(orderId):
+                if orderDate == drawData[orderId][0][-1]:
+                    drawData[orderId][1][-1] += item['AD_SERVER_IMPRESSIONS']
+                    drawData[orderId][2][-1] += item['AD_SERVER_CLICKS']
+                    drawData[orderId][3][-1] = round(float(drawData[orderId][2][-1]) / float(drawData[orderId][1][-1]), 6)
+                else:
+                    drawData[orderId][0].append(item['DATE'])
+                    drawData[orderId][1].append(item['AD_SERVER_IMPRESSIONS'])
+                    drawData[orderId][2].append(item['AD_SERVER_CLICKS'])
+                    drawData[orderId][3].append(round(float(drawData[orderId][2][-1]) / float(drawData[orderId][1][-1]), 6))
+            else:
+                xs['%s 曝光量' % item['ORDER_NAME']] = str(item['ORDER_ID'])
+                xs['%s 點擊量' % item['ORDER_NAME']] = str(item['ORDER_ID'])
+                xs['%s CTR' % item['ORDER_NAME']] = str(item['ORDER_ID'])
+                drawData[orderId] = [
+                    [str(item['ORDER_ID']), item['DATE']],
+                    ['%s 曝光量' % item['ORDER_NAME'], item['AD_SERVER_IMPRESSIONS'] ],
+                    ['%s 點擊量' % item['ORDER_NAME'], item['AD_SERVER_CLICKS']],
+                    ['%s CTR' % item['ORDER_NAME'], ( round(float(item['AD_SERVER_CLICKS']) / float(item['AD_SERVER_IMPRESSIONS']), 6) )],
+                ]
+
+
+        return json.dumps([xs, drawData])
 
 """
 class ManaCustomAdd(ManaBasic):

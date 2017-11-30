@@ -11,7 +11,9 @@
 <metal:styleslot fill-slot="style_slot">
     <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/bootstrap.min.css">
     <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
-    <script src="${portal_url}/++plone++MarieClaire.content/d3.v4.min.js"></script>
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/c3.min.css" />
+    <script src="${portal_url}/++plone++MarieClaire.content/d3.v3.min.js"></script>
+    <script src="${portal_url}/++plone++MarieClaire.content/c3.min.js"></script>
     <script src="${portal_url}/++plone++MarieClaire.content/vue.min.js"></script>
 </metal:styleslot>
 <metal:jsslot fill-slot="javascript_head_slot">
@@ -64,6 +66,10 @@ from DateTime import DateTime
 
 
 圖在這{{ message }}
+<div class="chart">
+    <div id="line-chart"/>
+</div>
+
 
 
   </div>
@@ -76,6 +82,7 @@ from DateTime import DateTime
     <p>Some content in menu 2.</p>
   </div>
 </div>
+
 
 
 
