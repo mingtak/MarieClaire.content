@@ -1,0 +1,85 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="MarieClaire.content">
+
+<metal:styleslot fill-slot="style_slot">
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
+</metal:styleslot>
+<metal:jsslot fill-slot="javascript_head_slot">
+</metal:jsslot>
+
+
+<body>
+<metal:content-core fill-slot="content-core">
+<metal:block define-macro="content-core">
+
+<h2>客戶報表管理</h2>
+<a href="${context/absolute_url}/custom_report" target="_blank">查看報表</a>
+<div class="table">
+    <div class="row">
+        <div class="col-md-2">訂單ID</div>
+        <div class="col-md-4">訂單名稱</div>
+        <div class="col-md-3">本檔績效(Clicks / Impressions)</div>
+        <div class="col-md-3">加權(Clicks / Impressions)</div>
+    </div>
+    <div tal:repeat="item view/orderIds" class="row record">
+        <div class="col-md-2">${item}</div>
+        <div class="col-md-4">${python:view.orderData[item]['ORDER_NAME']}</div>
+        <div class="col-md-3">
+            ${python:view.orderData[item]['AD_SERVER_CLICKS']} / ${python:view.orderData[item]['AD_SERVER_IMPRESSIONS']}
+        </div>
+        <div class="col-md-3 last">
+            <input class="weight" data-order_id="${item}" data-name="cli_weight"
+                   type="number" step="0.1" value="${python:view.orderData[item]['cli_weight']}"> / 
+            <input class="weight" data-order_id="${item}" data-name="im_weight"
+                   type="number" step="0.1" value="${python:view.orderData[item]['im_weight']}">
+        </div>
+    </div>
+</div>
+
+
+<script>
+// post
+updateWeight = function(order_id, weight_name, weight){
+    url = window.location.href.replace('custom_edit', '@@update_weight')
+
+    data = {
+        order_id: order_id,
+        weight_name: weight_name,
+        weight: weight
+    }
+
+    $.post(
+        url,
+        data = data,
+    ).done(function(value){
+        alert(value)
+    }).fail(function(){
+        alert('Fail')
+    })
+}
+
+
+// update weight
+$(document).ready(function(){
+    $('.weight').change(function(){
+        order_id = $(this).data('order_id')
+        weight_name = $(this).data('name')
+        weight = $(this).val()
+        updateWeight(order_id, weight_name, weight)
+    })
+})
+</script>
+
+
+</metal:block>
+</metal:content-core>
+
+</body>
+</html>
+

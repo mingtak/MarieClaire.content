@@ -33,12 +33,20 @@ class ICustom(Interface):
         title=_(u'Name'),
         required=True,
     )
+
     advertisement = RelationList(
         title=_(u"Advertisement"),
         value_type=RelationChoice(title=_(u"Choice Advertisement"),
                                   source=CatalogSource(Type='Advertisement'),),
         required=False,
     )
+
+    postList = schema.Text(
+        title=_(u'Post List'),
+        description=_(u'per line one record'),
+        required=False,
+    )
+
     post = RelationChoice(
         title=_(u'Post'),
         source=CatalogSource(Type="Post"),

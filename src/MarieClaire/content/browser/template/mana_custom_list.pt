@@ -1,0 +1,44 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="MarieClaire.content">
+
+<metal:styleslot fill-slot="style_slot">
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
+</metal:styleslot>
+<metal:jsslot fill-slot="javascript_head_slot">
+</metal:jsslot>
+
+
+<body>
+<metal:content-core fill-slot="content-core">
+<metal:block define-macro="content-core">
+
+<h2>客戶管理列表</h2>
+<div class="table">
+    <div class="row">
+        <div class="col-md-1">編號</div>
+        <div class="col-md-8">標題</div>
+        <div class="col-md-3">行動</div>
+    </div>
+    <div tal:repeat="item view/brain" class="row">
+        <div class="col-md-1">${repeat/item/number}</div>
+        <div class="col-md-8">${item/Title}</div>
+        <div class="col-md-3">
+            <a href="${python:'%s/custom_edit' % item.getURL()}">Edit</a>
+            <a href="${python:'%s/custom_report' % item.getURL()}">Report</a>
+        </div>
+    </div>
+</div>
+
+
+</metal:block>
+</metal:content-core>
+
+</body>
+</html>
+
