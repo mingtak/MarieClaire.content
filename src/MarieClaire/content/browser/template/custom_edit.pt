@@ -22,8 +22,8 @@
 <a href="${context/absolute_url}/custom_report" target="_blank">查看報表</a>
 <div class="table">
     <div class="row">
-        <div class="col-md-2">編號</div>
-        <div class="col-md-4">標題</div>
+        <div class="col-md-2">訂單ID</div>
+        <div class="col-md-4">訂單名稱</div>
         <div class="col-md-3">本檔績效(Clicks / Impressions)</div>
         <div class="col-md-3">加權(Clicks / Impressions)</div>
     </div>

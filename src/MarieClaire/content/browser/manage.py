@@ -162,13 +162,13 @@ class GetDfpReport(ManaBasic):
             # 是否有order
             if drawData.has_key(orderId):
                 if orderDate == drawData[orderId][0][-1]:
-                    drawData[orderId][1][-1] += item['AD_SERVER_IMPRESSIONS']
-                    drawData[orderId][2][-1] += item['AD_SERVER_CLICKS']
+                    drawData[orderId][1][-1] += int(item['AD_SERVER_IMPRESSIONS']*item['im_weight'])
+                    drawData[orderId][2][-1] += int(item['AD_SERVER_CLICKS']*item['cli_weight'])
                     drawData[orderId][3][-1] = round(float(drawData[orderId][2][-1]) / float(drawData[orderId][1][-1]), 6)
                 else:
                     drawData[orderId][0].append(item['DATE'])
-                    drawData[orderId][1].append(item['AD_SERVER_IMPRESSIONS'])
-                    drawData[orderId][2].append(item['AD_SERVER_CLICKS'])
+                    drawData[orderId][1].append( int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) )
+                    drawData[orderId][2].append( int(item['AD_SERVER_CLICKS']*item['cli_weight']) )
                     drawData[orderId][3].append(round(float(drawData[orderId][2][-1]) / float(drawData[orderId][1][-1]), 6))
             else:
                 xs['%s 曝光量' % item['ORDER_NAME']] = str(item['ORDER_ID'])
@@ -176,9 +176,10 @@ class GetDfpReport(ManaBasic):
                 xs['%s CTR' % item['ORDER_NAME']] = str(item['ORDER_ID'])
                 drawData[orderId] = [
                     [str(item['ORDER_ID']), item['DATE']],
-                    ['%s 曝光量' % item['ORDER_NAME'], item['AD_SERVER_IMPRESSIONS'] ],
-                    ['%s 點擊量' % item['ORDER_NAME'], item['AD_SERVER_CLICKS']],
-                    ['%s CTR' % item['ORDER_NAME'], ( round(float(item['AD_SERVER_CLICKS']) / float(item['AD_SERVER_IMPRESSIONS']), 6) )],
+                    ['%s 曝光量' % item['ORDER_NAME'], int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) ],
+                    ['%s 點擊量' % item['ORDER_NAME'], int(item['AD_SERVER_CLICKS']*item['cli_weight']) ],
+                    ['%s CTR' % item['ORDER_NAME'],
+ ( round( (float(item['AD_SERVER_CLICKS'])*item['cli_weight']) / (float(item['AD_SERVER_IMPRESSIONS'])*item['im_weight']) , 6) )],
                 ]
 
         return json.dumps([xs, drawData])

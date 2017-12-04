@@ -2,8 +2,19 @@
 
 // dfp Line chart
 genC3 = function(xs, columns){
+
+    console.log(columns)
+    if(columns.length > 40){
+        height = 1000
+    }else{
+        height = null
+    }
+
     var chart = c3.generate({
         bindto: '#line-chart',
+        size: {
+            height: height,
+        },
         data: {
             xs: xs,
             columns: columns,

@@ -29,6 +29,7 @@ from DateTime import DateTime
 ?>
 
 <h4>查看報表</h4>
+<a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
 <ul class="nav nav-pills">
   <li class="active"><a data-toggle="pill" href="#dfp-line">DFP折線圖</a></li>
   <li><a data-toggle="pill" href="#dfp-bar">DFP柱型圖</a></li>
