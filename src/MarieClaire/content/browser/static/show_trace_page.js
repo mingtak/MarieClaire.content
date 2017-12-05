@@ -301,7 +301,7 @@ $(document).ready(function () {
           return "translate(" + arc.centroid(d) + ")";        
       })
       .attr("text-anchor", "middle")
-      .attr('font-size','20px')        
+      .attr('font-size','20px')
       .text(function(d, i) {
         text=''+data[i].date_time+':'+data[i].count+'次';
         return text

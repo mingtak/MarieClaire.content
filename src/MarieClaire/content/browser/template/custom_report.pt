@@ -31,9 +31,9 @@ from DateTime import DateTime
 <h4>查看報表</h4>
 <a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
 <ul class="nav nav-pills">
-  <li class="active"><a data-toggle="pill" href="#dfp-line">DFP折線圖</a></li>
-  <li><a data-toggle="pill" href="#dfp-bar">DFP柱型圖</a></li>
-  <li><a data-toggle="pill" href="#dfp-pie">DFP圓餅圖</a></li>
+  <li  id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
+  <li class="active" id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
+  <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
 <!--  <li><a data-toggle="pill" href="#post-line">貼文追蹤折線圖</a></li>
   <li><a data-toggle="pill" href="#post-bar">貼文追蹤柱型圖</a></li>
   <li><a data-toggle="pill" href="#post-pie">貼文追蹤圖餅圖</a></li>
@@ -45,14 +45,19 @@ from DateTime import DateTime
       <br>
       <div tal:define="orders view/getOrder">
             <label>請選擇檔期</label><br>
-            <span class="order-label">
-            <input type="checkbox" value="select_all" id="dfp-select-all"/>全選</span><br>
-            <tal:repeat repeat="item orders">
-                <span class="order-label">
-                    <input type="checkbox" class="dfp-order"
-                           value="${python:item['ORDER_ID']}" name="dfp-order" />${python:item['ORDER_NAME']}
-                </span>
-            </tal:repeat>
+            <div tal:repeat="item orders" class="order-block">
+                <button class="order-btn">${python:item['ORDER_NAME']}</button>
+                <label class=" hide_element">
+                    <input type="checkbox" value="select_all" class="dfp-select-all"/>全選</label>
+                <br class=" hide_element"/>
+                <label tal:define="order_id python:item['ORDER_ID'];
+                                  line_item python:view.getLineItem(order_id)"
+                      tal:repeat="item line_item" class="hide_element">
+                    <input type="checkbox" value="${python:item['LINE_ITEM_ID']}"
+                           class="dfp-order" name="dfp-order"/>${python:item['LINE_ITEM_NAME']}
+                </label>
+            </div> 
+
             <br><br>
             <p><span class="datepicker">開始日期:
                    <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
@@ -60,6 +65,12 @@ from DateTime import DateTime
                結束日期:
                <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
             </p>
+            <?python 
+                from plone import api
+                events = api.content.find(
+                    context=api.portal.get(), portal_type='Event')
+            ?>
+            <button tal:repeat="item events" tal:content="item/Title"></button>
       </div>
       <hr>
 

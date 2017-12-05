@@ -3,31 +3,56 @@
 // dfp Line chart
 genC3 = function(xs, columns){
 
-    console.log(columns)
+    groups_columns = []
+    for(i=1;i<columns.length;i+=4){
+        groups_columns.push(columns[i][0])
+    }
+
+    select_type = $('.active')[0].id
+    if (select_type == 'nav_line'){
+        draw_type = 'line'
+    }else if(select_type == 'nav_bar'){
+        draw_type = 'bar'
+    }else if(select_type == 'nav_pie'){
+        draw_type = 'pie'
+    }
+    debugger
+    console.log(draw_type)
     if(columns.length > 40){
         height = 1000
     }else{
         height = null
     }
 
+
     var chart = c3.generate({
         bindto: '#line-chart',
         size: {
-            height: height,
+            height: 500,
         },
         data: {
-            xs: xs,
+            xs:xs,
             columns: columns,
-            labels: true
+            labels: true,
+            type: draw_type,
+            groups: [groups_columns]
         },
+        regions: [
+            {start: new Date('2017-07-24'), end: new Date('2017-07-28')},
+        ],
         axis: {
             x: {
-                type: 'timeseries',
+                type: 'category',
                 tick: {
+                    rotate: -20,
                     format: '%Y-%m-%d'
-                }
+                },
             }
-        }
+        },
+        
+        padding:{
+            bottom: 70
+        },
     });
 }
 
@@ -77,24 +102,30 @@ $(document).ready(function(){
     })
 
     // 全選
-    $('#dfp-select-all').click(function(){
+    $('.dfp-select-all').click(function(){
         if($(this).is(':checked')){
-            $('input.dfp-order').prop('checked', true)
+            $(this).parent().parent().find('input').prop('checked',true)
             drawLine(dfpLine)
-
         }else{
-            $('input.dfp-order').prop('checked', false)
+            $('input').prop('checked', false)
             dfpLine.xs = {}
             dfpLine.columns = []
             genC3(dfpLine.xs, dfpLine.columns)
         }
     })
-
+    $('.order-btn').click(function (e) {
+        $(this).siblings().toggleClass("hide_element")
+    });
     // 單選, 時間改變
     $('.dfp-order, .start-date, .end-date').change(function(){
         dfpLine.xs = {}
         dfpLine.columns = []
         drawLine(dfpLine)
     })
+    $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
+        dfpLine.xs = {}
+        dfpLine.columns = []
+        drawLine(dfpLine)
+    });
 
 })
