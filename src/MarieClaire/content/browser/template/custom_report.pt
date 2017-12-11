@@ -31,8 +31,8 @@ from DateTime import DateTime
 <h4>查看報表</h4>
 <a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
 <ul class="nav nav-pills">
-  <li  id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
-  <li class="active" id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
+  <li class="active" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
+  <li  id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
   <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
 <!--  <li><a data-toggle="pill" href="#post-line">貼文追蹤折線圖</a></li>
   <li><a data-toggle="pill" href="#post-bar">貼文追蹤柱型圖</a></li>
@@ -70,7 +70,19 @@ from DateTime import DateTime
                 events = api.content.find(
                     context=api.portal.get(), portal_type='Event')
             ?>
-            <button tal:repeat="item events" tal:content="item/Title"></button>
+            
+            <label class="" tal:repeat="item events">
+                <input type='checkbox'  class="event_checkbox " 
+                        data-start=${python:item.start} data-end=${python:item.end}
+                        data-order=event_${python:repeat.item.number}
+                        value=${python:item.Title} ></input>${python:item.Title}</label>
+            <br/>
+            <span class="hide_adv">
+                選擇要刪除的時間：<input type="date" name="del_time" class="del-time hide_adv"
+                                value="${python:DateTime().year()}-01-01"/>
+            </span>
+            <button class="del-btn hide_adv">刪除</button>
+            <button class="download" >下載</button>
       </div>
       <hr>
 

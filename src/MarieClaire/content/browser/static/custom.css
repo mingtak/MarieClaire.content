@@ -315,12 +315,12 @@ div.table .row div a {
     margin-right: 20px
 }
 .template-custom_edit div.record div{
-    height:42px
+    height:46px
 }
 .template-custom_edit div.record div input {
     width:40%;
 }
-.hide_element{
+.hide_element, .hide_adv{
     display: none;
 }
 .order-block{
@@ -340,11 +340,11 @@ div.table .row div a {
     box-shadow: inset 0 -2px #86C078;
 }
 .order-btn:hover{
-    background: #198F4E;
+    background: #1BAC59;
     color: white;
 }
 .order-btn:focus{
-    background: #198F4E;
+    background: #1BAC59;
     color: white;
 }
 .line-item-label{
@@ -352,5 +352,17 @@ div.table .row div a {
     margin-left: 5px;
 }
 .c3-region-0 {
-    fill: red;
+    fill: red !important;
+}
+.c3-region-1 {
+    fill: green !important;
+}
+.c3-region-2 {
+    fill: #2980B9 !important;
+}
+.c3-region-3 {
+    fill: yellow !important;
+}
+.order_block{
+    background: wheat;
 }

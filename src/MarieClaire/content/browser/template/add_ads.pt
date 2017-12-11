@@ -1,22 +1,36 @@
-<?python
-        from plone import api
-        url = api.portal.get().absolute_url()
-?>
-<link rel="stylesheet" href="${url}/++plone++MarieClaire.content/custom.css" />
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hello Analytics Reporting API V4</title>
+  <meta name="google-signin-client_id" content="628196037987-r59g7d8pd07ao028l62584qgha79vlub.apps.googleusercontent.com">
+  <meta name="google-signin-scope" content="https://www.googleapis.com/auth/analytics.readonly">
+</head>
 <body>
-    <form action="do_add_content" class="add_content_form">
-        <h1 class="add_content_header">新增廣告</h1>
 
-        <input type="text" class="add_content_input" name="ads_title" 
-                placeholder="請輸入標題" />
-        <br/>
-        <input type="text" class="add_content_input" name="ads_content"
-                placeholder="請輸入內容" />
-        <br/>
-        <input type="number" step="0.1" class="add_content_input" name="ads_weighted"
-                placeholder="請輸入權重" />
 
-        <input type="text"  value="ads_list" class="hide" name="which_from" />
-        <button type="submit" class="add_content_btn">送出</button>
-    </form>
+<script>
+$(document).ready(function () {
+    alert('s')
+    data = {
+        "reportRequests":
+        [
+            {
+            "viewId": "166020368",
+            "dateRanges": [{"startDate": "2017-12-01", "endDate": "2017-12-08"}],
+            "metrics": [{"expression": " ga:sessionDuration"}]
+            }
+        ]
+    }
+    $.ajax({
+        type: "POST",
+        url: "https://analyticsreporting.googleapis.com/v4/reports:batchGet",
+        data: data,
+        success: function (response) {
+            console.log(response)
+        }
+    });
+});
+</script>
 </body>
+</html>

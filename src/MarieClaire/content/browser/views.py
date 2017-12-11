@@ -8,6 +8,14 @@ from zope import component
 import datetime
 import time
 import sys
+import argparse
+
+import googleapiclient
+from apiclient.discovery import build
+import httplib2
+from oauth2client import client
+from oauth2client import file
+from oauth2client import tools
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -21,7 +29,7 @@ class Welcome(BrowserView):
     template = ViewPageTemplateFile('template/welcome.pt')
     def __call__(self):
         return self.template()
-
+       
 
 class Event_list(BrowserView):
     template = ViewPageTemplateFile('template/event_list.pt')

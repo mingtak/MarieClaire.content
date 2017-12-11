@@ -104,6 +104,8 @@
 
 
 
+
+
   <browser:page
       name="mana_custom_list"
       for="plone.app.contenttypes.interfaces.IFolder"
@@ -143,5 +145,39 @@
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
-
+  <browser:page
+      name="del_line_item"
+      for="MarieClaire.content.interfaces.ICustom"
+      class=".manage.DelLineItem"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />DownloadFile
+  <browser:page
+      name="download_file"
+      for="MarieClaire.content.interfaces.ICustom"
+      class=".manage.DownloadFile"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="save_ga_data"
+      for="*"
+      class=".ga.SaveGaData"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="ga_draw"
+      for="*"
+      class=".ga.GaDraw"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="get_ga_data"
+      for="*"
+      class=".ga.GetGaData"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
 </configure>

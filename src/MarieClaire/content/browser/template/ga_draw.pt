@@ -1,0 +1,46 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="MarieClaire.content">
+
+
+<metal:styleslot fill-slot="style_slot">
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/bootstrap.min.css">
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/c3.min.css" />
+    <script src="${portal_url}/++plone++MarieClaire.content/d3.v3.min.js"></script>
+    <script src="${portal_url}/++plone++MarieClaire.content/c3.min.js"></script>
+    <script src="${portal_url}/++plone++MarieClaire.content/vue.min.js"></script>
+</metal:styleslot>
+<metal:jsslot fill-slot="javascript_head_slot">
+    <script src="${portal_url}/++plone++MarieClaire.content/bootstrap.min.js"></script>
+</metal:jsslot>
+
+<body>
+<metal:content-core fill-slot="content-core">
+<metal:block define-macro="content-core">
+    <?python
+        from DateTime import DateTime
+    ?>
+    <p><span class="datepicker">開始日期:
+        <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
+        </span>
+        結束日期:
+        <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
+    </p>
+    <button class="ga_send">送出</button>
+
+    <div class="chart"> <!-- Line Chart 在這 -->
+            <div id="ga_chart"/>
+    </div>
+
+    <script src="${portal_url}/++plone++MarieClaire.content/ga.js"></script>
+</metal:block>
+</metal:content-core>
+
+</body>
+</html>

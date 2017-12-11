@@ -18,8 +18,48 @@
 <metal:content-core fill-slot="content-core">
 <metal:block define-macro="content-core">
 
-     <iframe src="custom_list" frameborder="0" class="manage_iframe"></iframe>
-
+    <div id="chart-1-container"></div>    
+<script>
+(function(w,d,s,g,js,fjs){
+  g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(cb){this.q.push(cb)}};
+  js=d.createElement(s);fjs=d.getElementsByTagName(s)[0];
+  js.src='https://apis.google.com/js/platform.js';
+  fjs.parentNode.insertBefore(js,fjs);js.onload=function(){g.load('analytics')};
+}(window,document,'script'));
+</script>
+<script>
+  gapi.analytics.ready(function() {
+  /* global gapi */
+    /**
+      * Authorize the user with an access token obtained server side.
+      */
+    gapi.analytics.auth.authorize({
+      'serverAuth': {
+        'access_token': 'ya29.GlwfBWYbaPgRyMfYQI_Z-JlQ5oPRCpuYXTmbUUIOW6nxGX2znEMn-cfgepwm_GbHZjh90b-_OG7a66xa4gZwkNos2TATmm8P7L-v4G6u5qxVSEHwTLQ4q-tcJebXPA'
+        }
+    });
+    /**
+      * Creates a new DataChart instance showing sessions over the past 30 days.
+      * It will be rendered inside an element with the id "chart-1-container".
+      */
+    var dataChart1 = new gapi.analytics.googleCharts.DataChart({
+      query: {
+        'ids' : 'ga:166020368',
+        'start-date': '30daysAgo',
+        'end-date': '2017-12-08',
+        'metrics': 'ga:avgTimeOnPage, ga:sessionDuration, ga:users',
+      },
+      chart: {
+        'container': 'chart-1-container',
+        'type': 'LINE',
+        'options': {
+          'width': '100%'
+        }
+      }
+    });
+    dataChart1.execute();
+  });
+</script>
 </metal:block>
 </metal:content-core>
 </body>

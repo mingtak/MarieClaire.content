@@ -23,35 +23,54 @@
 <div class="table">
     <div class="row">
         <div class="col-md-2">訂單ID</div>
-        <div class="col-md-4">訂單名稱</div>
-        <div class="col-md-3">本檔績效(Clicks / Impressions)</div>
+        <div class="col-md-5">訂單名稱</div>
+        <div class="col-md-2">本檔績效(Clicks / Impressions)</div>
         <div class="col-md-3">加權(Clicks / Impressions)</div>
     </div>
     <div tal:repeat="item view/orderIds" class="row record">
-        <div class="col-md-2">${item}</div>
-        <div class="col-md-4">${python:view.orderData[item]['ORDER_NAME']}</div>
-        <div class="col-md-3">
-            ${python:view.orderData[item]['AD_SERVER_CLICKS']} / ${python:view.orderData[item]['AD_SERVER_IMPRESSIONS']}
+        <div>
+            <div class="col-md-2 order_block">${item}</div>
+            <div class="col-md-5 order_block">${python:view.orderData[item]['ORDER_NAME']}</div>
+            <div class="col-md-2 order_block">
+                ${python:view.orderData[item]['AD_SERVER_CLICKS']} / ${python:view.orderData[item]['AD_SERVER_IMPRESSIONS']}
+            </div>
+            <div class="col-md-3 last order_block">
+                <input class="weight" data-order_id="${item}" data-name="cli_weight"
+                    type="number" step="0.1" value="${python:view.orderData[item]['cli_weight']}"> / 
+                <input class="weight" data-order_id="${item}" data-name="im_weight"
+                    type="number" step="0.1" value="${python:view.orderData[item]['im_weight']}">
+            </div>
         </div>
-        <div class="col-md-3 last">
-            <input class="weight" data-order_id="${item}" data-name="cli_weight"
-                   type="number" step="0.1" value="${python:view.orderData[item]['cli_weight']}"> / 
-            <input class="weight" data-order_id="${item}" data-name="im_weight"
-                   type="number" step="0.1" value="${python:view.orderData[item]['im_weight']}">
-        </div>
+        <tal:repeat define="line_item_data python:view.getLineItem(item)" 
+                        repeat="line_item line_item_data">
+            <div>
+                <div class="col-md-2">${python:line_item}</div>
+                <div class="col-md-5">${python:line_item_data[line_item]['LINE_ITEM_NAME']}</div>
+                <div class="col-md-2">
+                    ${python:line_item_data[line_item]['AD_SERVER_CLICKS']}/${python:line_item_data[line_item]['AD_SERVER_IMPRESSIONS']}
+                </div>
+                <div class="col-md-3 last">
+                    <input class="line_item_weight" data-line_item_id="${line_item}" data-name="cli_weight"
+                        type="number" step="0.1" value="${python:line_item_data[line_item]['cli_weight']}"> / 
+                    <input class="line_item_weight" data-line_item_id="${line_item}" data-name="im_weight"
+                        type="number" step="0.1" value="${python:line_item_data[line_item]['im_weight']}">
+                </div>
+            </div>
+        </tal:repeat>
     </div>
 </div>
 
 
 <script>
 // post
-updateWeight = function(order_id, weight_name, weight){
+updateWeight = function(update_id, weight_name, weight, update_type){
     url = window.location.href.replace('custom_edit', '@@update_weight')
 
     data = {
-        order_id: order_id,
+        update_id: update_id,
         weight_name: weight_name,
-        weight: weight
+        weight: weight,
+        update_type:update_type
     }
 
     $.post(
@@ -59,6 +78,7 @@ updateWeight = function(order_id, weight_name, weight){
         data = data,
     ).done(function(value){
         alert(value)
+        location.reload();
     }).fail(function(){
         alert('Fail')
     })
@@ -68,10 +88,19 @@ updateWeight = function(order_id, weight_name, weight){
 // update weight
 $(document).ready(function(){
     $('.weight').change(function(){
-        order_id = $(this).data('order_id')
+        update_type="order"
+        update_id = $(this).data('order_id')
         weight_name = $(this).data('name')
         weight = $(this).val()
-        updateWeight(order_id, weight_name, weight)
+        updateWeight(update_id, weight_name, weight, update_type)
+    })
+    $('.line_item_weight').change(function(){
+        update_type="line_item"
+        update_id = $(this).data('line_item_id')
+        weight_name = $(this).data('name')
+        weight = $(this).val()
+        debugger
+        updateWeight(update_id, weight_name, weight, update_type)
     })
 })
 </script>
