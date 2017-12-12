@@ -16,7 +16,7 @@ ENGINE = create_engine(DBSTR, echo=True)
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
 CLIENT_SECRETS_PATH = '/home/henry/MarieClaire/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
-VIEW_ID = '166020368'
+VIEW_ID = '142892363'
 
 def execSql(execStr):
     conn = ENGINE.connect() # DB連線
@@ -64,7 +64,7 @@ def get_report(analytics):
         'reportRequests': [
         {
           'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': '30daysAgo', 'endDate': 'today'}],
+          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
           'metrics': [
                       {'expression': 'ga:timeOnPage'},
                       {'expression': 'ga:pageviews'}
@@ -81,23 +81,23 @@ def get_report(analytics):
       }
   ).execute()
 
-# def print_response(response):
-#   """Parses and prints the Analytics Reporting API V4 response"""
-#   for report in response.get('reports', []):
-#     columnHeader = report.get('columnHeader', {})
-#     dimensionHeaders = columnHeader.get('dimensions', [])
-#     metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
-#     rows = report.get('data', {}).get('rows', [])
+def print_response(response):
+  """Parses and prints the Analytics Reporting API V4 response"""
+  for report in response.get('reports', []):
+    columnHeader = report.get('columnHeader', {})
+    dimensionHeaders = columnHeader.get('dimensions', [])
+    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
+    rows = report.get('data', {}).get('rows', [])
 
-#     for row in rows:
-#       dimensions = row.get('dimensions', [])
-#       # dateRangeValues = row.get('metrics', [])
-#       values = row.get('metrics', [])
+    for row in rows:
+      dimensions = row.get('dimensions', [])
+      # dateRangeValues = row.get('metrics', [])
+      values = row.get('metrics', [])
 
-#       for header, dimension in zip(dimensionHeaders, dimensions):
-#         print header + ': ' + dimension
-#       for metricHeader, value in zip(metricHeaders, values[0]['values']):
-#         print metricHeader.get('name') + ': ' + value
+      for header, dimension in zip(dimensionHeaders, dimensions):
+        print header + ': ' + dimension
+      for metricHeader, value in zip(metricHeaders, values[0]['values']):
+        print metricHeader.get('name') + ': ' + value
         
 def save2db(response):
   for report in response.get('reports', []):
@@ -110,9 +110,24 @@ def save2db(response):
       for value in row.get('metrics',[]):
         time_on_page = value.get('values')[0]
         page_view = value.get('values')[1]
-      execStr = """INSERT INTO ga_data(url, page_title, page_view, time_on_page, date) 
-              VALUES('{}', '{}', '{}', '{}', '{}') """.format(url, page_title.encode('utf-8'), page_view, time_on_page, date)
-      execSql(execStr)
+
+      execStr = """ SELECT url_id FROM ga_url WHERE url = '{}' """.format(url)
+      url_id = execSql(execStr)
+      if url_id == []:
+        execStr = """ INSERT INTO ga_url(url) VALUES('{}') """.format(url)
+        
+        execSql(execStr)
+        execStr = """ SELECT url_id FROM ga_url WHERE url = '{}' """.format(url)
+        tmp_url_id = execSql(execStr)
+        
+        execStr ="""INSERT INTO ga_data(page_title, page_view, time_on_page, date, url_id) 
+              VALUES('{}', '{}', '{}', '{}', '{}') 
+              """.format(page_title.encode('utf-8'), page_view, time_on_page, date, dict(tmp_url_id[0]).get('url_id'))
+        execSql(execStr)
+      else:  
+        execStr = """ UPDATE ga_data SET page_view = '{}',time_on_page 
+          = '{}' WHERE url_id = '{}' AND date = '{}' """.format(page_view, time_on_page, url_id, date)
+        execSql(execStr)
 
 def main():
  
