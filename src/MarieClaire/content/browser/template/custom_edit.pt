@@ -36,9 +36,9 @@
             </div>
             <div class="col-md-3 last order_block">
                 <input class="weight" data-order_id="${item}" data-name="cli_weight"
-                    type="number" step="0.1" value="${python:view.orderData[item]['cli_weight']}"> / 
+                    type="number" step="0.1" placeholder="群組變更"> / 
                 <input class="weight" data-order_id="${item}" data-name="im_weight"
-                    type="number" step="0.1" value="${python:view.orderData[item]['im_weight']}">
+                    type="number" step="0.1" placeholder="群組變更">
             </div>
         </div>
         <tal:repeat define="line_item_data python:view.getLineItem(item)" 
@@ -78,7 +78,7 @@ updateWeight = function(update_id, weight_name, weight, update_type){
         data = data,
     ).done(function(value){
         alert(value)
-        location.reload();
+        window.location = window.location.href 
     }).fail(function(){
         alert('Fail')
     })
