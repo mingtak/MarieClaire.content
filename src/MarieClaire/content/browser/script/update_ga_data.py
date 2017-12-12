@@ -66,47 +66,59 @@ def get_report(analytics):
           'viewId': VIEW_ID,
           'dateRanges': [{'startDate': '30daysAgo', 'endDate': 'today'}],
           'metrics': [
-                      {'expression': 'ga:sessionDuration'},
-                      {'expression': 'ga:users'}
+                      {'expression': 'ga:timeOnPage'},
+                      {'expression': 'ga:pageviews'}
                      ],
-          # 'dimensions': [{'name': 'ga:browser'}]
+          'dimensions': [{'name': 'ga:pageTitle'},
+                         {'name': 'ga:date'},
+                         {'name': 'ga:pagePathLevel2'}
+                     ],
+          "orderBys":[
+                      {
+                        "fieldName":"ga:date",
+                      }],
         }]
       }
   ).execute()
 
-def print_response(response):
-  """Parses and prints the Analytics Reporting API V4 response"""
-  for report in response.get('reports', []):
-    columnHeader = report.get('columnHeader', {})
-    dimensionHeaders = columnHeader.get('dimensions', [])
-    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
-    rows = report.get('data', {}).get('rows', [])
+# def print_response(response):
+#   """Parses and prints the Analytics Reporting API V4 response"""
+#   for report in response.get('reports', []):
+#     columnHeader = report.get('columnHeader', {})
+#     dimensionHeaders = columnHeader.get('dimensions', [])
+#     metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
+#     rows = report.get('data', {}).get('rows', [])
 
-    for row in rows:
-      dimensions = row.get('dimensions', [])
-      # dateRangeValues = row.get('metrics', [])
-      values = row.get('metrics', [])
+#     for row in rows:
+#       dimensions = row.get('dimensions', [])
+#       # dateRangeValues = row.get('metrics', [])
+#       values = row.get('metrics', [])
 
-      for header, dimension in zip(dimensionHeaders, dimensions):
-        print header + ': ' + dimension
-      for metricHeader, value in zip(metricHeaders, values[0]['values']):
-        print metricHeader.get('name') + ': ' + value
+#       for header, dimension in zip(dimensionHeaders, dimensions):
+#         print header + ': ' + dimension
+#       for metricHeader, value in zip(metricHeaders, values[0]['values']):
+#         print metricHeader.get('name') + ': ' + value
         
 def save2db(response):
   for report in response.get('reports', []):
     rows = report.get('data', {}).get('rows', [])
-    values = rows[0]['metrics'][0]['values']
-    today = datetime.date.today()
-    execStr = """INSERT INTO ga_data(sessionDuration, 
-            users , date) VALUES('{}', '{}', '{}') 
-            """.format(values[0], values[1], today.strftime('%Y-%m-%d'))
-    execSql(execStr)
+    for row in rows:
+      url = row.get('dimensions')[2]
+      page_title = row.get('dimensions')[0]
+      date = row.get('dimensions')[1].encode('utf-8')
+      date = date[:4]+'-'+date[4:6]+'-'+date[6:8]
+      for value in row.get('metrics',[]):
+        time_on_page = value.get('values')[0]
+        page_view = value.get('values')[1]
+      execStr = """INSERT INTO ga_data(url, page_title, page_view, time_on_page, date) 
+              VALUES('{}', '{}', '{}', '{}', '{}') """.format(url, page_title.encode('utf-8'), page_view, time_on_page, date)
+      execSql(execStr)
 
 def main():
  
   analytics = initialize_analyticsreporting()
   response = get_report(analytics)
-  print_response(response)
+  # print_response(response)
   save2db(response)
 if __name__ == '__main__':
   main()
