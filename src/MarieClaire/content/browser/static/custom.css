@@ -314,6 +314,12 @@ div.table .row div a {
 .tab-content span.datepicker {
     margin-right: 20px
 }
+
+.template-custom_edit div.table div.header{
+    font-size:12px;
+    white-space:nowrap;
+}
+
 .template-custom_edit div.record div{
     height:46px
 }

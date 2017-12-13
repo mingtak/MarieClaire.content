@@ -21,7 +21,7 @@
 <h2>客戶報表管理</h2>
 <a href="${context/absolute_url}/custom_report" target="_blank">查看報表</a>
 <div class="table">
-    <div class="row">
+    <div class="row header">
         <div class="col-md-2">訂單ID</div>
         <div class="col-md-5">訂單名稱</div>
         <div class="col-md-2">本檔績效(Clicks / Impressions)</div>
