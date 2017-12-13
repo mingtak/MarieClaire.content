@@ -13,6 +13,8 @@ import httplib2
 from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
+from cStringIO import StringIO
+import csv
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
@@ -45,8 +47,12 @@ class SaveGaData(ManaBasic): #javascript版 顯示ga資料
         self.execSql(execStr)
 
 
-class GaDraw(ManaBasic):
-    template = ViewPageTemplateFile('template/ga_draw.pt')
+class GaReport(ManaBasic):
+    template = ViewPageTemplateFile('template/ga_report.pt')
+
+    def get_db_data(self):
+        execStr = """SELECT page_title, url_id FROM ga_data"""
+        return self.execSql(execStr)
 
     def __call__(self):
         if self.isAnonymous():
@@ -59,70 +65,79 @@ class GetGaData(ManaBasic):
     def __call__(self):
         start = self.request.get('start')
         end = self.request.get('end')
+        checkList = self.request.get('checkList[]')
+        if checkList is None:
+            return json.dumps([{}, {}])
 
-        execStr = """SELECT * FROM ga_data WHERE date BETWEEN '{}' AND '{}' """.format(start, end)
-        return self.execSql(execStr)
-
-# class PythonShowGaDate(ManaBasic):  # plone版   顯示ga資料
-#     def __call__(self):
-#         SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
-#         DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
-#         CLIENT_SECRETS_PATH = '/home/henry/MarieClaire/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
-
-#         parser = argparse.ArgumentParser(
-#             formatter_class=argparse.RawDescriptionHelpFormatter,
-#             parents=[tools.argparser])
-#         flags = parser.parse_args([])
-
-
-#         flow = client.flow_from_clientsecrets(
-#             CLIENT_SECRETS_PATH, scope=SCOPES,
-#             message=tools.message_if_missing(CLIENT_SECRETS_PATH))
-
-#         storage = file.Storage('analyticsreporting.dat')
-#         credentials = storage.get()
-#         if credentials is None or credentials.invalid:
-#             credentials = tools.run_flow(flow, storage, flags)
-#         http = credentials.authorize(http=httplib2.Http())
-
-#         # Build the service object.
-#         analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=DISCOVERY_URI)
+        if type(checkList) == str:
+            checkList = [checkList, 'zzzzz']
+        execStr = """ SELECT * FROM ga_data WHERE url_id IN
+            {} AND date BETWEEN '{}' AND '{}' """.format(tuple(checkList), start, end)
         
-#         self.get_report(analytics)
-
-#     def get_report(self, analytics):
-#         # Use the Analytics Service Object to query the Analytics Reporting API V4.
-#         response = analytics.reports().batchGet(
-#             body={
-#                 'reportRequests': [
-#                 {
-#                 'viewId': '166020368',
-#                 'dateRanges': [{'startDate': '30daysAgo', 'endDate': 'today'}],
-#                 'metrics': [{'expression': 'ga:sessions'}]
-#                 }]
-#             }
-#         ).execute()
-#         self.print_response(response)
-
-#     def print_response(self, response):
-#         """Parses and prints the Analytics Reporting API V4 response"""
-
-#         for report in response.get('reports', []):
-#             columnHeader = report.get('columnHeader', {})
-#             dimensionHeaders = columnHeader.get('dimensions', [])
-#             metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
-#             rows = report.get('data', {}).get('rows', [])
-
-#             for row in rows:
-#                 dimensions = row.get('dimensions', [])
-#                 dateRangeValues = row.get('metrics', [])
-
-#             for header, dimension in zip(dimensionHeaders, dimensions):
-#                 print header + ': ' + dimension
-
-#             for i, values in enumerate(dateRangeValues):
-#                 print 'Date range (' + str(i) + ')'
-#                 for metricHeader, value in zip(metricHeaders, values.get('values')):
-#                     print metricHeader.get('name') + ': ' + value
+        result = self.execSql(execStr)
+        drawData = {}
+        xs = {}
+        for data in result:
+            tmp = dict(data)
+            url_id = tmp['url_id']
+            if drawData.has_key(url_id):
+                drawData[orderId][0].append(tmp['date'])
+                drawData[orderId][1].append( int(tmp['page_view']) )
+                drawData[orderId][2].append( int(tmp['time_on_page']) )
+            else:
+                xs['%s 瀏覽數' % tmp['page_title']] = str(tmp['url_id'])
+                xs['%s 停留時間' % tmp['page_title']] = str(tmp['url_id'])
+                drawData[url_id] = [
+                    [str(tmp['url_id']), tmp['date']],
+                    ['%s 瀏覽數' % tmp['page_title'], int(tmp['page_view'])],
+                    ['%s 停留時間' % tmp['page_title'], int(tmp['time_on_page'])]
+                ]
+        return json.dumps([xs, drawData])
 
 
+class DelGaData(ManaBasic):
+
+    def __call__(self):
+        checkList = self.request.form.get('check_list[]')
+        time = self.request.form.get('time')
+
+        if type(checkList) == str:
+            checkList = [checkList, 'zzzzz']
+        execStr = """DELETE FROM ga_data WHERE url_id IN {} 
+        AND date = '{}' """.format(tuple(checkList), time)
+        self.execSql(execStr)
+
+
+class DownloadGaFile(ManaBasic):
+    def __call__(self):
+        request = self.request
+        checkList = request.form.get('checkList[]')
+        startDate = request.form.get('start')
+        endDate = request.form.get('end')
+        ga_data = checkList.split(',')
+        ga_data_list = []
+        for i in range(0, len(ga_data)):
+            ga_data_list.append(ga_data[i])
+
+        execStr = """ SELECT page_title,page_view,time_on_page,date FROM ga_data
+            WHERE url_id IN {} AND date BETWEEN '{}' AND '{}' """.format(tuple(ga_data_list), startDate, endDate)
+        download_data = self.execSql(execStr)
+        self.request.response.setHeader('Content-Type', 'application/csv')
+        self.request.response.setHeader('Content-Disposition', 'attachment; filename="results.csv"')
+        output = StringIO()
+        output.write(u'\uFEFF'.encode('utf-8'))
+        writer = csv.writer(output)
+        writer.writerow(['名稱', '日期', '瀏覽數', '停留時間'])
+        
+        for data in download_data:
+            tmp = dict(data)
+            writer.writerow([
+                tmp['page_title'],
+                tmp['date'],
+                tmp['page_view'],
+                tmp['time_on_page'],
+
+            ])
+        results = output.getvalue()
+        output.close()
+        return results

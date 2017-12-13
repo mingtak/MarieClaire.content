@@ -77,11 +77,13 @@ from DateTime import DateTime
                         data-order=event_${python:repeat.item.number}
                         value=${python:item.Title} ></input>${python:item.Title}</label>
             <br/>
+
             <span class="hide_adv">
                 選擇要刪除的時間：<input type="date" name="del_time" class="del-time hide_adv"
                                 value="${python:DateTime().year()}-01-01"/>
             </span>
             <button class="del-btn hide_adv">刪除</button>
+            <br/>
             <button class="download" >下載</button>
       </div>
       <hr>

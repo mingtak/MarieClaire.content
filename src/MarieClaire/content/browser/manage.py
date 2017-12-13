@@ -112,18 +112,16 @@ class DownloadFile(ManaBasic):
         output = StringIO()
         output.write(u'\uFEFF'.encode('utf-8'))
         writer = csv.writer(output)
-        writer.writerow(['名稱', '點擊數', '曝光數', '點擊率(%)', '日期', '點擊權重', '曝光權重'])
+        writer.writerow(['名稱', '日期', '點擊數', '曝光數', '點擊率(%)'])
         
         for data in download_data:
             tmp = dict(data)
             writer.writerow([
                 tmp['LINE_ITEM_NAME'],
+                tmp['DATE'].strftime('%Y-%m-%d'),
                 tmp['AD_SERVER_CLICKS'],
                 tmp['AD_SERVER_IMPRESSIONS'],
                 tmp['AD_SERVER_CTR']*100,
-                tmp['DATE'].strftime('%Y-%m-%d'),
-                tmp['cli_weight'],
-                tmp['im_weight']
             ])
         results = output.getvalue()
         output.close()

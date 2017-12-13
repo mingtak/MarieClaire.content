@@ -10,7 +10,7 @@
 
 <metal:styleslot fill-slot="style_slot">
     <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/bootstrap.min.css">
-    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/ga.css" />
     <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/c3.min.css" />
     <script src="${portal_url}/++plone++MarieClaire.content/d3.v3.min.js"></script>
     <script src="${portal_url}/++plone++MarieClaire.content/c3.min.js"></script>
@@ -26,15 +26,44 @@
     <?python
         from DateTime import DateTime
     ?>
+    <h4>查看報表</h4>
+    <a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
+    <ul class="nav nav-pills">
+        <li class="active" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
+        <li  id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
+        <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
+    </ul>
+
+    <label tal:repeat="data view/get_db_data" class='ga_title_block'>
+        <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>${data/page_title}</label>
+
+
     <p><span class="datepicker">開始日期:
         <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
         </span>
         結束日期:
         <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
     </p>
-    <button class="ga_send">送出</button>
 
-    <div class="chart"> <!-- Line Chart 在這 -->
+    <?python 
+        from plone import api
+        events = api.content.find(
+            context=api.portal.get(), portal_type='Event')
+    ?>
+    <label class="" tal:repeat="item events">
+        <input type='checkbox'  class="event_checkbox " 
+                data-start=${python:item.start} data-end=${python:item.end}
+                data-order=event_${python:repeat.item.number}
+                value=${python:item.Title} ></input>${python:item.Title}</label>
+    <br/>
+    <span class="">
+                選擇要刪除的時間：<input type="date" name="del_time" class="del-time "
+                                value="${python:DateTime().year()}-01-01"/>
+            </span>
+            <button class="del-btn btn btn-danger">刪除</button>
+            <br/>
+            <button class="download btn btn-primary" >下載</button>
+    <div class="chart">
             <div id="ga_chart"/>
     </div>
 

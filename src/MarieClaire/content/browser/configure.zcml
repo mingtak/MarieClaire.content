@@ -167,9 +167,9 @@
       permission="zope2.View"
       />
   <browser:page
-      name="ga_draw"
+      name="ga_report"
       for="*"
-      class=".ga.GaDraw"
+      class=".ga.GaReport"
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
@@ -177,6 +177,20 @@
       name="get_ga_data"
       for="*"
       class=".ga.GetGaData"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="download_ga_file"
+      for="*"
+      class=".ga.DownloadGaFile"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="del_ga_data"
+      for="*"
+      class=".ga.DelGaData"
       layer="zope.interface.Interface"
       permission="zope2.View"
       />

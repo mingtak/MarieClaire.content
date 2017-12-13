@@ -144,7 +144,6 @@ $(document).ready(function(){
     });
     // 單選, 時間改變
     $('.dfp-order, .start-date, .end-date, .event_checkbox').change(function(){
-        
         $('.download').attr('href', '');
         dfpLine.xs = {}
         dfpLine.columns = []
