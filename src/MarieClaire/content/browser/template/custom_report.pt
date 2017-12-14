@@ -54,7 +54,7 @@ from DateTime import DateTime
                                   line_item python:view.getLineItem(order_id)"
                       tal:repeat="item line_item" class="hide_element">
                     <input type="checkbox" value="${python:item['LINE_ITEM_ID']}"
-                           class="dfp-order" name="dfp-order"/>${python:item['LINE_ITEM_NAME']}
+                           class="dfp-line-item" name="dfp-line-item"/>${python:item['LINE_ITEM_NAME']}
                 </label>
             </div> 
 
@@ -92,14 +92,6 @@ from DateTime import DateTime
           <div id="line-chart"/>
       </div>
 
-  </div>
-  <div id="dfp-bar" class="tab-pane fade">
-    <h3>DFP柱型圖</h3>
-    <p>Some content in menu 1.</p>
-  </div>
-  <div id="dfp-pie" class="tab-pane fade">
-    <h3>DFP圓餅圖</h3>
-    <p>Some content in menu 2.</p>
   </div>
 </div>
 

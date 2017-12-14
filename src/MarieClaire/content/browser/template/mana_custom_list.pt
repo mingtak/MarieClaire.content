@@ -22,15 +22,17 @@
 <div class="table">
     <div class="row">
         <div class="col-md-1">編號</div>
-        <div class="col-md-8">標題</div>
-        <div class="col-md-3">行動</div>
+        <div class="col-md-7">標題</div>
+        <div class="col-md-4">行動</div>
     </div>
     <div tal:repeat="item view/brain" class="row">
         <div class="col-md-1">${repeat/item/number}</div>
-        <div class="col-md-8">${item/Title}</div>
-        <div class="col-md-3">
-            <a href="${python:'%s/custom_edit' % item.getURL()}">Edit</a>
-            <a href="${python:'%s/custom_report' % item.getURL()}">Report</a>
+        <div class="col-md-7">${item/Title}</div>
+        <div class="col-md-4">
+            <a href="${python:'%s/custom_edit' % item.getURL()}">DFP Edit</a>
+            <a href="${python:'%s/custom_report' % item.getURL()}">DFP Report</a>
+            <a href="${python:'%s/ga_edit' % item.getURL()}">GA Edit</a>
+            <a href="${python:'%s/ga_report' % item.getURL()}">GA Report</a>
         </div>
     </div>
 </div>

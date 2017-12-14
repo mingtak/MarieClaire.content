@@ -160,16 +160,16 @@
       permission="zope2.View"
       />
   <browser:page
-      name="save_ga_data"
-      for="*"
-      class=".ga.SaveGaData"
-      layer="zope.interface.Interface"
-      permission="zope2.View"
-      />
-  <browser:page
       name="ga_report"
       for="*"
       class=".ga.GaReport"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+ <browser:page
+      name="ga_edit"
+      for="*"
+      class=".ga.GaEdit"
       layer="zope.interface.Interface"
       permission="zope2.View"
       />

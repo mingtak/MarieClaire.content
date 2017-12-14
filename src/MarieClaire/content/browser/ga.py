@@ -36,23 +36,27 @@ class ManaBasic(BrowserView):
             self.request.response.redirect('%s/login' % portal.absolute_url())
         return api.user.is_anonymous()
 
-class SaveGaData(ManaBasic): #javascript版 顯示ga資料
-    def __call__(self):
-        sessionDuration = self.request.get('sessionDuration')
-        users = self.request.get('users')
-        today = datetime.date.today()
-        execStr = """INSERT INTO ga_data(sessionDuration, 
-                users , date) VALUES('{}', '{}', '{}') 
-                """.format(sessionDuration, users, today.strftime('%Y-%m-%d'))
-        self.execSql(execStr)
-
 
 class GaReport(ManaBasic):
     template = ViewPageTemplateFile('template/ga_report.pt')
 
     def get_db_data(self):
-        execStr = """SELECT page_title, url_id FROM ga_data"""
+        id = self.context.id
+        postList = self.context.postList
+
+        execStr = """ SELECT DISTINCT(page_title), url_id FROM ga_data WHERE page_url IN 
+            {} """.format(tuple(postList.encode('utf-8').split('\r\n')))
         return self.execSql(execStr)
+
+    def __call__(self):
+        if self.isAnonymous():
+            return
+        else:
+            return self.template()
+
+
+class GaEdit(ManaBasic):
+    template = ViewPageTemplateFile('template/ga_edit.pt')
 
     def __call__(self):
         if self.isAnonymous():
@@ -81,16 +85,19 @@ class GetGaData(ManaBasic):
             tmp = dict(data)
             url_id = tmp['url_id']
             if drawData.has_key(url_id):
-                drawData[orderId][0].append(tmp['date'])
-                drawData[orderId][1].append( int(tmp['page_view']) )
-                drawData[orderId][2].append( int(tmp['time_on_page']) )
+                drawData[url_id][0].append(tmp['date'])
+                drawData[url_id][1].append( int(tmp['page_views']) )
+                drawData[url_id][2].append( float(tmp['avg_time_on_page']) )
+                drawData[url_id][3].append( int(tmp['users']) )
             else:
                 xs['%s 瀏覽數' % tmp['page_title']] = str(tmp['url_id'])
-                xs['%s 停留時間' % tmp['page_title']] = str(tmp['url_id'])
+                xs['%s 平均停留時間(秒)' % tmp['page_title']] = str(tmp['url_id'])
+                xs['%s 使用人數' % tmp['page_title']] = str(tmp['url_id'])
                 drawData[url_id] = [
                     [str(tmp['url_id']), tmp['date']],
-                    ['%s 瀏覽數' % tmp['page_title'], int(tmp['page_view'])],
-                    ['%s 停留時間' % tmp['page_title'], int(tmp['time_on_page'])]
+                    ['%s 瀏覽數' % tmp['page_title'], int(tmp['page_views'])],
+                    ['%s 平均停留時間(秒)' % tmp['page_title'], float(tmp['avg_time_on_page'])],
+                    ['%s 使用人數' % tmp['page_title'], int(tmp['users'])]
                 ]
         return json.dumps([xs, drawData])
 
@@ -119,7 +126,7 @@ class DownloadGaFile(ManaBasic):
         for i in range(0, len(ga_data)):
             ga_data_list.append(ga_data[i])
 
-        execStr = """ SELECT page_title,page_view,time_on_page,date FROM ga_data
+        execStr = """ SELECT * FROM ga_data
             WHERE url_id IN {} AND date BETWEEN '{}' AND '{}' """.format(tuple(ga_data_list), startDate, endDate)
         download_data = self.execSql(execStr)
         self.request.response.setHeader('Content-Type', 'application/csv')
@@ -127,16 +134,16 @@ class DownloadGaFile(ManaBasic):
         output = StringIO()
         output.write(u'\uFEFF'.encode('utf-8'))
         writer = csv.writer(output)
-        writer.writerow(['名稱', '日期', '瀏覽數', '停留時間'])
+        writer.writerow(['名稱', '日期', '瀏覽數', '平均停留時間（秒）', '使用人數',])
         
         for data in download_data:
             tmp = dict(data)
             writer.writerow([
                 tmp['page_title'],
                 tmp['date'],
-                tmp['page_view'],
-                tmp['time_on_page'],
-
+                tmp['page_views'],
+                tmp['avg_time_on_page'],
+                tmp['users'],
             ])
         results = output.getvalue()
         output.close()

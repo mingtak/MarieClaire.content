@@ -13,3 +13,15 @@
 .nav-pills{
     margin-bottom: 10px;
 }
+.c3-region-0 {
+    fill: red !important;
+}
+.c3-region-1 {
+    fill: green !important;
+}
+.c3-region-2 {
+    fill: #2980B9 !important;
+}
+.c3-region-3 {
+    fill: yellow !important;
+}

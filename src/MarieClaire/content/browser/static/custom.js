@@ -69,7 +69,7 @@ drawRegions = function(event_name__list, event_order__list){
 // 選取有打勾的項目
 checkedList = function(){
     result = []
-    $.each($('.dfp-order:checked'), function(index, value){
+    $.each($('.dfp-line-item:checked'), function(index, value){
         result.push($(value).val())
     })
     return result
@@ -77,7 +77,7 @@ checkedList = function(){
 
 // 畫線
 drawLine = function(dfpLine){
-    data = {'orderList': checkedList(),
+    data = {'checkList': checkedList(),
             'start': $('.start-date').val(),
             'end': $('.end-date').val()
            }
@@ -143,7 +143,7 @@ $(document).ready(function(){
         $(this).siblings().toggleClass("hide_element")
     });
     // 單選, 時間改變
-    $('.dfp-order, .start-date, .end-date, .event_checkbox').change(function(){
+    $('.dfp-line-item, .start-date, .end-date, .event_checkbox').change(function(){
         $('.download').attr('href', '');
         dfpLine.xs = {}
         dfpLine.columns = []
@@ -175,13 +175,13 @@ $(document).ready(function(){
     });
 
     $('.download').click(function (e) {
-        orderList = ''
-        $.each($('.dfp-order:checked'), function (indexInArray, valueOfElement) {
-             orderList += $(this).val()+','
+        checkList = ''
+        $.each($('.dfp-line-item:checked'), function (indexInArray, valueOfElement) {
+             checkList += $(this).val()+','
         });
         start = $('.start-date').val()
         end = $('.end-date').val()
-        urlStr = `download_file?orderList[]=${orderList}&start=${start}&end=${end}`
+        urlStr = `download_file?checkList[]=${checkList}&start=${start}&end=${end}`
         window.location.href = urlStr
     });
 })

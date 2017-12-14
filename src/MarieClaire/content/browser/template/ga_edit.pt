@@ -1,0 +1,36 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="MarieClaire.content">
+
+<metal:styleslot fill-slot="style_slot">
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
+</metal:styleslot>
+<metal:jsslot fill-slot="javascript_head_slot">
+</metal:jsslot>
+
+
+<body>
+<metal:content-core fill-slot="content-core">
+<metal:block define-macro="content-core">
+    <form data-pat-autotoc="levels: legend; section: fieldset; className: autotabs" 
+        class="rowlike enableUnloadProtection   kssattr-formname-edit" 
+        action="http://localhost:8080/Plone/custom/23954238/@@edit" method="post" enctype="multipart/form-data" id="form">
+
+        <input type="text" value="${context/title}" id="form-widgets-title"
+            name="form.widgets.title" class="text-widget required textline-field"
+            style="display:none" />
+        <h2>追蹤網址</h2>
+        <textarea  id="form-widgets-postList" name="form.widgets.postList" class="textarea-widget text-field">${context/postList}</textarea>
+        <br/>
+        <input id="form-buttons-save" name="form.buttons.save" class="submit-widget button-field context" value="儲存" type="submit">
+    </form>
+</metal:block>
+</metal:content-core>
+
+</body>
+</html>

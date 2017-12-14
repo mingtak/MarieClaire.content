@@ -29,12 +29,12 @@
     <h4>查看報表</h4>
     <a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
     <ul class="nav nav-pills">
-        <li class="active" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
-        <li  id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
-        <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
+        <li class="active" id="nav_line"><a data-toggle="pill"  >GA折線圖</a></li>
+        <li  id="nav_bar"><a data-toggle="pill"  >GA柱型圖</a></li>
+        <li id="nav_pie"><a data-toggle="pill"  >GA圓餅圖</a></li>
     </ul>
 
-    <label tal:repeat="data view/get_db_data" class='ga_title_block'>
+    <label tal:repeat="data view/get_db_data" class=''>
         <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>${data/page_title}</label>
 
 

@@ -16,7 +16,7 @@ ENGINE = create_engine(DBSTR, echo=True)
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
 CLIENT_SECRETS_PATH = '/home/henry/MarieClaire/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
-VIEW_ID = '142892363'
+VIEW_ID = '5906876'
 
 def execSql(execStr):
     conn = ENGINE.connect() # DB連線
@@ -57,82 +57,133 @@ def initialize_analyticsreporting():
 
   return analytics
 
-def get_report(analytics):
+def get_report(analytics, index):
   # Use the Analytics Service Object to query the Analytics Reporting API V4.
   return analytics.reports().batchGet(
       body={
         'reportRequests': [
         {
           'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
+          'dateRanges': [{'startDate': '2017-12-11', 'endDate': '2017-12-12'}],
           'metrics': [
-                      {'expression': 'ga:timeOnPage'},
-                      {'expression': 'ga:pageviews'}
+                      {'expression': 'ga:avgTimeOnPage'},
+                      {'expression': 'ga:pageviews'},
+                      {'expression': 'ga:sessions'},
+                      {'expression': 'ga:users'},
+                      {'expression': 'ga:pageviewsPerSession'},
+                      {'expression': 'ga:avgSessionDuration'},
+                      {'expression': 'ga:bounceRate'},
+                      {'expression': 'ga:percentNewSessions'}
                      ],
-          'dimensions': [{'name': 'ga:pageTitle'},
+          'dimensions': [
+                         {'name': 'ga:hostname'},
+                         {'name': 'ga:pagePathLevel1'},
+                         {'name': 'ga:pagePathLevel2'},
+                         {'name': 'ga:pagePathLevel3'},
+                         {'name': 'ga:pageTitle'},
                          {'name': 'ga:date'},
-                         {'name': 'ga:pagePathLevel2'}
                      ],
+          "filtersExpression": 'ga:pagePathLevel3=~\d$',
           "orderBys":[
-                      {
-                        "fieldName":"ga:date",
-                      }],
+                      {"fieldName":"ga:date"}
+                     ],
+          "pageToken": index,
+          "pageSize": 10000
         }]
       }
   ).execute()
 
-def print_response(response):
-  """Parses and prints the Analytics Reporting API V4 response"""
-  for report in response.get('reports', []):
-    columnHeader = report.get('columnHeader', {})
-    dimensionHeaders = columnHeader.get('dimensions', [])
-    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
-    rows = report.get('data', {}).get('rows', [])
+# def print_response(response):
+#   """Parses and prints the Analytics Reporting API V4 response"""
+#   for report in response.get('reports', []):
+#     columnHeader = report.get('columnHeader', {})
+#     dimensionHeaders = columnHeader.get('dimensions', [])
+#     metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
+#     rows = report.get('data', {}).get('rows', [])
 
-    for row in rows:
-      dimensions = row.get('dimensions', [])
-      # dateRangeValues = row.get('metrics', [])
-      values = row.get('metrics', [])
+#     for row in rows:
+#       dimensions = row.get('dimensions', [])
+#       # dateRangeValues = row.get('metrics', [])
+#       values = row.get('metrics', [])
 
-      for header, dimension in zip(dimensionHeaders, dimensions):
-        print header + ': ' + dimension
-      for metricHeader, value in zip(metricHeaders, values[0]['values']):
-        print metricHeader.get('name') + ': ' + value
-        
+#       for header, dimension in zip(dimensionHeaders, dimensions):
+#         print header + ': ' + dimension
+#       for metricHeader, value in zip(metricHeaders, values[0]['values']):
+#         print metricHeader.get('name') + ': ' + value
+
+      
 def save2db(response):
   for report in response.get('reports', []):
     rows = report.get('data', {}).get('rows', [])
     for row in rows:
-      url = row.get('dimensions')[2]
-      page_title = row.get('dimensions')[0]
-      date = row.get('dimensions')[1].encode('utf-8')
-      date = date[:4]+'-'+date[4:6]+'-'+date[6:8]
-      for value in row.get('metrics',[]):
-        time_on_page = value.get('values')[0]
-        page_view = value.get('values')[1]
+      dimensions = row.get('dimensions', [])
 
-      execStr = """ SELECT url_id FROM ga_url WHERE url = '{}' """.format(url)
+      host_name = dimensions[0]
+      page_url = dimensions[1] + dimensions[2].split('/')[1] + dimensions[3]
+      page_title = dimensions[4].replace('"','”'.decode('utf-8')).replace("'","’".decode('utf-8')).replace("%","％".decode('utf-8'))
+      date = dimensions[5][:4] + '-' +dimensions[5][4:6] + '-' + dimensions[5][6:8]
+
+      avg_time_on_page = row.get('metrics',[])[0]['values'][0]
+      page_views = row.get('metrics',[])[0]['values'][1]
+      sessions = row.get('metrics',[])[0]['values'][2]
+      users = row.get('metrics',[])[0]['values'][3]
+      pageviewsPerSession = row.get('metrics',[])[0]['values'][4]
+      avgSessionDuration = row.get('metrics',[])[0]['values'][5]
+      bounceRate = row.get('metrics',[])[0]['values'][6]
+      percentNewSessions = row.get('metrics',[])[0]['values'][7]
+      try:
+        execStr = """ SELECT url_id FROM ga_url WHERE page_url = '{}' """.format(page_url)
+      except:
+        page_url = page_url.encode('utf-8').replace('\xe3\x84\x92','')
+        execStr = """ SELECT url_id FROM ga_url WHERE page_url = '{}' """.format(page_url)
       url_id = execSql(execStr)
+
       if url_id == []:
-        execStr = """ INSERT INTO ga_url(url) VALUES('{}') """.format(url)
-        
+        execStr = """ INSERT INTO ga_url(page_url) VALUES('{}') """.format(page_url)
         execSql(execStr)
-        execStr = """ SELECT url_id FROM ga_url WHERE url = '{}' """.format(url)
+
+        execStr = """ SELECT url_id FROM ga_url WHERE page_url = '{}' """.format(page_url)
         tmp_url_id = execSql(execStr)
         
-        execStr ="""INSERT INTO ga_data(page_title, page_view, time_on_page, date, url_id) 
-              VALUES('{}', '{}', '{}', '{}', '{}') 
-              """.format(page_title.encode('utf-8'), page_view, time_on_page, date, dict(tmp_url_id[0]).get('url_id'))
-        execSql(execStr)
-      else:  
-        execStr = """ UPDATE ga_data SET page_view = '{}',time_on_page 
-          = '{}' WHERE url_id = '{}' AND date = '{}' """.format(page_view, time_on_page, url_id, date)
-        execSql(execStr)
+        execStr = """INSERT INTO ga_data( host_name, page_url, page_title, date,
+          avg_time_on_page, page_views, sessions, users, pageviewsPerSession, 
+          avgSessionDuration, bounceRate, percentNewSessions, url_id) VALUES ('{}'
+          , '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')
+            """.format(host_name, page_url, page_title.encode('utf-8'), date, avg_time_on_page, 
+            page_views, sessions, users, pageviewsPerSession, avgSessionDuration, bounceRate, 
+            percentNewSessions, dict(tmp_url_id[0]).get('url_id'))
+        try:
+              execSql(execStr)
+        except:
+              import pdb; pdb.set_trace()
 
+      else:
+        execStr = """ SELECT page_title FROM ga_data WHERE url_id = '{}' 
+          AND date = '{}' """.format(dict(url_id[0]).get('url_id'), date)
+        result = execSql(execStr)
+        if result == []:
+          execStr = """INSERT INTO ga_data( host_name, page_url, page_title, date,
+            avg_time_on_page, page_views, sessions, users, pageviewsPerSession, 
+            avgSessionDuration, bounceRate, percentNewSessions, url_id) VALUES ('{}'
+            , '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')
+            """.format(host_name, page_url, page_title.encode('utf-8'), date, avg_time_on_page, 
+            page_views, sessions, users, pageviewsPerSession, avgSessionDuration, 
+            bounceRate, percentNewSessions, dict(url_id[0]).get('url_id'))
+          try:
+              execSql(execStr)
+          except:
+              import pdb; pdb.set_trace()
+        else:
+          execStr = """ UPDATE ga_data SET avg_time_on_page = '{}', page_views = '{}', 
+            sessions = '{}', users = '{}', pageviewsPerSession = '{}', avgSessionDuration = '{}', 
+            bounceRate = '{}', percentNewSessions = '{}' WHERE url_id = '{}' 
+            AND date = '{}' """.format(avg_time_on_page, page_views, sessions, users,
+            pageviewsPerSession, avgSessionDuration, bounceRate, percentNewSessions, dict(url_id[0]).get('url_id'), date)
+          execSql(execStr)
 def main():
  
   analytics = initialize_analyticsreporting()
-  response = get_report(analytics)
+  response = get_report(analytics,'1000')
   # print_response(response)
   save2db(response)
 if __name__ == '__main__':

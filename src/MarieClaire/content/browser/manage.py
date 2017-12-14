@@ -91,21 +91,19 @@ class CustomReport(ManaBasic):
 class DownloadFile(ManaBasic):
     def __call__(self):
         request = self.request
-        orderList = request.form.get('orderList[]')
+        checkList = request.form.get('checkList[]')
         startDate = request.form.get('start')
         endDate = request.form.get('end')
-        order_data = orderList.split(',')
-        order_data_list = []
-        for i in range(0, len(order_data)):
-            order_data_list.append(order_data[i])
+        line_item_data = checkList.split(',')
+        line_item_list = []
+        for i in range(0, len(line_item_data)):
+            line_item_list.append(line_item_data[i])
 
-        # if type(orderList) == str:
-        #     orderList = [orderList, 'zzzzz'] # tuple在單筆資料時最後面會出現逗號，sql查詢會出錯，所以加一筆'zzzz'避開
         execStr = """\
             SELECT dfp_ad_server.*,dfp_line_item.LINE_ITEM_NAME FROM `dfp_ad_server`,`dfp_line_item` 
             WHERE dfp_ad_server.LINE_ITEM_ID IN {} 
             AND dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND(DATE BETWEEN '{}'
-            AND '{}') ORDER BY DATE""".format(tuple(order_data_list), startDate, endDate)
+            AND '{}') ORDER BY DATE""".format(tuple(line_item_list), startDate, endDate)
         download_data = self.execSql(execStr)
         self.request.response.setHeader('Content-Type', 'application/csv')
         self.request.response.setHeader('Content-Disposition', 'attachment; filename="results.csv"')
@@ -199,21 +197,21 @@ class GetDfpReport(ManaBasic):
             return
         context = self.context
         request = self.request
-        orderList = request.form.get('orderList[]')
+        checkList = request.form.get('checkList[]')
         startDate = request.form.get('start')
         endDate = request.form.get('end')
 
-        if orderList is None:
+        if checkList is None:
             return json.dumps([{}, {}])
 
-        if type(orderList) == str:
-            orderList = [orderList, 'zzzzz'] # tuple在單筆資料時最後面會出現逗號，sql查詢會出錯，所以加一筆'zzzz'避開
+        if type(checkList) == str:
+            checkList = [checkList, 'zzzzz'] # tuple在單筆資料時最後面會出現逗號，sql查詢會出錯，所以加一筆'zzzz'避開
         
         execStr = """\
             SELECT dfp_ad_server.*,dfp_line_item.LINE_ITEM_NAME FROM `dfp_ad_server`,`dfp_line_item` 
             WHERE dfp_ad_server.LINE_ITEM_ID IN {} 
             AND dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND(DATE BETWEEN '{}'
-            AND '{}') ORDER BY DATE""".format(tuple(orderList), startDate, endDate)
+            AND '{}') ORDER BY DATE""".format(tuple(checkList), startDate, endDate)
         result = self.execSql(execStr)
         toList = []
         for item in result:
@@ -223,25 +221,25 @@ class GetDfpReport(ManaBasic):
         drawData = {}
         xs = {}
         for item in toList:
-            orderId = item['LINE_ITEM_ID']
-            orderDate = item['DATE']
+            line_item_id = item['LINE_ITEM_ID']
+            Date = item['DATE']
             # 以下配合c3.js產出對應格式
             # 是否有order
-            if drawData.has_key(orderId):
-                if orderDate == drawData[orderId][0][-1]:
-                    drawData[orderId][1][-1] += int(item['AD_SERVER_IMPRESSIONS']*item['im_weight'])
-                    drawData[orderId][2][-1] += int(item['AD_SERVER_CLICKS']*item['cli_weight'])
-                    drawData[orderId][3][-1] = round(float(drawData[orderId][2][-1]) / float(drawData[orderId][1][-1]), 1)
+            if drawData.has_key(line_item_id):
+                if Date == drawData[line_item_id][0][-1]:
+                    drawData[line_item_id][1][-1] += int(item['AD_SERVER_IMPRESSIONS']*item['im_weight'])
+                    drawData[line_item_id][2][-1] += int(item['AD_SERVER_CLICKS']*item['cli_weight'])
+                    drawData[line_item_id][3][-1] = round(float(drawData[line_item_id][2][-1]) / float(drawData[line_item_id][1][-1]), 1)
                 else:
-                    drawData[orderId][0].append(item['DATE'])
-                    drawData[orderId][1].append( int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) )
-                    drawData[orderId][2].append( int(item['AD_SERVER_CLICKS']*item['cli_weight']) )
-                    drawData[orderId][3].append(round(float(drawData[orderId][2][-1]) / float(drawData[orderId][1][-1])*100, 1))
+                    drawData[line_item_id][0].append(item['DATE'])
+                    drawData[line_item_id][1].append( int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) )
+                    drawData[line_item_id][2].append( int(item['AD_SERVER_CLICKS']*item['cli_weight']) )
+                    drawData[line_item_id][3].append(round(float(drawData[line_item_id][2][-1]) / float(drawData[line_item_id][1][-1])*100, 1))
             else:
                 xs['%s 曝光量' % item['LINE_ITEM_NAME']] = str(item['LINE_ITEM_ID'])
                 xs['%s 點擊量' % item['LINE_ITEM_NAME']] = str(item['LINE_ITEM_ID'])
                 xs['%s CTR%s' % (item['LINE_ITEM_NAME'], '(%)') ] = str(item['LINE_ITEM_ID'])
-                drawData[orderId] = [
+                drawData[line_item_id] = [
                     [str(item['LINE_ITEM_ID']), item['DATE']],
                     ['%s 曝光量' % item['LINE_ITEM_NAME'], int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) ],
                     ['%s 點擊量' % item['LINE_ITEM_NAME'], int(item['AD_SERVER_CLICKS']*item['cli_weight']) ],
