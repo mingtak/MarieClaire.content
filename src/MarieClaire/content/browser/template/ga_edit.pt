@@ -17,10 +17,14 @@
 <body>
 <metal:content-core fill-slot="content-core">
 <metal:block define-macro="content-core">
+    <?python 
+            from plone import api
+            abs_url = api.portal.get().absolute_url()
+            id = view.get_id()
+    ?>
     <form data-pat-autotoc="levels: legend; section: fieldset; className: autotabs" 
         class="rowlike enableUnloadProtection   kssattr-formname-edit" 
-        action="http://localhost:8080/Plone/custom/23954238/@@edit" method="post" enctype="multipart/form-data" id="form">
-
+        action="${python:'{}/custom/{}/@@edit'.format(abs_url, id)}" method="post" enctype="multipart/form-data" id="form">
         <input type="text" value="${context/title}" id="form-widgets-title"
             name="form.widgets.title" class="text-widget required textline-field"
             style="display:none" />

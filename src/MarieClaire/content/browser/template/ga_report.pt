@@ -34,9 +34,8 @@
         <li id="nav_pie"><a data-toggle="pill"  >GA圓餅圖</a></li>
     </ul>
 
-    <label tal:repeat="data view/get_db_data" class=''>
+    <label tal:repeat="data view/get_db_data" >
         <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>${data/page_title}</label>
-
 
     <p><span class="datepicker">開始日期:
         <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
