@@ -27,7 +27,7 @@
         from DateTime import DateTime
     ?>
     <h4>查看報表</h4>
-    <a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
+    <a href="${context/absolute_url}/ga_edit" target="_blank">管理報表</a>
     <ul class="nav nav-pills">
         <li class="active" id="nav_line"><a data-toggle="pill"  >GA折線圖</a></li>
         <li  id="nav_bar"><a data-toggle="pill"  >GA柱型圖</a></li>
@@ -35,7 +35,8 @@
     </ul>
 
     <label tal:repeat="data view/get_db_data" >
-        <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>${data/page_title}</label>
+        <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>
+           <a href="http://${data/page_url}" target="_blank">${data/page_title}</a></label>
 
     <p><span class="datepicker">開始日期:
         <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
