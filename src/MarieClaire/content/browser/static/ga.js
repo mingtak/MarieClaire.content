@@ -21,6 +21,7 @@ $(document).ready(function () {
         ga_chart.xs = {}
         ga_chart.columns = []
         gatGaData(ga_chart)
+
     });
     
     $('.del-btn').click(function (e) {
@@ -35,7 +36,6 @@ $(document).ready(function () {
                 url: url,
                 data: data,
                 success: function (response) {
-                    window.location.reload()
                     ga_chart.xs = {}
                     ga_chart.columns = []
                     gatGaData(ga_chart)
@@ -92,7 +92,11 @@ gatGaData = function(ga_chart){
                 
             }
         })
+        if(ga_chart.columns.length == 0){
+            alert('no data')
+        }
         genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
+        
 
     }).fail(function(){
         alert('Fail')
