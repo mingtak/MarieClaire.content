@@ -63,32 +63,32 @@ def get_report(analytics, index):
         body={
         'reportRequests': [
         {
-          'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': '2017-12-10', 'endDate': 'today'}],
-          'metrics': [
-                      {'expression': 'ga:avgTimeOnPage'},
-                      {'expression': 'ga:pageviews'},
-                      {'expression': 'ga:sessions'},
-                      {'expression': 'ga:users'},
-                      {'expression': 'ga:pageviewsPerSession'},
-                      {'expression': 'ga:avgSessionDuration'},
-                      {'expression': 'ga:bounceRate'},
-                      {'expression': 'ga:percentNewSessions'}
-                     ],
-          'dimensions': [
-                         {'name': 'ga:hostname'},
-                         {'name': 'ga:pagePathLevel1'},
-                         {'name': 'ga:pagePathLevel2'},
-                         {'name': 'ga:pagePathLevel3'},
-                         {'name': 'ga:pageTitle'},
-                         {'name': 'ga:date'},
-                     ],
-          "filtersExpression": 'ga:pagePathLevel3=~\d$',
-          "orderBys":[
-                      {"fieldName":"ga:date"}
-                     ],
-          "pageToken": index,
-          "pageSize": 10000
+            'viewId': VIEW_ID,
+            'dateRanges': [{'startDate': '2017-12-10', 'endDate': '2017-12-15'}],
+            'metrics': [
+                        {'expression': 'ga:avgTimeOnPage'},
+                        {'expression': 'ga:pageviews'},
+                        {'expression': 'ga:sessions'},
+                        {'expression': 'ga:users'},
+                        {'expression': 'ga:pageviewsPerSession'},
+                        {'expression': 'ga:avgSessionDuration'},
+                        {'expression': 'ga:bounceRate'},
+                        {'expression': 'ga:percentNewSessions'}
+                        ],
+            'dimensions': [
+                            {'name': 'ga:hostname'},
+                            {'name': 'ga:pagePathLevel1'},
+                            {'name': 'ga:pagePathLevel2'},
+                            {'name': 'ga:pagePathLevel3'},
+                            {'name': 'ga:pageTitle'},
+                            {'name': 'ga:date'},
+                        ],
+            "filtersExpression": 'ga:pagePathLevel3=~\d$',
+            "orderBys":[
+                        {"fieldName":"ga:date"}
+                        ],
+            "pageToken": index,
+            "pageSize": 10000
         }]
       }
   ).execute()
@@ -173,12 +173,20 @@ def save2db(response, count):
                 except:
                     import pdb; pdb.set_trace()
             else:
-                execStr = """ UPDATE ga_data SET avg_time_on_page = '{}', page_views = '{}', 
-                    sessions = '{}', users = '{}', pageviewsPerSession = '{}', avgSessionDuration = '{}', 
-                    bounceRate = '{}', percentNewSessions = '{}' WHERE url_id = '{}' 
-                    AND date = '{}' """.format(avg_time_on_page, page_views, sessions, users,
-                    pageviewsPerSession, avgSessionDuration, bounceRate, percentNewSessions, dict(url_id[0]).get('url_id'), date)
-                execSql(execStr)
+                execStr = """SELECT page_views,page_title FROM ga_data WHERE page_url = '{}'
+                     AND date = '{}' """.format(page_url, date)
+                result = execSql(execStr)
+                db_data = dict(result[0])
+
+                if db_data['page_views'] < page_views:
+                    execStr = """ UPDATE ga_data SET page_title = '{}', avg_time_on_page = '{}'
+                        , page_views = '{}', sessions = '{}', users = '{}', pageviewsPerSession = '{}'
+                        , avgSessionDuration = '{}', bounceRate = '{}', percentNewSessions = '{}' 
+                        WHERE url_id = '{}' AND date = '{}' """.format(page_title.encode('utf-8')
+                        , avg_time_on_page, page_views, sessions, users, pageviewsPerSession
+                        , avgSessionDuration, bounceRate, percentNewSessions
+                        , dict(url_id[0]).get('url_id'), date)
+                    execSql(execStr)
         count+=1
     return count
 
