@@ -48,8 +48,8 @@ class GaReport(ManaBasic):
             if len(postList) == 1: #單獨一個postList跑sql會出錯
                 postList = [postList[0], 'zzz']
 
-            execStr = """ SELECT DISTINCT(page_title), url_id FROM ga_data WHERE page_url IN 
-                {} """.format(tuple(postList))
+            execStr = """ SELECT DISTINCT(page_title),url_id,page_url FROM ga_data WHERE 
+                page_url IN {} """.format(tuple(postList))
 
             db_data = self.execSql(execStr)
             return db_data
@@ -82,6 +82,7 @@ class GetGaData(ManaBasic):
         start = self.request.get('start')
         end = self.request.get('end')
         checkList = self.request.get('checkList[]')
+        select_type = self.request.get('select_type')
         if checkList is None:
             return json.dumps([{}, {}])
 
@@ -93,26 +94,42 @@ class GetGaData(ManaBasic):
         result = self.execSql(execStr)
         drawData = {}
         xs = {}
-        for data in result:
-            tmp = dict(data)
-            url_id = tmp['url_id']
-            page_title = tmp['page_title'][:10]
-
-            if drawData.has_key(url_id):
-                drawData[url_id][0].append(tmp['date'])
-                drawData[url_id][1].append( int(tmp['page_views']) )
-                drawData[url_id][2].append( float(tmp['avg_time_on_page']) )
-                drawData[url_id][3].append( int(tmp['users']) )
-            else:
-                xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
-                xs['%s 平均停留時間(秒)' % page_title] = str(tmp['url_id'])
-                xs['%s 使用人數' % page_title] = str(tmp['url_id'])
-                drawData[url_id] = [
-                    [str(tmp['url_id']), tmp['date']],
-                    ['%s 瀏覽數' % page_title, int(tmp['page_views'])],
-                    ['%s 平均停留時間(秒)' % page_title, float(tmp['avg_time_on_page'])],
-                    ['%s 使用人數' % page_title, int(tmp['users'])]
-                ]
+        if select_type == 'nav_pie':
+            for data in result:
+                tmp = dict(data)
+                url_id = tmp['url_id']
+                page_title = tmp['page_title'][:10]
+        
+                if drawData.has_key(url_id):
+                    drawData[url_id][0].append(tmp['date'])
+                    drawData[url_id][1].append( int(tmp['page_views']) )
+                else:
+                    xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
+                    drawData[url_id] = [
+                        [str(tmp['url_id']), tmp['date']],
+                        ['%s 瀏覽數' % page_title, int(tmp['page_views'])],
+                    ]
+        else:
+            for data in result:
+                tmp = dict(data)
+                url_id = tmp['url_id']
+                page_title = tmp['page_title'][:10]
+        
+                if drawData.has_key(url_id):
+                    drawData[url_id][0].append(tmp['date'])
+                    drawData[url_id][1].append( int(tmp['page_views']) )
+                    drawData[url_id][2].append( float(tmp['avg_time_on_page']) )
+                    drawData[url_id][3].append( int(tmp['users']) )
+                else:
+                    xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
+                    xs['%s 平均停留時間(秒)' % page_title] = str(tmp['url_id'])
+                    xs['%s 使用人數' % page_title] = str(tmp['url_id'])
+                    drawData[url_id] = [
+                        [str(tmp['url_id']), tmp['date']],
+                        ['%s 瀏覽數' % page_title, int(tmp['page_views'])],
+                        ['%s 平均停留時間(秒)' % page_title, float(tmp['avg_time_on_page'])],
+                        ['%s 使用人數' % page_title, int(tmp['users'])]
+                    ]
         return json.dumps([xs, drawData])
 
 

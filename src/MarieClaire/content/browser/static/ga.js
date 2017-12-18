@@ -21,7 +21,6 @@ $(document).ready(function () {
         ga_chart.xs = {}
         ga_chart.columns = []
         gatGaData(ga_chart)
-
     });
     
     $('.del-btn').click(function (e) {
@@ -59,11 +58,14 @@ $(document).ready(function () {
 gatGaData = function(ga_chart){
     start = $('.start-date').val();
     end = $('.end-date').val();
+    select_type = $('.active')[0].id
+    debugger
     url = window.location.href.replace('ga_report', 'get_ga_data')
     data = {
         'checkList': checkedList(),
         'start': start,
-        'end': end 
+        'end': end,
+        'select_type': select_type
     }
     $.ajax({
         type: "POST",
