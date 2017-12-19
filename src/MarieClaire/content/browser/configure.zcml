@@ -194,4 +194,16 @@
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
+
+
+  <browser:page
+      name="mc_macro"
+      for="*"
+      class=".macro.MCMacro"
+      template="template/mc_macro.pt"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+
+
 </configure>

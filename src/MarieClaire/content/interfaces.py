@@ -34,10 +34,17 @@ class ICustom(Interface):
         required=True,
     )
 
+    """ 
     advertisement = RelationList(
         title=_(u"Advertisement"),
         value_type=RelationChoice(title=_(u"Choice Advertisement"),
                                   source=CatalogSource(Type='Advertisement'),),
+        required=False,
+    ) """
+
+    ownerList = schema.Text(
+        title=_(u'Owner List'),
+        description=_(u'per line one record, in ownerLists id, can view and edit.'),
         required=False,
     )
 
@@ -47,11 +54,13 @@ class ICustom(Interface):
         required=False,
     )
 
+    """ 
     post = RelationChoice(
         title=_(u'Post'),
         source=CatalogSource(Type="Post"),
         required=False,
-    )
+    ) """
+
 
 class IAdvertisement(Interface):
 
