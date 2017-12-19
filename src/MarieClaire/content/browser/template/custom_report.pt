@@ -31,7 +31,7 @@ from DateTime import DateTime
 <h4>查看報表</h4>
 <a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
 <ul class="nav nav-pills">
-  <li class="active" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
+  <li class="active select_type" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
   <li  id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
   <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
 <!--  <li><a data-toggle="pill" href="#post-line">貼文追蹤折線圖</a></li>
@@ -57,6 +57,23 @@ from DateTime import DateTime
                            class="dfp-line-item" name="dfp-line-item"/>${python:item['LINE_ITEM_NAME']}
                 </label>
             </div> 
+            <br/><br/>
+            <label class="dfp_select_checkbox">
+                <input type="checkbox" class="dfp_select_data" value="1"/>曝光量
+            </label>
+            <label class="dfp_select_checkbox">
+                <input type="checkbox" class="dfp_select_data" value="2"/>點擊量
+            </label>
+            <label class="dfp_select_checkbox">
+                <input type="checkbox" class="dfp_select_data" value="3"/>CTR(%)
+            </label>
+
+            <label class="dfp_select_radio">
+                <input type="radio" name="dfp_select_data" class="dfp_select_data" value="1"/>曝光量
+            </label>
+            <label class="dfp_select_radio">
+                <input type="radio" name="dfp_select_data" class="dfp_select_data" value="2"/>點擊量
+            </label>
 
             <br><br>
             <p><span class="datepicker">開始日期:

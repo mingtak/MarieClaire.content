@@ -29,7 +29,7 @@
     <h4>查看報表</h4>
     <a href="${context/absolute_url}/ga_edit" target="_blank">管理報表</a>
     <ul class="nav nav-pills">
-        <li class="active sss" id="nav_line"><a data-toggle="pill"  >GA折線圖</a></li>
+        <li class="active select_type" id="nav_line"><a data-toggle="pill"  >GA折線圖</a></li>
         <li  id="nav_bar"><a data-toggle="pill"  >GA柱型圖</a></li>
         <li id="nav_pie"><a data-toggle="pill"  >GA圓餅圖</a></li>
     </ul>
@@ -37,7 +37,7 @@
     <label tal:repeat="data view/get_db_data" >
         <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>
            <a href="http://${data/page_url}" target="_blank">${data/page_title}</a></label>
-
+    <br/>
     <label>
         <input type="checkbox" class="ga_select_data" value="1"/>瀏覽數
     </label>

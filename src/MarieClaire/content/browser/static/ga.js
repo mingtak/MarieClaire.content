@@ -1,5 +1,5 @@
 $(document).ready(function () {
-
+    
     var ga_chart = new Vue({
         el: '#ga_chart',
         data: {
@@ -21,6 +21,8 @@ $(document).ready(function () {
     $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
         ga_chart.xs = {}
         ga_chart.columns = []
+        $(this).addClass('select_type')
+        $(this).siblings().removeClass('select_type')
         gatGaData(ga_chart)
     });
     
@@ -60,12 +62,12 @@ gatGaData = function(ga_chart){
     start = $('.start-date').val();
     end = $('.end-date').val();
     url = window.location.href.replace('ga_report', 'get_ga_data')
-
+    select_type = $('.select_type')[0].id
     data = {
         'checkList': checkedList(),
         'start': start,
         'end': end,
-        // 'select_type': select_type
+        'select_type': select_type
     }
     $.ajax({
         type: "POST",
@@ -99,14 +101,12 @@ gatGaData = function(ga_chart){
                 
             }
         })
-        if(ga_chart.columns.length == 0){
-            alert('no data')
-        }
-        if (select_type == 'nav_pie'){
-            genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
-        }else{
-            genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
-        }
+        // if(ga_chart.columns.length == 0){
+        //     alert('no data')
+        // }
+
+        genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
+        
 
     }).fail(function(){
         alert('Fail')
@@ -128,12 +128,19 @@ checkedSelect  = function(){
 }
 
 genC3 = function(xs, columns, regions__list, event_order__list, event_name__list){
-    // groups_columns = []
-    // for(i=1;i<columns.length;i+=4){
-    //     groups_columns.push(columns[i][0])
+    select_type = $('.select_type')[0].id
+
+    select_title_len = checkedList().length
+    select_data_len = checkedSelect().length
+    groups_list = []
+
+    // for(i=0 ; i<select_title_len ; i++){
+    //     for(j=1; j<=columns.length ;j+=3){
+    //         groups_list.push([columns[j][0],columns[j+1][0]])
+    //     }
     // }
-    
-    select_type = $('.active')[0].id
+
+    // debugger
     if (select_type == 'nav_line'){
         draw_type = 'line'
     }else if(select_type == 'nav_bar'){
@@ -158,7 +165,11 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
             columns: columns,
             labels: true,
             type: draw_type,
-            // groups: [groups_columns]
+            groups: [   
+                        // groups_list
+                        // [columns[1][0], columns[2][0]],
+                        // [columns[4][0], columns[5][0]]
+                    ]
         },
         axis: {
             x: {

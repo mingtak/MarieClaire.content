@@ -6,7 +6,7 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
     for(i=1;i<columns.length;i+=4){
         groups_columns.push(columns[i][0])
     }
-
+    console.log(groups_columns)
     select_type = $('.active')[0].id
     if (select_type == 'nav_line'){
         draw_type = 'line'
@@ -74,12 +74,21 @@ checkedList = function(){
     })
     return result
 }
-
+checkedSelect  = function(){
+    result = []
+    $.each($('.dfp_select_data:checked'), function(index, value){
+        result.push($(value).val())
+    })
+    return result
+}
 // 畫線
 drawLine = function(dfpLine){
-    data = {'checkList': checkedList(),
+    select_type = $('.select_type')[0].id
+    data = {
+            'checkList': checkedList(),
             'start': $('.start-date').val(),
-            'end': $('.end-date').val()
+            'end': $('.end-date').val(),
+            'select_type': select_type
            }
     url = window.location.href.replace('custom_report', '@@get_dfp_report')
     $.post(
@@ -88,9 +97,12 @@ drawLine = function(dfpLine){
     ).done(function(value){
         resultArray = jQuery.parseJSON(value)
         dfpLine.xs = resultArray[0]
+        selected = checkedSelect()
         for(key in resultArray[1]){
             for(i=0; i<resultArray[1][key].length; i++){
-                dfpLine.columns.push(resultArray[1][key][i])
+                if( i == 0 || selected.indexOf(i.toString()) != -1 ){
+                    dfpLine.columns.push(resultArray[1][key][i])
+                }
             }
         }
         var regions__list = []
@@ -118,6 +130,8 @@ drawLine = function(dfpLine){
 // Line Chart, Main
 $(document).ready(function(){
     // VUE
+    $('.dfp_select_radio').hide();
+
     var dfpLine = new Vue({
         el: '#dfp-line',
         data: {
@@ -143,7 +157,7 @@ $(document).ready(function(){
         $(this).siblings().toggleClass("hide_element")
     });
     // 單選, 時間改變
-    $('.dfp-line-item, .start-date, .end-date, .event_checkbox').change(function(){
+    $('.dfp-line-item, .start-date, .end-date, .event_checkbox, .dfp_select_data, .dfp_select_radio').change(function(){
         $('.download').attr('href', '');
         dfpLine.xs = {}
         dfpLine.columns = []
@@ -152,6 +166,15 @@ $(document).ready(function(){
     $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
         dfpLine.xs = {}
         dfpLine.columns = []
+        if($(this)[0].id == 'nav_pie'){
+            $('.dfp_select_radio').show();
+            $('.dfp_select_checkbox').hide();
+        }else{
+            $('.dfp_select_radio').hide();
+            $('.dfp_select_checkbox').show();
+        }
+        $(this).addClass('select_type')
+        $(this).siblings().removeClass('select_type')
         drawLine(dfpLine)
     });
     $('.del-btn').click(function (e) {

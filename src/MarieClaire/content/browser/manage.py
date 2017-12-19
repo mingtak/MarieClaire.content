@@ -200,6 +200,7 @@ class GetDfpReport(ManaBasic):
         checkList = request.form.get('checkList[]')
         startDate = request.form.get('start')
         endDate = request.form.get('end')
+        select_type = request.form.get('select_type')
 
         if checkList is None:
             return json.dumps([{}, {}])
@@ -225,27 +226,48 @@ class GetDfpReport(ManaBasic):
             Date = item['DATE']
             # 以下配合c3.js產出對應格式
             # 是否有order
-            if drawData.has_key(line_item_id):
-                if Date == drawData[line_item_id][0][-1]:
-                    drawData[line_item_id][1][-1] += int(item['AD_SERVER_IMPRESSIONS']*item['im_weight'])
-                    drawData[line_item_id][2][-1] += int(item['AD_SERVER_CLICKS']*item['cli_weight'])
-                    drawData[line_item_id][3][-1] = round(float(drawData[line_item_id][2][-1]) / float(drawData[line_item_id][1][-1]), 1)
+            if select_type == 'nav_pie':
+                execStr = """SELECT date FROM dfp_ad_server WHERE LINE_ITEM_ID = '{}' AND 
+                    DATE BETWEEN '{}' AND '{}' """.format(line_item_id, startDate, endDate)
+                days = len(self.execSql(execStr))
+                if drawData.has_key(line_item_id):
+                    if Date == drawData[line_item_id][0][-1]:
+                        drawData[line_item_id][1][-1] += float(item['AD_SERVER_IMPRESSIONS']*item['im_weight']/days)
+                        drawData[line_item_id][2][-1] += float(item['AD_SERVER_CLICKS']*item['cli_weight']/days)
+                    else:
+                        drawData[line_item_id][0].append(item['DATE'])
+                        drawData[line_item_id][1].append( float(item['AD_SERVER_IMPRESSIONS']*item['im_weight']/days) )
+                        drawData[line_item_id][2].append( float(item['AD_SERVER_CLICKS']*item['cli_weight']/days) )
                 else:
-                    drawData[line_item_id][0].append(item['DATE'])
-                    drawData[line_item_id][1].append( int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) )
-                    drawData[line_item_id][2].append( int(item['AD_SERVER_CLICKS']*item['cli_weight']) )
-                    drawData[line_item_id][3].append(round(float(drawData[line_item_id][2][-1]) / float(drawData[line_item_id][1][-1])*100, 1))
+                    xs['%s 曝光量' % item['LINE_ITEM_NAME']] = str(item['LINE_ITEM_ID'])
+                    xs['%s 點擊量' % item['LINE_ITEM_NAME']] = str(item['LINE_ITEM_ID'])
+                    drawData[line_item_id] = [
+                        [str(item['LINE_ITEM_ID']), item['DATE']],
+                        ['%s 曝光量' % item['LINE_ITEM_NAME'], float(item['AD_SERVER_IMPRESSIONS']*item['im_weight']/days) ],
+                        ['%s 點擊量' % item['LINE_ITEM_NAME'], float(item['AD_SERVER_CLICKS']*item['cli_weight']/days) ],
+                    ]
             else:
-                xs['%s 曝光量' % item['LINE_ITEM_NAME']] = str(item['LINE_ITEM_ID'])
-                xs['%s 點擊量' % item['LINE_ITEM_NAME']] = str(item['LINE_ITEM_ID'])
-                xs['%s CTR%s' % (item['LINE_ITEM_NAME'], '(%)') ] = str(item['LINE_ITEM_ID'])
-                drawData[line_item_id] = [
-                    [str(item['LINE_ITEM_ID']), item['DATE']],
-                    ['%s 曝光量' % item['LINE_ITEM_NAME'], int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) ],
-                    ['%s 點擊量' % item['LINE_ITEM_NAME'], int(item['AD_SERVER_CLICKS']*item['cli_weight']) ],
-                    ['%s CTR%s' % (item['LINE_ITEM_NAME'], '(%)'),
- ( round( (float(item['AD_SERVER_CLICKS'])*item['cli_weight']) / (float(item['AD_SERVER_IMPRESSIONS'])*item['im_weight'])*100 , 1) )],
-                ]
+                if drawData.has_key(line_item_id):
+                    if Date == drawData[line_item_id][0][-1]:
+                        drawData[line_item_id][1][-1] += int(item['AD_SERVER_IMPRESSIONS']*item['im_weight'])
+                        drawData[line_item_id][2][-1] += int(item['AD_SERVER_CLICKS']*item['cli_weight'])
+                        drawData[line_item_id][3][-1] = round(float(drawData[line_item_id][2][-1]) / float(drawData[line_item_id][1][-1]), 1)
+                    else:
+                        drawData[line_item_id][0].append(item['DATE'])
+                        drawData[line_item_id][1].append( int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) )
+                        drawData[line_item_id][2].append( int(item['AD_SERVER_CLICKS']*item['cli_weight']) )
+                        drawData[line_item_id][3].append(round(float(drawData[line_item_id][2][-1]) / float(drawData[line_item_id][1][-1])*100, 1))
+                else:
+                    xs['%s 曝光量' % item['LINE_ITEM_NAME']] = str(item['LINE_ITEM_ID'])
+                    xs['%s 點擊量' % item['LINE_ITEM_NAME']] = str(item['LINE_ITEM_ID'])
+                    xs['%s CTR%s' % (item['LINE_ITEM_NAME'], '(%)') ] = str(item['LINE_ITEM_ID'])
+                    drawData[line_item_id] = [
+                        [str(item['LINE_ITEM_ID']), item['DATE']],
+                        ['%s 曝光量' % item['LINE_ITEM_NAME'], int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) ],
+                        ['%s 點擊量' % item['LINE_ITEM_NAME'], int(item['AD_SERVER_CLICKS']*item['cli_weight']) ],
+                        ['%s CTR%s' % (item['LINE_ITEM_NAME'], '(%)'),
+                    ( round( (float(item['AD_SERVER_CLICKS'])*item['cli_weight']) / (float(item['AD_SERVER_IMPRESSIONS'])*item['im_weight'])*100 , 1) )],
+                    ]
 
         return json.dumps([xs, drawData])
 
