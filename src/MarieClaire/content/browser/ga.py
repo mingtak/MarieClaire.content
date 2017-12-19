@@ -88,10 +88,17 @@ class GetGaData(ManaBasic):
 
         if type(checkList) == str:
             checkList = [checkList, 'zzzzz']
-        execStr = """ SELECT * FROM ga_data WHERE url_id IN
-            {} AND date BETWEEN '{}' AND '{}' """.format(tuple(checkList), start, end)
-        
-        result = self.execSql(execStr)
+
+        db_list = []
+        execStr = """SELECT page_url FROM ga_url WHERE url_id IN {}""".format(tuple(checkList))
+        db_url = self.execSql(execStr)
+        for url in db_url:
+            tmp = dict(url)
+            full_url = tmp['page_url'] + '%%'
+            execStr = """ SELECT users,time_on_page,page_views,url_id,page_title,date FROM 
+                ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}' 
+                """.format(full_url, start, end)
+            result = self.execSql(execStr)
         drawData = {}
         xs = {}
         if select_type == 'nav_pie':
@@ -114,21 +121,26 @@ class GetGaData(ManaBasic):
                 tmp = dict(data)
                 url_id = tmp['url_id']
                 page_title = tmp['page_title'][:10]
-        
+
                 if drawData.has_key(url_id):
-                    drawData[url_id][0].append(tmp['date'])
-                    drawData[url_id][1].append( int(tmp['page_views']) )
-                    drawData[url_id][2].append( float(tmp['avg_time_on_page']) )
-                    drawData[url_id][3].append( int(tmp['users']) )
+                    if drawData[url_id][0][-1] == tmp['date']:
+                        drawData[url_id][1][-1] += int(tmp['page_views'])
+                        drawData[url_id][2][-1] += int(tmp['users'])
+                        drawData[url_id][3][-1] = (drawData[url_id][3][-1] + (float(tmp['time_on_page'])/int(tmp['page_views'])))/2
+                    else:
+                        drawData[url_id][0].append(tmp['date'])
+                        drawData[url_id][1].append( int(tmp['page_views']) )
+                        drawData[url_id][2].append( int(tmp['users']) )
+                        drawData[url_id][3].append( float(tmp['time_on_page'])/int(tmp['page_views']))
                 else:
                     xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
-                    xs['%s 平均停留時間(秒)' % page_title] = str(tmp['url_id'])
                     xs['%s 使用人數' % page_title] = str(tmp['url_id'])
+                    xs['%s 平均停留時間(秒)' % page_title] = str(tmp['url_id'])
                     drawData[url_id] = [
                         [str(tmp['url_id']), tmp['date']],
                         ['%s 瀏覽數' % page_title, int(tmp['page_views'])],
-                        ['%s 平均停留時間(秒)' % page_title, float(tmp['avg_time_on_page'])],
-                        ['%s 使用人數' % page_title, int(tmp['users'])]
+                        ['%s 使用人數' % page_title, int(tmp['users'])],
+                        ['%s 平均停留時間(秒)' % page_title, round(float(tmp['time_on_page'])/int(tmp['page_views']),1)]
                     ]
         return json.dumps([xs, drawData])
 
@@ -173,7 +185,7 @@ class DownloadGaFile(ManaBasic):
                 tmp['page_title'],
                 tmp['date'],
                 tmp['page_views'],
-                tmp['avg_time_on_page'],
+                tmp['time_on_page'],
                 tmp['users'],
             ])
         results = output.getvalue()

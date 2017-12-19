@@ -66,7 +66,7 @@ def get_report(analytics, index):
             'viewId': VIEW_ID,
             'dateRanges': [{'startDate': '2017-12-10', 'endDate': '2017-12-15'}],
             'metrics': [
-                        {'expression': 'ga:avgTimeOnPage'},
+                        {'expression': 'ga:timeOnPage'},
                         {'expression': 'ga:pageviews'},
                         {'expression': 'ga:sessions'},
                         {'expression': 'ga:users'},
@@ -77,13 +77,13 @@ def get_report(analytics, index):
                         ],
             'dimensions': [
                             {'name': 'ga:hostname'},
+                            {'name': 'ga:pagePath'},
+                            {'name': 'ga:pageTitle'},
+                            {'name': 'ga:date'},
                             {'name': 'ga:pagePathLevel1'},
                             {'name': 'ga:pagePathLevel2'},
                             {'name': 'ga:pagePathLevel3'},
-                            {'name': 'ga:pageTitle'},
-                            {'name': 'ga:date'},
                         ],
-            "filtersExpression": 'ga:pagePathLevel3=~\d$',
             "orderBys":[
                         {"fieldName":"ga:date"}
                         ],
@@ -117,11 +117,13 @@ def save2db(response, count):
     rows = report.get('data', {}).get('rows', [])
     for row in rows:
         dimensions = row.get('dimensions', [])
-        host_name = dimensions[0]
-        page_url = dimensions[0] + dimensions[1] + dimensions[2].split('/')[1] + dimensions[3]
-        page_title = dimensions[4].replace('"','”'.decode('utf-8')).replace("'","’".decode('utf-8')).replace("%","％".decode('utf-8'))
-        date = dimensions[5][:4] + '-' +dimensions[5][4:6] + '-' + dimensions[5][6:8]
-        avg_time_on_page = row.get('metrics',[])[0]['values'][0][:4]
+        host_name = dimensions[0].encode('utf-8')
+        full_url = host_name + dimensions[1].encode('utf-8')
+        page_url = host_name + dimensions[4].encode('utf-8') + dimensions[5].encode('utf-8').split('/')[1] + '/' + dimensions[6].encode('utf-8').split('/')[1]
+        page_title = dimensions[2].replace('"','”'.decode('utf-8')).replace("'","’".decode('utf-8')).replace("%","％".decode('utf-8'))
+        date = dimensions[3][:4] + '-' +dimensions[3][4:6] + '-' + dimensions[3][6:8]
+
+        time_on_page = row.get('metrics',[])[0]['values'][0]
         page_views = row.get('metrics',[])[0]['values'][1]
         sessions = row.get('metrics',[])[0]['values'][2]
         users = row.get('metrics',[])[0]['values'][3]
@@ -129,22 +131,24 @@ def save2db(response, count):
         avgSessionDuration = row.get('metrics',[])[0]['values'][5][:4]
         bounceRate = row.get('metrics',[])[0]['values'][6][:4]
         percentNewSessions = row.get('metrics',[])[0]['values'][7][:4]
-
-        execStr = """ SELECT url_id FROM ga_url WHERE page_url = '{}' """.format(page_url)
-        url_id = execSql(execStr)
+        try:
+            execStr = """ SELECT url_id FROM ga_url WHERE page_url = "{}" """.format(page_url)
+            url_id = execSql(execStr)
+        except :
+            import pdb;pdb.set_trace()
 
         if url_id == []:
-            execStr = """ INSERT INTO ga_url(page_url) VALUES('{}') """.format(page_url)
+            execStr = """ INSERT INTO ga_url(page_url) VALUES("{}") """.format(page_url)
             execSql(execStr)
 
-            execStr = """ SELECT url_id FROM ga_url WHERE page_url = '{}' """.format(page_url)
+            execStr = """ SELECT url_id FROM ga_url WHERE page_url = "{}" """.format(page_url)
             tmp_url_id = execSql(execStr)
         
-            execStr = """INSERT INTO ga_data( host_name, page_url, page_title, date,
-                avg_time_on_page, page_views, sessions, users, pageviewsPerSession, 
+            execStr = """INSERT INTO ga_data( host_name, page_url, full_url, page_title, date,
+                time_on_page, page_views, sessions, users, pageviewsPerSession, 
                 avgSessionDuration, bounceRate, percentNewSessions, url_id) VALUES ('{}'
-                , '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')
-                """.format(host_name, page_url, page_title.encode('utf-8'), date, avg_time_on_page, 
+                , "{}", "{}", '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')
+                """.format(host_name, page_url, full_url, page_title.encode('utf-8'), date, time_on_page, 
                 page_views, sessions, users, pageviewsPerSession, avgSessionDuration, bounceRate, 
                 percentNewSessions, dict(tmp_url_id[0]).get('url_id'))
             try:
@@ -153,19 +157,20 @@ def save2db(response, count):
                 import pdb; pdb.set_trace()
 
         else:
-            execStr = """ SELECT page_title FROM ga_data WHERE url_id = '{}' 
-                AND date = '{}' """.format(dict(url_id[0]).get('url_id'), date)
+            execStr = """ SELECT full_url FROM ga_data WHERE full_url = "{}" 
+                AND date = '{}' """.format(full_url, date)
+
             try:
                 result = execSql(execStr)
             except:
                 import pdb;pdb.set_trace()
 
             if result == []:
-                execStr = """INSERT INTO ga_data( host_name, page_url, page_title, date,
-                    avg_time_on_page, page_views, sessions, users, pageviewsPerSession, 
+                execStr = """INSERT INTO ga_data( host_name, page_url, full_url, page_title, date,
+                    time_on_page, page_views, sessions, users, pageviewsPerSession, 
                     avgSessionDuration, bounceRate, percentNewSessions, url_id) VALUES ('{}'
-                    , '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')
-                    """.format(host_name, page_url, page_title.encode('utf-8'), date, avg_time_on_page, 
+                    , "{}", "{}", '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')
+                    """.format(host_name, page_url, full_url, page_title.encode('utf-8'), date, time_on_page, 
                     page_views, sessions, users, pageviewsPerSession, avgSessionDuration, 
                     bounceRate, percentNewSessions, dict(url_id[0]).get('url_id'))
                 try:
@@ -173,17 +178,17 @@ def save2db(response, count):
                 except:
                     import pdb; pdb.set_trace()
             else:
-                execStr = """SELECT page_views,page_title FROM ga_data WHERE page_url = '{}'
+                execStr = """SELECT page_views,page_title FROM ga_data WHERE page_url = "{}"
                      AND date = '{}' """.format(page_url, date)
                 result = execSql(execStr)
                 db_data = dict(result[0])
 
                 if db_data['page_views'] < page_views:
-                    execStr = """ UPDATE ga_data SET page_title = '{}', avg_time_on_page = '{}'
+                    execStr = """ UPDATE ga_data SET page_title = '{}', time_on_page = '{}'
                         , page_views = '{}', sessions = '{}', users = '{}', pageviewsPerSession = '{}'
                         , avgSessionDuration = '{}', bounceRate = '{}', percentNewSessions = '{}' 
                         WHERE url_id = '{}' AND date = '{}' """.format(page_title.encode('utf-8')
-                        , avg_time_on_page, page_views, sessions, users, pageviewsPerSession
+                        , time_on_page, page_views, sessions, users, pageviewsPerSession
                         , avgSessionDuration, bounceRate, percentNewSessions
                         , dict(url_id[0]).get('url_id'), date)
                     execSql(execStr)

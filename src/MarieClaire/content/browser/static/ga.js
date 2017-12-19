@@ -9,8 +9,7 @@ $(document).ready(function () {
         }
     })
 
-    $('.ga_page_title, .start-date, .end-date, .event_checkbox').change(function(){
-        
+    $('.ga_page_title, .start-date, .end-date, .event_checkbox').change(function(e){
         $('.download').attr('href', '');
         ga_chart.xs = {}
         ga_chart.columns = []
@@ -20,6 +19,7 @@ $(document).ready(function () {
     $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
         ga_chart.xs = {}
         ga_chart.columns = []
+        debugger
         gatGaData(ga_chart)
     });
     
@@ -59,8 +59,9 @@ gatGaData = function(ga_chart){
     start = $('.start-date').val();
     end = $('.end-date').val();
     select_type = $('.active')[0].id
-    debugger
     url = window.location.href.replace('ga_report', 'get_ga_data')
+    console.log(select_type)
+
     data = {
         'checkList': checkedList(),
         'start': start,
