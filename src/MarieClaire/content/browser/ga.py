@@ -82,7 +82,8 @@ class GetGaData(ManaBasic):
         start = self.request.get('start')
         end = self.request.get('end')
         checkList = self.request.get('checkList[]')
-        select_type = self.request.get('select_type')
+        # select_type = self.request.get('select_type')
+        select_data = self.request.get('select_data[]')
         if checkList is None:
             return json.dumps([{}, {}])
 
@@ -99,25 +100,28 @@ class GetGaData(ManaBasic):
                 ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}' 
                 """.format(full_url, start, end)
             result = self.execSql(execStr)
+            db_list.append(result)
         drawData = {}
         xs = {}
-        if select_type == 'nav_pie':
-            for data in result:
-                tmp = dict(data)
-                url_id = tmp['url_id']
-                page_title = tmp['page_title'][:10]
-        
-                if drawData.has_key(url_id):
-                    drawData[url_id][0].append(tmp['date'])
-                    drawData[url_id][1].append( int(tmp['page_views']) )
-                else:
-                    xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
-                    drawData[url_id] = [
-                        [str(tmp['url_id']), tmp['date']],
-                        ['%s 瀏覽數' % page_title, int(tmp['page_views'])],
-                    ]
-        else:
-            for data in result:
+        # if select_type == 'nav_pie':
+        #     for db_data in db_list:
+        #         for data in db_data:
+        #             tmp = dict(data)
+        #             url_id = tmp['url_id']
+        #             page_title = tmp['page_title'][:10]
+            
+        #             if drawData.has_key(url_id):
+        #                 drawData[url_id][0].append(tmp['date'])
+        #                 drawData[url_id][1].append( int(tmp['page_views']) )
+        #             else:
+        #                 xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
+        #                 drawData[url_id] = [
+        #                     [str(tmp['url_id']), tmp['date']],
+        #                     ['%s 瀏覽數' % page_title, int(tmp['page_views'])],
+        #                 ]
+        # else:
+        for db_data in db_list:
+            for data in db_data:
                 tmp = dict(data)
                 url_id = tmp['url_id']
                 page_title = tmp['page_title'][:10]

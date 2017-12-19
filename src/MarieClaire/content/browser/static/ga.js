@@ -5,21 +5,22 @@ $(document).ready(function () {
         data: {
             message: 'Hello Vue!',
             xs: {'aaa': 11111},
-            columns: []
+            columns: [],
+            raw_xs: {'aaa': 11111},
+            raw_columns: []
         }
     })
 
-    $('.ga_page_title, .start-date, .end-date, .event_checkbox').change(function(e){
+    $('.ga_page_title, .start-date, .end-date, .event_checkbox, .ga_select_data').change(function(e){
         $('.download').attr('href', '');
         ga_chart.xs = {}
         ga_chart.columns = []
         gatGaData(ga_chart)
     })
-    
+
     $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
         ga_chart.xs = {}
         ga_chart.columns = []
-        debugger
         gatGaData(ga_chart)
     });
     
@@ -58,26 +59,29 @@ $(document).ready(function () {
 gatGaData = function(ga_chart){
     start = $('.start-date').val();
     end = $('.end-date').val();
-    select_type = $('.active')[0].id
     url = window.location.href.replace('ga_report', 'get_ga_data')
-    console.log(select_type)
 
     data = {
         'checkList': checkedList(),
         'start': start,
         'end': end,
-        'select_type': select_type
+        // 'select_type': select_type
     }
     $.ajax({
         type: "POST",
         url: url,
         data: data,
     }).done(function(value){
+        select_type = $('.active')[0].id        
         resultArray = jQuery.parseJSON(value)
+        selected = checkedSelect()
         ga_chart.xs = resultArray[0]
+        
         for(key in resultArray[1]){
             for(i=0; i<resultArray[1][key].length; i++){
-                ga_chart.columns.push(resultArray[1][key][i])
+                if( i == 0 || selected.indexOf(i.toString()) != -1 ){
+                    ga_chart.columns.push(resultArray[1][key][i])
+                }
             }
         }
         var regions__list = []
@@ -98,8 +102,11 @@ gatGaData = function(ga_chart){
         if(ga_chart.columns.length == 0){
             alert('no data')
         }
-        genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
-        
+        if (select_type == 'nav_pie'){
+            genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
+        }else{
+            genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
+        }
 
     }).fail(function(){
         alert('Fail')
@@ -112,6 +119,14 @@ checkedList = function(){
     })
     return result
 }
+checkedSelect  = function(){
+    result = []
+    $.each($('.ga_select_data:checked'), function(index, value){
+        result.push($(value).val())
+    })
+    return result
+}
+
 genC3 = function(xs, columns, regions__list, event_order__list, event_name__list){
     // groups_columns = []
     // for(i=1;i<columns.length;i+=4){
