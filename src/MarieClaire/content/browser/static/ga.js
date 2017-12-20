@@ -130,17 +130,36 @@ checkedSelect  = function(){
 genC3 = function(xs, columns, regions__list, event_order__list, event_name__list){
     select_type = $('.select_type')[0].id
 
-    select_title_len = checkedList().length
-    select_data_len = checkedSelect().length
-    groups_list = []
+    selected_len = checkedSelect().length
+    groups_columns = []
 
-    // for(i=0 ; i<select_title_len ; i++){
-    //     for(j=1; j<=columns.length ;j+=3){
-    //         groups_list.push([columns[j][0],columns[j+1][0]])
-    //     }
-    // }
+    if(selected_len == 2){
+        for(i=1; i<=columns.length; i+=3){
+            tmp = []
+            for(j=1; j<=selected_len; j++){
+                if(i==1){
+                    tmp.push(columns[j][0])
+                }else{
+                    tmp.push(columns[i+j-1][0])
+                }
+            }
+            groups_columns.push(tmp)
+        }
+    }
+    if(selected_len == 3){
+        for(i=1; i<=columns.length; i+=4){
+            tmp = []
+            for(j=1; j<=3; j++){
+                if(i==1){
+                    tmp.push(columns[j][0])
+                }else{
+                    tmp.push(columns[i+j-1][0])
+                }
+            }
+            groups_columns.push(tmp)
+        }
+    }
 
-    // debugger
     if (select_type == 'nav_line'){
         draw_type = 'line'
     }else if(select_type == 'nav_bar'){
@@ -165,11 +184,7 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
             columns: columns,
             labels: true,
             type: draw_type,
-            groups: [   
-                        // groups_list
-                        // [columns[1][0], columns[2][0]],
-                        // [columns[4][0], columns[5][0]]
-                    ]
+            groups: groups_columns
         },
         axis: {
             x: {

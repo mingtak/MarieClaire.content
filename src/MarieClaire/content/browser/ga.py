@@ -134,12 +134,12 @@ class GetGaData(ManaBasic):
                         if drawData[url_id][0][-1] == tmp['date']:
                             drawData[url_id][1][-1] += int(tmp['page_views'])
                             drawData[url_id][2][-1] += int(tmp['users'])
-                            drawData[url_id][3][-1] = (drawData[url_id][3][-1] + (float(tmp['time_on_page'])/int(tmp['page_views'])))/2
+                            drawData[url_id][3][-1] =  round((drawData[url_id][3][-1] + float(tmp['time_on_page'])/int(tmp['page_views']))/2,2)
                         else:
                             drawData[url_id][0].append(tmp['date'])
                             drawData[url_id][1].append( int(tmp['page_views']) )
                             drawData[url_id][2].append( int(tmp['users']) )
-                            drawData[url_id][3].append( float(tmp['time_on_page'])/int(tmp['page_views']))
+                            drawData[url_id][3].append(round(float(tmp['time_on_page'])/int(tmp['page_views']),2))
                     else:
                         xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
                         xs['%s 使用人數' % page_title] = str(tmp['url_id'])
@@ -148,7 +148,7 @@ class GetGaData(ManaBasic):
                             [str(tmp['url_id']), tmp['date']],
                             ['%s 瀏覽數' % page_title, int(tmp['page_views'])],
                             ['%s 使用人數' % page_title, int(tmp['users'])],
-                            ['%s 平均停留時間(秒)' % page_title, round(float(tmp['time_on_page'])/int(tmp['page_views']),1)]
+                            ['%s 平均停留時間(秒)' % page_title, round(float(tmp['time_on_page'])/int(tmp['page_views']),2)]
                         ]
         return json.dumps([xs, drawData])
 
