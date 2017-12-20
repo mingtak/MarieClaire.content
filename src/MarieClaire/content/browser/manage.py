@@ -2,9 +2,6 @@
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from plone import api
-#from z3c.relationfield import RelationValue
-#from zope.app.intid.interfaces import IIntIds
-#from zope import component
 import datetime
 from DateTime import DateTime
 import logging
@@ -61,16 +58,43 @@ class UpdateWeight(ManaBasic):
 
 class ManaCustomList(ManaBasic):
     template = ViewPageTemplateFile('template/mana_custom_list.pt')
+    def getCustomList(self):
+        current = api.user.get_current().getUserName()
+        brains = api.content.find(Type='Custom', sort_on='created', sort_order='reverse')
+        result = []
+        for brain in brains:
+            item = brain.getObject()
+            item_ownerList = item.ownerList
+            if item_ownerList != None:
+                ownerList = item_ownerList.split('\r\n')
+                for owner in ownerList:
+                    if current == owner:
+                        result.append({
+                            'title': item.title,
+                            'url':brain.getURL()
+                        })
+        return result
 
     def __call__(self):
         if self.isAnonymous():
             return
-        self.brain = api.content.find(Type='Custom', sort_on='created', sort_order='reverse')
         return self.template()
 
 
 class CustomReport(ManaBasic):
     template = ViewPageTemplateFile('template/custom_report.pt')
+    # def checkUser(self):
+    #     current = api.user.get_current()
+    #     brain = api.content.find(context=api.portal.get())
+    #     if current == 'admin':
+    #         return True
+    #     else:
+    #         ownerList = brain[0].getObject().ownerList.split('\r\n')
+    #         for owner in ownerList:
+    #             if owner == current:
+    #                 return True
+    #             else:
+    #                 return False
 
     def getOrder(self):
         id = self.context.id
@@ -266,7 +290,7 @@ class GetDfpReport(ManaBasic):
                         ['%s 曝光量' % item['LINE_ITEM_NAME'], int(item['AD_SERVER_IMPRESSIONS']*item['im_weight']) ],
                         ['%s 點擊量' % item['LINE_ITEM_NAME'], int(item['AD_SERVER_CLICKS']*item['cli_weight']) ],
                         ['%s CTR%s' % (item['LINE_ITEM_NAME'], '(%)'),
-                    ( round( (float(item['AD_SERVER_CLICKS'])*item['cli_weight']) / (float(item['AD_SERVER_IMPRESSIONS'])*item['im_weight'])*100 , 1) )],
+                    ( round( (float(item['AD_SERVER_CLICKS'])*item['cli_weight'])/(float(item['AD_SERVER_IMPRESSIONS'])*item['im_weight'])*100 , 1) )],
                     ]
 
         return json.dumps([xs, drawData])
@@ -295,4 +319,3 @@ class ManaCustomAdd(ManaBasic):
         return self.template()
 
 """
-

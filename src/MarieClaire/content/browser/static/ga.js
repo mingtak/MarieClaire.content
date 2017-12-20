@@ -21,6 +21,11 @@ $(document).ready(function () {
     $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
         ga_chart.xs = {}
         ga_chart.columns = []
+        if($(this)[0].id == 'nav_pie'){
+            $('.ga_select_checkbox').hide();
+        }else{
+            $('.ga_select_checkbox').show();
+        }
         $(this).addClass('select_type')
         $(this).siblings().removeClass('select_type')
         gatGaData(ga_chart)

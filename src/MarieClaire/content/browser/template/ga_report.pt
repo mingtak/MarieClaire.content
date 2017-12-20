@@ -38,13 +38,13 @@
         <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>
            <a href="http://${data/page_url}" target="_blank">${data/page_title}</a></label>
     <br/>
-    <label>
+    <label class="ga_select_checkbox">
         <input type="checkbox" class="ga_select_data" value="1"/>瀏覽數
     </label>
-    <label >
+    <label class="ga_select_checkbox">
         <input type="checkbox" class="ga_select_data" value="2"/>使用人數
     </label>
-    <label >
+    <label class="ga_select_checkbox">
         <input type="checkbox" class="ga_select_data" value="3"/>平均停留時間
     </label>
 

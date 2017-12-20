@@ -54,7 +54,6 @@ class GaReport(ManaBasic):
             db_data = self.execSql(execStr)
             return db_data
         except:
-
             return 
 
     def __call__(self):
@@ -66,14 +65,15 @@ class GaReport(ManaBasic):
 
 class GaEdit(ManaBasic):
     template = ViewPageTemplateFile('template/ga_edit.pt')
+
     def get_id(self):
         id = self.context.id
         return id
+
     def __call__(self):
         if self.isAnonymous():
             return
         else:
-            
             return self.template()
 
 
@@ -98,7 +98,7 @@ class GetGaData(ManaBasic):
             tmp = dict(url)
             full_url = tmp['page_url'] + '%%'
             execStr = """ SELECT users,time_on_page,page_views,url_id,page_title,date FROM 
-                ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}' 
+                ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}'
                 """.format(full_url, start, end)
             result = self.execSql(execStr)
             db_list.append(result)
@@ -107,7 +107,7 @@ class GetGaData(ManaBasic):
         xs = {}
         if select_type == 'nav_pie':
             for db_data in db_list:
-                execStr = """SELECT date FROM ga_data WHERE url_id = 
+                execStr = """SELECT date FROM ga_data WHERE url_id =
                     '{}' GROUP BY date""".format(dict(db_data[0])['url_id'])
                 days = len(self.execSql(execStr))
                 for data in db_data:
@@ -116,7 +116,7 @@ class GetGaData(ManaBasic):
                     page_title = tmp['page_title'][:10]
                     if drawData.has_key(url_id):
                         drawData[url_id][0].append(tmp['date'])
-                        drawData[url_id][1][-1] += ( float(float(tmp['page_views'])/days) )
+                        drawData[url_id][1][-1] += (float(float(tmp['page_views'])/days))
                     else:
                         xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
                         drawData[url_id] = [
@@ -134,12 +134,12 @@ class GetGaData(ManaBasic):
                         if drawData[url_id][0][-1] == tmp['date']:
                             drawData[url_id][1][-1] += int(tmp['page_views'])
                             drawData[url_id][2][-1] += int(tmp['users'])
-                            drawData[url_id][3][-1] =  round((drawData[url_id][3][-1] + float(tmp['time_on_page'])/int(tmp['page_views']))/2,2)
+                            drawData[url_id][3][-1] =  round((drawData[url_id][3][-1]+float(tmp['time_on_page'])/int(tmp['page_views']))/2, 2)
                         else:
                             drawData[url_id][0].append(tmp['date'])
-                            drawData[url_id][1].append( int(tmp['page_views']) )
-                            drawData[url_id][2].append( int(tmp['users']) )
-                            drawData[url_id][3].append(round(float(tmp['time_on_page'])/int(tmp['page_views']),2))
+                            drawData[url_id][1].append(int(tmp['page_views']))
+                            drawData[url_id][2].append(int(tmp['users']))
+                            drawData[url_id][3].append(round(float(tmp['time_on_page'])/int(tmp['page_views']), 2))
                     else:
                         xs['%s 瀏覽數' % page_title] = str(tmp['url_id'])
                         xs['%s 使用人數' % page_title] = str(tmp['url_id'])
@@ -148,7 +148,7 @@ class GetGaData(ManaBasic):
                             [str(tmp['url_id']), tmp['date']],
                             ['%s 瀏覽數' % page_title, int(tmp['page_views'])],
                             ['%s 使用人數' % page_title, int(tmp['users'])],
-                            ['%s 平均停留時間(秒)' % page_title, round(float(tmp['time_on_page'])/int(tmp['page_views']),2)]
+                            ['%s 平均停留時間(秒)' % page_title, round(float(tmp['time_on_page'])/int(tmp['page_views']), 2)]
                         ]
         return json.dumps([xs, drawData])
 
@@ -161,8 +161,8 @@ class DelGaData(ManaBasic):
 
         if type(checkList) == str:
             checkList = [checkList, 'zzzzz']
-        execStr = """DELETE FROM ga_data WHERE url_id IN {} 
-        AND date = '{}' """.format(tuple(checkList), time)
+        execStr = """DELETE FROM ga_data WHERE url_id IN {}
+            AND date = '{}' """.format(tuple(checkList), time)
         self.execSql(execStr)
 
 
@@ -178,15 +178,16 @@ class DownloadGaFile(ManaBasic):
             ga_data_list.append(ga_data[i])
 
         execStr = """ SELECT * FROM ga_data
-            WHERE url_id IN {} AND date BETWEEN '{}' AND '{}' """.format(tuple(ga_data_list), startDate, endDate)
+            WHERE url_id IN {} AND date BETWEEN '{}' AND
+             '{}' """.format(tuple(ga_data_list), startDate, endDate)
         download_data = self.execSql(execStr)
         self.request.response.setHeader('Content-Type', 'application/csv')
         self.request.response.setHeader('Content-Disposition', 'attachment; filename="results.csv"')
         output = StringIO()
         output.write(u'\uFEFF'.encode('utf-8'))
         writer = csv.writer(output)
-        writer.writerow(['名稱', '日期', '瀏覽數', '平均停留時間（秒）', '使用人數',])
-        
+        writer.writerow(['名稱', '日期', '瀏覽數', '平均停留時間（秒）', '使用人數'])
+
         for data in download_data:
             tmp = dict(data)
             writer.writerow([
