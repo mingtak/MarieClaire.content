@@ -40,6 +40,22 @@ class ManaBasic(BrowserView):
 class GaReport(ManaBasic):
     template = ViewPageTemplateFile('template/ga_report.pt')
 
+    def checkUser(self):
+        current = api.user.get_current().getUserName()
+        brain = api.content.find(context=self.context)
+        if current == 'admin':
+            return True
+        else:
+            if brain[0].getObject().ownerList == None:
+                return False
+            else:
+                ownerList = brain[0].getObject().ownerList.split('\r\n')
+                for owner in ownerList:
+                    if owner == current:
+                        return True
+                    else:
+                        return False
+
     def get_db_data(self):
         id = self.context.id
         postList = self.context.postList
@@ -65,6 +81,22 @@ class GaReport(ManaBasic):
 
 class GaEdit(ManaBasic):
     template = ViewPageTemplateFile('template/ga_edit.pt')
+
+    def checkUser(self):
+        current = api.user.get_current().getUserName()
+        brain = api.content.find(context=self.context)
+        if current == 'admin':
+            return True
+        else:
+            if brain[0].getObject().ownerList == None:
+                return False
+            else:
+                ownerList = brain[0].getObject().ownerList.split('\r\n')
+                for owner in ownerList:
+                    if owner == current:
+                        return True
+                    else:
+                        return False
 
     def get_id(self):
         id = self.context.id
@@ -200,3 +232,28 @@ class DownloadGaFile(ManaBasic):
         results = output.getvalue()
         output.close()
         return results
+
+class AuthorityEdit(ManaBasic):
+    template = ViewPageTemplateFile('template/authority_edit.pt')
+    def checkUser(self):
+        current = api.user.get_current().getUserName()
+        brain = api.content.find(context=self.context)
+        if current == 'admin':
+            return True
+        else:
+            if brain[0].getObject().ownerList == None:
+                return False
+            else:
+                ownerList = brain[0].getObject().ownerList.split('\r\n')
+                for owner in ownerList:
+                    if owner == current:
+                        return True
+                    else:
+                        return False
+
+    def get_id(self):
+        id = self.context.id
+        return id
+
+    def __call__(self):
+        return self.template()

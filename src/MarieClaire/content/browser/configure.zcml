@@ -193,9 +193,28 @@
       class=".ga.DelGaData"
       layer="zope.interface.Interface"
       permission="zope2.View"
+      />authority_edit
+  <browser:page
+      name="authority_edit"
+      for="*"
+      class=".ga.AuthorityEdit"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
       />
-
-
+  <browser:page
+      name="update_Est"
+      for="*"
+      class=".manage.UpdateEst"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+  <browser:page
+      name="get_dfp_table"
+      for="*"
+      class=".manage.GetDfpTable"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
   <browser:page
       name="mc_macro"
       for="*"
@@ -203,7 +222,7 @@
       template="template/mc_macro.pt"
       layer="zope.interface.Interface"
       permission="zope2.View"
-      />
-
+      />authority_edit
+ 
 
 </configure>

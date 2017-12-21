@@ -33,49 +33,52 @@
         <li  id="nav_bar"><a data-toggle="pill"  >GA柱型圖</a></li>
         <li id="nav_pie"><a data-toggle="pill"  >GA圓餅圖</a></li>
     </ul>
+    <h2 tal:condition="not:view/checkUser">您沒有權限，請洽管理人員</h2>
 
-    <label tal:repeat="data view/get_db_data" >
-        <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>
-           <a href="http://${data/page_url}" target="_blank">${data/page_title}</a></label>
-    <br/>
-    <label class="ga_select_checkbox">
-        <input type="checkbox" class="ga_select_data" value="1"/>瀏覽數
-    </label>
-    <label class="ga_select_checkbox">
-        <input type="checkbox" class="ga_select_data" value="2"/>使用人數
-    </label>
-    <label class="ga_select_checkbox">
-        <input type="checkbox" class="ga_select_data" value="3"/>平均停留時間
-    </label>
+    <div tal:condition="view/checkUser">
+        <label tal:repeat="data view/get_db_data" >
+            <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>
+            <a href="http://${data/page_url}" target="_blank">${data/page_title}</a></label>
+        <br/>
+        <label class="ga_select_checkbox">
+            <input type="checkbox" class="ga_select_data" value="1"/>瀏覽數
+        </label>
+        <label class="ga_select_checkbox">
+            <input type="checkbox" class="ga_select_data" value="2"/>使用人數
+        </label>
+        <label class="ga_select_checkbox">
+            <input type="checkbox" class="ga_select_data" value="3"/>平均停留時間
+        </label>
 
-    <p><span class="datepicker">開始日期:
-        <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
-        </span>
-        結束日期:
-        <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
-    </p>
-
-    <?python 
-        from plone import api
-        events = api.content.find(
-            context=api.portal.get(), portal_type='Event')
-    ?>
-    <label class="" tal:repeat="item events">
-        <input type='checkbox'  class="event_checkbox " 
-                data-start=${python:item.start} data-end=${python:item.end}
-                data-order=event_${python:repeat.item.number}
-                value=${python:item.Title} ></input>${python:item.Title}</label>
-    <br/>
-    
-    <span class="">
-                選擇要刪除的時間：<input type="date" name="del_time" class="del-time "
-                                value="${python:DateTime().year()}-01-01"/>
+        <p><span class="datepicker">開始日期:
+            <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
             </span>
-            <button class="del-btn btn btn-danger">刪除</button>
-            <br/>
-            <button class="download btn btn-primary" >下載</button>
-    <div class="chart">
-            <div id="ga_chart"/>
+            結束日期:
+            <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
+        </p>
+
+        <?python 
+            from plone import api
+            events = api.content.find(
+                context=api.portal.get(), portal_type='Event')
+        ?>
+        <label class="" tal:repeat="item events">
+            <input type='checkbox'  class="event_checkbox " 
+                    data-start=${python:item.start} data-end=${python:item.end}
+                    data-order=event_${python:repeat.item.number}
+                    value=${python:item.Title} ></input>${python:item.Title}</label>
+        <br/>
+        
+        <span class="">
+                    選擇要刪除的時間：<input type="date" name="del_time" class="del-time "
+                                    value="${python:DateTime().year()}-01-01"/>
+                </span>
+                <button class="del-btn btn btn-danger">刪除</button>
+                <br/>
+                <button class="download btn btn-primary" >下載</button>
+        <div class="chart">
+                <div id="ga_chart"/>
+        </div>
     </div>
 
     <script src="${portal_url}/++plone++MarieClaire.content/ga.js"></script>

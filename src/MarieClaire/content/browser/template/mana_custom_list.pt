@@ -42,6 +42,7 @@
             <a href="${python:'%s/custom_report' % url}">DFP Report</a>
             <a href="${python:'%s/ga_edit' % url}">GA Edit</a>
             <a href="${python:'%s/ga_report' % url}">GA Report</a>
+            <a href="${python:'%s/authority_edit' % url}">AUTHORITY EDIT</a>
         </div>
     </div>
     <!-- 登入者為adminm -->
@@ -54,6 +55,7 @@
             <a href="${python:'%s/custom_report' % item.getURL()}">DFP Report</a>
             <a href="${python:'%s/ga_edit' % item.getURL()}">GA Edit</a>
             <a href="${python:'%s/ga_report' % item.getURL()}">GA Report</a>
+            <a href="${python:'%s/authority_edit' % item.getURL()}">AUTHORITY EDIT</a>
         </div>
     </div>
 </div>

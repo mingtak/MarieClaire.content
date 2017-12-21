@@ -3,7 +3,6 @@
 // dfp Line chart
 genC3 = function(xs, columns, regions__list, event_order__list, event_name__list){
     groups_columns = []
-
     selected_len = checkedSelect().length
 
     if(selected_len == 2){
@@ -32,7 +31,7 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
             groups_columns.push(tmp)
         }
     }
-    select_type = $('.active')[0].id
+    select_type = $('.select_type')[0].id
     if (select_type == 'nav_line'){
         draw_type = 'line'
     }else if(select_type == 'nav_bar'){
@@ -123,10 +122,25 @@ drawLine = function(dfpLine){
         resultArray = jQuery.parseJSON(value)
         dfpLine.xs = resultArray[0]
         selected = checkedSelect()
-        for(key in resultArray[1]){
-            for(i=0; i<resultArray[1][key].length; i++){
-                if( i == 0 || selected.indexOf(i.toString()) != -1 ){
-                    dfpLine.columns.push(resultArray[1][key][i])
+        if (select_type == 'nav_pie'){
+            for(key in resultArray[1]){
+                if(selected[0] == 1){
+                    dfpLine.columns.push(resultArray[1][key][0])
+                    dfpLine.columns.push(resultArray[1][key][1])
+
+                }
+                else if(selected[0] == 2){
+                    dfpLine.columns.push(resultArray[1][key][0])
+                    dfpLine.columns.push(resultArray[1][key][2])
+                }
+            }
+        }
+        else{
+            for(key in resultArray[1]){
+                for(i=0; i<resultArray[1][key].length; i++){
+                    if( i == 0 || selected.indexOf(i.toString()) != -1 ){
+                        dfpLine.columns.push(resultArray[1][key][i])
+                    }
                 }
             }
         }
@@ -152,11 +166,21 @@ drawLine = function(dfpLine){
     })
 }
 
+getDfpTable = function(){
+    url = window.location.href.replace('custom_report', '@@get_dfp_table')
+    $.ajax({
+        type: "post",
+        url: url,
+        data: "data",
+        success: function (response) {
+            
+        }
+    });
+}
+
 // Line Chart, Main
 $(document).ready(function(){
     // VUE
-    $('.dfp_select_radio').hide();
-
     var dfpLine = new Vue({
         el: '#dfp-line',
         data: {
@@ -165,6 +189,7 @@ $(document).ready(function(){
             columns: []
         }
     })
+    $('.dfp_select_radio').hide();
 
     // 全選
     $('.dfp-select-all').click(function(){
@@ -191,6 +216,7 @@ $(document).ready(function(){
     $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
         dfpLine.xs = {}
         dfpLine.columns = []
+        $('input').prop('checked',false)
         if($(this)[0].id == 'nav_pie'){
             $('.dfp_select_radio').show();
             $('.dfp_select_checkbox').hide();
@@ -231,5 +257,9 @@ $(document).ready(function(){
         end = $('.end-date').val()
         urlStr = `download_file?checkList[]=${checkList}&start=${start}&end=${end}`
         window.location.href = urlStr
+    });
+    $('#nav_table').click(function (e) { 
+        getDfpTable()
+        
     });
 })

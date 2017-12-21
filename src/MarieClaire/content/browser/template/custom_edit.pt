@@ -20,12 +20,16 @@
 
 <h2>客戶報表管理</h2>
 <a href="${context/absolute_url}/custom_report" target="_blank">查看報表</a>
-<div class="table">
+<h2 tal:condition="not:view/checkUser">您沒有權限，請洽管理人員</h2>
+<div class="table" tal:condition="view/checkUser">
     <div class="row header">
-        <div class="col-md-2">訂單ID</div>
+        <div class="col-md-1">訂單ID</div>
         <div class="col-md-5">訂單名稱</div>
         <div class="col-md-2">本檔績效(Clicks / Impressions)</div>
-        <div class="col-md-3">加權(Clicks / Impressions)</div>
+        <div class="col-md-2">加權(Clicks / Impressions)</div>
+        <div class="coi-md-1">預期曝光率</div>
+        <div class="coi-md-1">預期點擊率</div>
+
     </div>
     <div tal:repeat="item view/orderIds" class="row record">
         <div>
@@ -44,16 +48,22 @@
         <tal:repeat define="line_item_data python:view.getLineItem(item)" 
                         repeat="line_item line_item_data">
             <div>
-                <div class="col-md-2">${python:line_item}</div>
+                <div class="col-md-1">${python:line_item}</div>
                 <div class="col-md-5">${python:line_item_data[line_item]['LINE_ITEM_NAME']}</div>
                 <div class="col-md-2">
                     ${python:line_item_data[line_item]['AD_SERVER_CLICKS']}/${python:line_item_data[line_item]['AD_SERVER_IMPRESSIONS']}
                 </div>
-                <div class="col-md-3 last">
+                <div class="col-md-2 last">
                     <input class="line_item_weight" data-line_item_id="${line_item}" data-name="cli_weight"
                         type="number" step="0.1" value="${python:line_item_data[line_item]['cli_weight']}"> / 
                     <input class="line_item_weight" data-line_item_id="${line_item}" data-name="im_weight"
                         type="number" step="0.1" value="${python:line_item_data[line_item]['im_weight']}">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" style="display:inline" value="${python:line_item_data[line_item]['EstImp']}" 
+                        class="line_item_est" data-line_item_id="${line_item}" data-name="EstImp"/>
+                    <input type="text" style="display:inline" value="${python:line_item_data[line_item]['EstCTR']}"
+                        class="line_item_est" data-line_item_id="${line_item}" data-name="EstCTR"/>
                 </div>
             </div>
         </tal:repeat>
@@ -84,6 +94,23 @@ updateWeight = function(update_id, weight_name, weight, update_type){
     })
 }
 
+updateEst = function(update_id, est_name, value){
+    url = window.location.href.replace('custom_edit', '@@update_Est')
+    data = {
+        update_id: update_id,
+        est_name: est_name,
+        value: value,
+    }
+    $.post(
+        url,
+        data = data,
+    ).done(function(value){
+        alert(value)
+        window.location = window.location.href 
+    }).fail(function(){
+        alert('Fail')
+    })
+}
 
 // update weight
 $(document).ready(function(){
@@ -99,8 +126,13 @@ $(document).ready(function(){
         update_id = $(this).data('line_item_id')
         weight_name = $(this).data('name')
         weight = $(this).val()
-        debugger
         updateWeight(update_id, weight_name, weight, update_type)
+    })
+    $('.line_item_est').change(function(){
+        update_id = $(this).data('line_item_id')
+        est_name = $(this).data('name')
+        value = $(this).val()
+        updateEst(update_id, est_name, value)
     })
 })
 </script>

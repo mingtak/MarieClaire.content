@@ -83,11 +83,19 @@ gatGaData = function(ga_chart){
         resultArray = jQuery.parseJSON(value)
         selected = checkedSelect()
         ga_chart.xs = resultArray[0]
-        
-        for(key in resultArray[1]){
-            for(i=0; i<resultArray[1][key].length; i++){
-                if( i == 0 || selected.indexOf(i.toString()) != -1 ){
+        if (select_type == 'nav_pie'){
+            for(key in resultArray[1]){
+                for(i=0; i<resultArray[1][key].length; i++){
                     ga_chart.columns.push(resultArray[1][key][i])
+                }
+            }
+        }
+        else{
+            for(key in resultArray[1]){
+                for(i=0; i<resultArray[1][key].length; i++){
+                    if( i == 0 || selected.indexOf(i.toString()) != -1 ){
+                        ga_chart.columns.push(resultArray[1][key][i])
+                    }
                 }
             }
         }
@@ -137,31 +145,32 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
 
     selected_len = checkedSelect().length
     groups_columns = []
-
-    if(selected_len == 2){
-        for(i=1; i<=columns.length; i+=3){
-            tmp = []
-            for(j=1; j<=selected_len; j++){
-                if(i==1){
-                    tmp.push(columns[j][0])
-                }else{
-                    tmp.push(columns[i+j-1][0])
+    if (select_type != 'nav_pie'){
+        if(selected_len == 2){
+            for(i=1; i<=columns.length; i+=3){
+                tmp = []
+                for(j=1; j<=selected_len; j++){
+                    if(i==1){
+                        tmp.push(columns[j][0])
+                    }else{
+                        tmp.push(columns[i+j-1][0])
+                    }
                 }
+                groups_columns.push(tmp)
             }
-            groups_columns.push(tmp)
         }
-    }
-    if(selected_len == 3){
-        for(i=1; i<=columns.length; i+=4){
-            tmp = []
-            for(j=1; j<=3; j++){
-                if(i==1){
-                    tmp.push(columns[j][0])
-                }else{
-                    tmp.push(columns[i+j-1][0])
+        if(selected_len == 3){
+            for(i=1; i<=columns.length; i+=4){
+                tmp = []
+                for(j=1; j<=3; j++){
+                    if(i==1){
+                        tmp.push(columns[j][0])
+                    }else{
+                        tmp.push(columns[i+j-1][0])
+                    }
                 }
+                groups_columns.push(tmp)
             }
-            groups_columns.push(tmp)
         }
     }
 

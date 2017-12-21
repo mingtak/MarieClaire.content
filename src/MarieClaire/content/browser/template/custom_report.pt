@@ -31,16 +31,15 @@ from DateTime import DateTime
 <h4>查看報表</h4>
 <a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
 <ul class="nav nav-pills">
-  <li class="active select_type" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
-  <li  id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
-  <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
-<!--  <li><a data-toggle="pill" href="#post-line">貼文追蹤折線圖</a></li>
-  <li><a data-toggle="pill" href="#post-bar">貼文追蹤柱型圖</a></li>
-  <li><a data-toggle="pill" href="#post-pie">貼文追蹤圖餅圖</a></li>
--->
+    <li class="active select_type" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
+    <li id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
+    <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
+    <li id="nav_table"><a data-toggle="pill" >DFP報表</a></li>
 </ul>
 
-<div class="tab-content">
+<h2 tal:condition="not:view/checkUser">您沒有權限，請洽管理人員</h2>
+
+<div class="tab-content" tal:condition="view/checkUser">
   <div id="dfp-line" class="tab-pane fade in active">
       <br>
       <div tal:define="orders view/getOrder">
