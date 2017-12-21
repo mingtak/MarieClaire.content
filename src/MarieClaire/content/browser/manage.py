@@ -347,7 +347,8 @@ class DelLineItem(ManaBasic):
         self.execSql(execStr)
 
 class GetDfpTable(ManaBasic):
-    
+    def __call__(self):
+        return 
 
 
 """ 尚未使用
