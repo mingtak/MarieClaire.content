@@ -4,7 +4,7 @@
 genC3 = function(xs, columns, regions__list, event_order__list, event_name__list){
     groups_columns = []
     selected_len = checkedSelect().length
-
+    /* 用來判斷堆疊 */
     if(selected_len == 2){
         for(i=1; i<=columns.length; i+=3){
             tmp = []
@@ -31,6 +31,7 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
             groups_columns.push(tmp)
         }
     }
+
     select_type = $('.select_type')[0].id
     if (select_type == 'nav_line'){
         draw_type = 'line'
@@ -38,12 +39,6 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
         draw_type = 'bar'
     }else if(select_type == 'nav_pie'){
         draw_type = 'pie'
-    }
-
-    if(columns.length > 40){
-        height = 1000
-    }else{
-        height = null
     }
 
     var chart = c3.generate({
@@ -75,6 +70,7 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
     drawRegions(event_name__list, event_order__list)
     $('.hide_adv').show()
 }
+//畫區間
 drawRegions = function(event_name__list, event_order__list){
     var rectOffset = function () {
                     return  d3.select(this.parentNode).select('rect').attr("x"); };
@@ -90,7 +86,7 @@ drawRegions = function(event_name__list, event_order__list){
         .attr("text-anchor", "start");
     }
 }
-// 選取有打勾的項目
+// 選取有打勾的
 checkedList = function(){
     result = []
     $.each($('.dfp-line-item:checked'), function(index, value){
@@ -122,6 +118,7 @@ drawLine = function(dfpLine){
         resultArray = jQuery.parseJSON(value)
         dfpLine.xs = resultArray[0]
         selected = checkedSelect()
+        //把勾選的 選光量、點擊量、CTR填入columns
         if (select_type == 'nav_pie'){
             for(key in resultArray[1]){
                 if(selected[0] == 1){
@@ -144,6 +141,7 @@ drawLine = function(dfpLine){
                 }
             }
         }
+        /* 抓取event資料 */
         var regions__list = []
         var event_order__list = []
         var event_name__list = []
@@ -167,13 +165,20 @@ drawLine = function(dfpLine){
 }
 
 getDfpTable = function(){
+    
+    data = {
+        'select_type': $('.select_type')[0].id,
+        'checkList': checkedList(),
+        'start': $('.start-date').val(),
+        'end': $('.end-date').val(),
+       }
     url = window.location.href.replace('custom_report', '@@get_dfp_table')
     $.ajax({
         type: "post",
         url: url,
-        data: "data",
+        data: data,
         success: function (response) {
-            
+            $('#line-chart').html(response);
         }
     });
 }
@@ -258,7 +263,9 @@ $(document).ready(function(){
         urlStr = `download_file?checkList[]=${checkList}&start=${start}&end=${end}`
         window.location.href = urlStr
     });
-    $('#nav_table').click(function (e) { 
+    $('#nav_table, #nav_detail').click(function (e) {
+        $(this).addClass('select_type')
+        $(this).siblings().removeClass('select_type')
         getDfpTable()
         
     });

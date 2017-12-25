@@ -1,0 +1,82 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal">
+<body>
+    <table tal:condition="view/select_table">
+        <tal:define define="data view/tableData">
+            <?python keys = data.keys() ?>
+            <tr>
+                <th colspan="2">Media/channel</th>
+                <th>Period</th>
+                <th>Est,Imp</th>
+                <th>Est,CTR</th>
+                <th>Est,Clikcs</th>
+                <th>Imps Delivery</th>
+                <th>Imps Achievement</th>
+                <th>Clicks</th>
+                <th>CTR</th>
+            </tr>
+            <tr tal:repeat="key keys">
+                <td>${python:data[key][0][0]}</td>
+                <td>${python:data[key][0][1]}</td>
+                <td>${python:data[key][0][2]}</td>
+                <td>${python:data[key][4][0]}</td>
+                <td>${python:'%s %%' %data[key][5][0]}</td>
+                <td>${python:int(int(data[key][4][0])*float(data[key][5][0])/100)}</td>
+                <td>${python:data[key][1][0]}</td>
+                <td>${python:round(float(float(data[key][1][0])/float(data[key][4][0])),2)}</td>
+                <td>${python:data[key][2][0]}</td>
+                <td>${python:'%s %%' %round(float(data[key][2][0])/float(data[key][1][0])*100,2)}</td>
+            </tr>
+        </tal:define>
+    </table>
+
+    <table tal:condition="view/select_detail">
+        <tr>
+            <th></th>
+            <tal:repeat repeat="title view/day_title">
+                <th colspan="3">${python:title.split('_')[0]}</th>
+            </tal:repeat>
+        </tr>
+        <tr>
+            <th></th>
+            <tal:repeat repeat="title view/day_title">
+                <th colspan="3">${python:title.split('_')[1]}</th>
+            </tal:repeat>
+        </tr>
+        <tr>
+            <th></th>
+            <tal:repeat repeat="title view/day_title">
+                <th colspan="3">${python:title.split('_')[2]}</th>
+            </tal:repeat>
+        </tr>
+        <tr>
+            <th></th>
+            <tal:repeat repeat="title python:view.day_title">
+                <td>Impression</td>
+                <td>Clicks</td>
+                <td>CTR</td>
+            </tal:repeat>
+        </tr>
+
+        <tr>
+            <th>購買曝光數</th>
+            <td tal:repeat="est python:view.est">${est}</td>
+        </tr>
+
+        <tr tal:define="day_data view/result_day_data"
+            tal:repeat="day view/day_list">
+            <th>${python:day}</th>
+            <tal:repeat repeat="index python:range(0, len(day_data[day]))">
+                <td>${python:day_data[day][index]}</td>
+            </tal:repeat>
+        </tr>
+        <tr>
+            <th></th>
+            <td tal:repeat="sum view/sum_list">${sum}</td>
+        </tr>
+        <tr>
+            <th>達成率</th>
+            <th colspan="3" tal:repeat="rate view/reaching_rate">${rate}</th>
+        </tr>
+    </table>
+</body>
+</html>

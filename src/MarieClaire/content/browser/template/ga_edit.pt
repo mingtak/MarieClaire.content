@@ -33,6 +33,9 @@
             style="display:none" />
         <h2>追蹤網址</h2>
         <textarea  id="form-widgets-postList" name="form.widgets.postList" class="textarea-widget text-field">${context/postList}</textarea>
+        
+        <h2>追蹤表格網址</h2>
+        <textarea id="form-widgets-tableList" name="form.widgets.tableList" class="textarea-widget text-field">${context/tableList}</textarea>
         <br/>
         <input id="form-buttons-save" name="form.buttons.save" class="submit-widget button-field context" value="儲存" type="submit">
     </form>

@@ -114,9 +114,6 @@ gatGaData = function(ga_chart){
                 
             }
         })
-        // if(ga_chart.columns.length == 0){
-        //     alert('no data')
-        // }
 
         genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
         
@@ -180,12 +177,6 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
         draw_type = 'bar'
     }else if(select_type == 'nav_pie'){
         draw_type = 'pie'
-    }
-
-    if(columns.length > 40){
-        height = 1000
-    }else{
-        height = null
     }
 
     var chart = c3.generate({

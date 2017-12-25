@@ -257,3 +257,88 @@ class AuthorityEdit(ManaBasic):
 
     def __call__(self):
         return self.template()
+
+class UpdataGaTableData(ManaBasic):
+
+    def __call__(self):
+        SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
+        DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
+        CLIENT_SECRETS_PATH = '/home/henry/MarieClaire/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
+        
+        parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        parents=[tools.argparser])
+        flags = parser.parse_args([])
+
+        flow = client.flow_from_clientsecrets(
+            CLIENT_SECRETS_PATH, scope=SCOPES,
+            message=tools.message_if_missing(CLIENT_SECRETS_PATH))
+
+        storage = file.Storage('analyticsreporting.dat')
+        credentials = storage.get()
+        if credentials is None or credentials.invalid:
+            credentials = tools.run_flow(flow, storage, flags)
+        http = credentials.authorize(http=httplib2.Http())
+
+        # Build the service object.
+        analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=DISCOVERY_URI)
+
+        self.get_report(analytics)
+
+    def get_report(self, analytics):
+        VIEW_ID = '5906876'
+        brain = api.content.find(context=self.context)
+        tableList = brain[0].getObject().tableList
+        page_url = tableList.split(',')[0]
+        start_date = tableList.split(',')[1]
+        end_date = tableList.split(',')[2]
+
+        response = analytics.reports().batchGet(
+            body={
+            'reportRequests': [
+                {
+                'viewId': VIEW_ID,
+                'dateRanges': [{'startDate': start_date, 'endDate': end_date}],
+                'metrics': [
+                            {'expression': 'ga:pageviews'},
+                            ],
+                'dimensions': [
+                                {'name': 'ga:date'},
+                                {'name': 'ga:sourceMedium'},
+                                {'name': 'ga:pagePath'}
+                            ],
+                "orderBys":[
+                            {"fieldName":"ga:date"}
+                            ],
+                "filtersExpression": 'ga:pagePath=~%s' %page_url,
+                }],
+            }
+        ).execute()
+        self.save2db(response)
+
+    def save2db(self, response):
+        for report in response.get('reports', []):
+            rows = report.get('data', {}).get('rows', [])
+            for row in rows:
+                dimensions = row.get('dimensions', [])
+                date = str(dimensions[0][:4] + '-' +dimensions[0][4:6] + '-' + dimensions[0][6:8])
+                title = str(dimensions[1])
+                page_url = str(dimensions[2])
+                page_views = row.get('metrics',[])[0]['values'][0]
+                try:
+                    execStr = """SELECT date,title FROM ga_table WHERE date = '{}' AND 
+                        title = '{}'""".format(date, title)
+                    result = self.execSql(execStr)
+                except:
+                    import pdb;pdb.set_trace()
+                
+                if result == []:
+                    execStr = """INSERT INTO ga_table(page_url,title,page_views,date) VALUES('{}',
+                        '{}', '{}', '{}')""".format(page_url, title, page_views, date)
+                    self.execSql(execStr)
+            
+
+class GaTable(ManaBasic):
+    template = ViewPageTemplateFile('template/ga_table.pt')
+    def __call__(self):
+        """"""

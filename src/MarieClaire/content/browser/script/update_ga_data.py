@@ -26,12 +26,7 @@ def execSql(execStr):
         return execResult.fetchall()
 
 def initialize_analyticsreporting():
-    """Initializes the analyticsreporting service object.
 
-    Returns:
-    analytics an authorized analyticsreporting service object.
-    """
-    # Parse command-line arguments.
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         parents=[tools.argparser])
@@ -137,7 +132,7 @@ def save2db(response, count):
         except :
             import pdb;pdb.set_trace()
 
-        if url_id == []:
+        if url_id == []: #判斷有沒有url_id，若沒有代表他是這url_id的第1筆，就直接寫進去
             execStr = """ INSERT INTO ga_url(page_url) VALUES("{}") """.format(page_url)
             execSql(execStr)
 
@@ -166,6 +161,8 @@ def save2db(response, count):
                 import pdb;pdb.set_trace()
 
             if result == []:
+                #判斷他完整的網址有沒有重複，若有就在判斷他新的page_view有沒有比舊的大
+                #有的話才update，若完整的網址沒重複就直接寫進資料庫
                 execStr = """INSERT INTO ga_data( host_name, page_url, full_url, page_title, date,
                     time_on_page, page_views, sessions, users, pageviewsPerSession, 
                     avgSessionDuration, bounceRate, percentNewSessions, url_id) VALUES ('{}'

@@ -146,7 +146,19 @@
       template="template/mc_macro.pt"
       layer="zope.interface.Interface"
       permission="zope2.View"
-      />authority_edit
- 
-
+      />
+  <browser:page
+      name="update_ga_table_data"
+      for="*"
+      class=".ga.UpdataGaTableData"
+      layer="zope.interface.Interface"
+      permission="cmf.ManagePortal"
+      />
+  <browser:page
+      name="ga_table"
+      for="*"
+      class=".ga.GaTable"
+      layer="zope.interface.Interface"
+      permission="cmf.ManagePortal"
+      />
 </configure>

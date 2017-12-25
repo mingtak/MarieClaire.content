@@ -54,6 +54,11 @@ class ICustom(Interface):
         required=False,
     )
 
+    tableList = schema.Text(
+        title=_(u'table List'),
+        description=_(u'per line one record'),
+        required=False,
+    )
     """ 
     post = RelationChoice(
         title=_(u'Post'),

@@ -347,8 +347,173 @@ class DelLineItem(ManaBasic):
         self.execSql(execStr)
 
 class GetDfpTable(ManaBasic):
+    template = ViewPageTemplateFile('template/custom_table.pt')
     def __call__(self):
-        return 
+
+        request = self.request
+        select_type = request.form.get('select_type')
+        checkList = request.form.get('checkList[]')
+        startDate = request.form.get('start')
+        endDate = request.form.get('end')
+        if type(checkList) == str:
+            checkList = [checkList, 'zzzzz']
+
+        if select_type == 'nav_table':
+            execStr = """\
+                SELECT dfp_ad_server.*,dfp_line_item.LINE_ITEM_NAME,dfp_line_item.EstImp
+                ,dfp_line_item.EstCTR FROM `dfp_ad_server`,`dfp_line_item` 
+                WHERE dfp_ad_server.LINE_ITEM_ID IN {} 
+                AND dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND(DATE BETWEEN '{}'
+                AND '{}') ORDER BY DATE""".format(tuple(checkList), startDate, endDate)
+            result = self.execSql(execStr)
+            tableData = {}
+            for item in result:
+                tmp = dict(item)
+                line_item_id = tmp['LINE_ITEM_ID']
+                Date = str(tmp['DATE'])
+                line_item_name = str(tmp['LINE_ITEM_NAME'])
+                if select_type == 'nav_table':
+                    if tableData.has_key(line_item_id):
+                            tableData[line_item_id][1][-1] += int(tmp['AD_SERVER_IMPRESSIONS'])
+                            tableData[line_item_id][2][-1] += int(tmp['AD_SERVER_CLICKS'])
+                            tableData[line_item_id][3][-1] += float(tmp['AD_SERVER_CTR'])
+                    else:
+                        tableData[line_item_id] = [
+                            [line_item_name.split('_')[0],line_item_name.split('_')[1],line_item_name.split('_')[2]],
+                            [tmp['AD_SERVER_IMPRESSIONS']],
+                            [tmp['AD_SERVER_CLICKS']],
+                            [tmp['AD_SERVER_CTR']],
+                            [tmp['EstImp']],
+                            [tmp['EstCTR']]
+                        ]
+                elif select_type == 'nav_detail':
+                    if tableData.has_key(line_item_id):
+                        if Date == tableData[line_item_id][3][-1]:
+                            tableData[line_item_id][4][-1] += int(tmp['AD_SERVER_IMPRESSIONS'])
+                            tableData[line_item_id][5][-1] += int(tmp['AD_SERVER_CLICKS'])
+                        else:
+                            tableData[line_item_id][3].append(Date)
+                            tableData[line_item_id][4].append( int(tmp['AD_SERVER_IMPRESSIONS']))
+                            tableData[line_item_id][5].append( int(tmp['AD_SERVER_CLICKS']))
+                    else:
+                        tableData[line_item_id] = [
+                            [line_item_name.split('_')[0]],
+                            [line_item_name.split('_')[1]],
+                            [line_item_name.split('_')[2]],
+                            [Date],
+                            [tmp['AD_SERVER_IMPRESSIONS']],
+                            [tmp['AD_SERVER_CLICKS']],
+                            [tmp['EstImp']],
+                            [tmp['EstCTR']]
+                        ]
+            self.tableData = tableData
+        elif select_type == 'nav_detail':
+            # 抓兩日的差距
+            execStr = """SELECT MIN(DATE),MAX(DATE) FROM dfp_ad_server WHERE DATE BETWEEN 
+                '{}' AND '{}' AND LINE_ITEM_ID IN {} """.format(startDate, endDate, tuple(checkList))
+            day_result = self.execSql(execStr)
+            min_day = dict(day_result[0])['MIN(DATE)']
+            max_day = dict(day_result[0])['MAX(DATE)']
+            days = (max_day - min_day).total_seconds()/60/60/24
+            day_list = []
+            for i in range(0, int(days)+1):
+                day = str(min_day + datetime.timedelta(days=i))
+                day_list.append(day)
+
+            self.day_list = day_list
+            # 抓title
+            execStr = """SELECT LINE_ITEM_NAME FROM dfp_line_item WHERE LINE_ITEM_ID 
+                IN {}""".format(tuple(checkList))
+            result_day_title = self.execSql(execStr)
+            day_title = []
+            for title in result_day_title:
+                tmp = dict(title)
+                day_title.append(tmp['LINE_ITEM_NAME'])
+            self.day_title = day_title
+
+            # 抓line_item data
+            result_day_data = {}
+            for checked in checkList:
+                execStr = """SELECT AD_SERVER_IMPRESSIONS,AD_SERVER_CLICKS,DATE,LINE_ITEM_ID 
+                    FROM `dfp_ad_server` WHERE LINE_ITEM_ID = '{}' and DATE BETWEEN '{}' AND 
+                    '{}' ORDER BY LINE_ITEM_ID""".format(checked, startDate, endDate)
+                result = self.execSql(execStr)
+                tmp_dayList = list(day_list)
+                for item in result:
+                    tmp = dict(item)
+                    date = str(tmp['DATE'])
+                    impressions = tmp['AD_SERVER_IMPRESSIONS']
+                    clicks = tmp['AD_SERVER_CLICKS']
+                    ctr = round(float(clicks) / float(impressions)*100,2)
+                    if result_day_data.has_key(date):
+                        result_day_data[date].append(impressions)
+                        result_day_data[date].append(clicks)
+                        result_day_data[date].append('%s %%' %ctr)
+                    else:
+                        result_day_data[date] = [impressions, clicks, '%s %%' %ctr]
+                    tmp_dayList.remove(date) 
+                # 把剩餘的日期填空
+                for tmp_day in tmp_dayList:
+                    if result_day_data.has_key(tmp_day):
+                        result_day_data[tmp_day].append('')
+                        result_day_data[tmp_day].append('')
+                        result_day_data[tmp_day].append('')
+                    else:
+                        result_day_data[tmp_day] = ['', '', '']
+            self.result_day_data = result_day_data
+            
+            # 抓預期目標
+            execStr = """SELECT EstImp,EstCTR FROM dfp_line_item WHERE LINE_ITEM_ID 
+                IN {}""".format(tuple(checkList))
+            result_est = self.execSql(execStr)
+            estList = []
+            for est in result_est:
+                tmp = dict(est)
+                click = int(int(tmp['EstImp']) * float(tmp['EstCTR'])/100)
+                estList.append(tmp['EstImp'])
+                estList.append(click)
+                estList.append('%s %%' %tmp['EstCTR'])
+            self.est = estList
+            
+            # 抓最後達成結果
+            execStr = """SELECT SUM(AD_SERVER_IMPRESSIONS),SUM(AD_SERVER_CLICKS) FROM 
+                `dfp_ad_server` WHERE LINE_ITEM_ID IN {} AND DATE BETWEEN '{}' AND '{}' 
+                GROUP BY LINE_ITEM_ID
+                """.format(tuple(checkList), startDate, endDate)
+            result_sum = self.execSql(execStr)
+            result_sum_list = []
+            for item in result_sum:
+                tmp = dict(item)
+                impressions = int(tmp['SUM(AD_SERVER_IMPRESSIONS)'])
+                clicks = int(tmp['SUM(AD_SERVER_CLICKS)'])
+                ctr = round(float(clicks)/float(impressions)*100, 2)
+                result_sum_list.append(impressions)
+                result_sum_list.append(clicks)
+                result_sum_list.append('%s %%' %ctr)
+            self.sum_list = result_sum_list
+
+            # 抓達成率
+            execStr = """SELECT SUM(dfp_ad_server.AD_SERVER_IMPRESSIONS),dfp_line_item.EstImp 
+                FROM `dfp_ad_server`,dfp_line_item WHERE dfp_ad_server.LINE_ITEM_ID IN 
+                {} and dfp_ad_server.LINE_ITEM_ID=dfp_line_item.LINE_ITEM_ID AND DATE
+                BETWEEN '{}' AND '{}' GROUP BY dfp_ad_server.LINE_ITEM_ID
+                """.format(tuple(checkList), startDate, endDate)
+            result_reaching_rate = self.execSql(execStr)
+            reaching_rate_list = []
+            for item in result_reaching_rate:
+                tmp = dict(item)
+                reaching_rate = round(float(tmp['SUM(dfp_ad_server.AD_SERVER_IMPRESSIONS)'])/float(tmp['EstImp']), 2)
+                reaching_rate_list.append('%s %%' %reaching_rate)
+            self.reaching_rate = reaching_rate_list
+        # 判斷點擊
+        if select_type == 'nav_table':
+            self.select_table = True
+            self.select_detail = False
+        else:
+            self.select_detail = True
+            self.select_table = False
+
+        return self.template()
 
 
 """ 尚未使用
@@ -361,3 +526,5 @@ class ManaCustomAdd(ManaBasic):
         return self.template()
 
 """
+
+
