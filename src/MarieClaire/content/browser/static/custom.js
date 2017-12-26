@@ -165,7 +165,6 @@ drawLine = function(dfpLine){
 }
 
 getDfpTable = function(){
-    
     data = {
         'select_type': $('.select_type')[0].id,
         'checkList': checkedList(),

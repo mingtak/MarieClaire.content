@@ -71,6 +71,14 @@ class GaReport(ManaBasic):
             return db_data
         except:
             return 
+    
+    def get_table_data(self):
+        brain = self.context.tableList
+        if brain == None:
+            return 
+        else:
+            tableData = brain.encode('utf-8').split('\r\n')
+            return tableData
 
     def __call__(self):
         if self.isAnonymous():
@@ -341,4 +349,76 @@ class UpdataGaTableData(ManaBasic):
 class GaTable(ManaBasic):
     template = ViewPageTemplateFile('template/ga_table.pt')
     def __call__(self):
-        """"""
+        checkList = self.request.get('checkList')
+        page_url = checkList.split(',')[0]
+        start_date = checkList.split(',')[1]
+        end_date = checkList.split(',')[2]
+        firstTime = checkList.split(',')[3]
+        tableData = {}
+
+        execStr = """SELECT DISTINCT(title) FROM ga_table WHERE date BETWEEN '{}' AND 
+            '{}' AND page_url = '{}'""".format(start_date, end_date, page_url)
+        result_page_title = self.execSql(execStr)
+        page_title_list = []
+        for title in result_page_title:
+            tmp = dict(title)
+            title = tmp['title']
+            page_title_list.append(title)
+            tableData[title] = 'none'
+        self.page_title_list = page_title_list
+
+        first_section_time = datetime.datetime.strptime(start_date,'%Y-%m-%d') + datetime.timedelta(days = int(firstTime)-1)
+        execStr = """SELECT title,page_views,date FROM ga_table WHERE page_url = '{}' AND 
+            date BETWEEN '{}' AND '{}' """.format(page_url, start_date, first_section_time)
+        result_first_section = self.execSql(execStr)
+        
+        for data in result_first_section:
+            tmp = dict(data)
+            title = tmp['title']
+            page_views = int(tmp['page_views'])
+            date = tmp['date']
+            import pdb;pdb.set_trace()
+            # 第一次區間報表還位完成
+
+        next_section_time = first_section_time + datetime.timedelta(days=6)
+        if next_section_time <= datetime.datetime.strptime(end_date, '%Y-%m-%d'):
+            execStr = """SELECT title,page_views,date FROM ga_table WHERE page_url = '{}'
+                AND date BETWEEN '{}' AND '{}'""".format(page_url, first_section_time, next_section_time)
+            result_next_section = self.execSql(execStr)
+            for data in result_next_section:
+                tmp = dict(data)
+                title = tmp['title']
+                page_views = int(tmp['page_views'])
+                tableData[title][0].append(page_views)
+            import pdb;pdb.set_trace()
+
+        
+
+        # execStr = """SELECT date,title FROM ga_table ORDER BY date"""
+        # result_date = self.execSql(execStr)
+        # date_list = []
+        
+            
+
+        # execStr = """SELECT title,page_views,date FROM ga_table WHERE page_url = '{}' AND 
+        #     date BETWEEN '{}' AND '{}' ORDER BY date""".format(page_url, start_date, end_date)
+        # result_table_data = self.execSql(execStr)
+
+        # tableData = {}
+        # for data in result_table_data:
+        #     tmp = dict(data)
+        #     title = tmp['title']
+        #     page_views = tmp['page_views']
+        #     date = tmp['date']
+            
+        #     if tableData.has_key(title):
+        #         tableData[title][0].append(date)
+        #         tableData[title][1].append(page_views)
+        #     else:
+        #         tableData[title] = [
+        #             [date],
+        #             [page_views]
+        #         ]
+
+        # self.tableData = tableData
+        return self.template()

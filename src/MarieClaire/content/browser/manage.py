@@ -469,7 +469,7 @@ class GetDfpTable(ManaBasic):
             estList = []
             for est in result_est:
                 tmp = dict(est)
-                click = int(int(tmp['EstImp']) * float(tmp['EstCTR'])/100)
+                click = int(round(float(tmp['EstImp'])*float(tmp['EstCTR'])/100,0))
                 estList.append(tmp['EstImp'])
                 estList.append(click)
                 estList.append('%s %%' %tmp['EstCTR'])

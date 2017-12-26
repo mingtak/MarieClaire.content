@@ -21,6 +21,10 @@ $(document).ready(function () {
     $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
         ga_chart.xs = {}
         ga_chart.columns = []
+
+        //table
+        $('.ga_page_title, .ga_select_checkbox, .datepicker, .event_checkbox, .del-time, .btn-danger').show();                
+        
         if($(this)[0].id == 'nav_pie'){
             $('.ga_select_checkbox').hide();
         }else{
@@ -30,7 +34,12 @@ $(document).ready(function () {
         $(this).siblings().removeClass('select_type')
         gatGaData(ga_chart)
     });
-    
+
+    $('#nav_table').click(function (e) {
+        $('.ga_page_title, .ga_select_checkbox, .datepicker, .event_checkbox, .del-time, .btn-danger').hide();        
+        getGaTable()
+    });
+
     $('.del-btn').click(function (e) {
         if( confirm('確認要刪除嘛') ){
             data = {
@@ -222,4 +231,19 @@ drawRegions = function(event_name__list, event_order__list){
         .style("fill-opacity", 1)
         .attr("text-anchor", "start");
     }
+}
+
+getGaTable = function(){
+    data = {
+        'checkList': $('.ga_table_checkbox:checked').val(),
+       }
+    url = window.location.href.replace('ga_report', '@@ga_table')
+    $.ajax({
+        type: "post",
+        url: url,
+        data: data,
+        success: function (response) {
+            $('#ga_chart').html(response);
+        }
+    });
 }
