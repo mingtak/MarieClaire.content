@@ -296,33 +296,35 @@ class UpdataGaTableData(ManaBasic):
     def get_report(self, analytics):
         VIEW_ID = '5906876'
         brain = api.content.find(context=self.context)
-        tableList = brain[0].getObject().tableList
-        page_url = tableList.split(',')[0]
-        start_date = tableList.split(',')[1]
-        end_date = tableList.split(',')[2]
+        brain_tableList = brain[0].getObject().tableList
+        tableList = brain_tableList.split('\r\n')
+        for data in tableList:
+            page_url = data.split(',')[0]
+            start_date = data.split(',')[1]
+            end_date = data.split(',')[2]
 
-        response = analytics.reports().batchGet(
-            body={
-            'reportRequests': [
-                {
-                'viewId': VIEW_ID,
-                'dateRanges': [{'startDate': start_date, 'endDate': end_date}],
-                'metrics': [
-                            {'expression': 'ga:pageviews'},
-                            ],
-                'dimensions': [
-                                {'name': 'ga:date'},
-                                {'name': 'ga:sourceMedium'},
-                                {'name': 'ga:pagePath'}
-                            ],
-                "orderBys":[
-                            {"fieldName":"ga:date"}
-                            ],
-                "filtersExpression": 'ga:pagePath=~%s' %page_url,
-                }],
-            }
-        ).execute()
-        self.save2db(response)
+            response = analytics.reports().batchGet(
+                body={
+                'reportRequests': [
+                    {
+                    'viewId': VIEW_ID,
+                    'dateRanges': [{'startDate': start_date, 'endDate': end_date}],
+                    'metrics': [
+                                {'expression': 'ga:pageviews'},
+                                ],
+                    'dimensions': [
+                                    {'name': 'ga:date'},
+                                    {'name': 'ga:sourceMedium'},
+                                    {'name': 'ga:pagePath'}
+                                ],
+                    "orderBys":[
+                                {"fieldName":"ga:date"}
+                                ],
+                    "filtersExpression": 'ga:pagePath=~%s' %page_url,
+                    }],
+                }
+            ).execute()
+            self.save2db(response)
 
     def save2db(self, response):
         for report in response.get('reports', []):
@@ -357,6 +359,7 @@ class GaTable(ManaBasic):
         firstTime = checkList.split(',')[3]
         tableData = {}
         dayList = []
+        weekSum = []
 
         # 抓title，並再每個title欄位內先填入空值
         execStr = """SELECT DISTINCT(title) FROM ga_table WHERE date BETWEEN '{}' AND 
@@ -369,7 +372,6 @@ class GaTable(ManaBasic):
             page_title_list.append(title)
             tableData[title] = ['']
         self.page_title_list = page_title_list #table 的title
-
         #第一次報表資料產生
         first_section_time = datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days = int(firstTime)-1)
         execStr = """SELECT title,SUM(page_views) as sum_pv FROM ga_table WHERE page_url 
@@ -386,6 +388,21 @@ class GaTable(ManaBasic):
 
         for title in page_title_list:#先再之後的空位填上空值，讓之後好判斷有無資料
             tableData[title].append('')
+
+        #抓一個區間的總數
+        execStr = """SELECT SUM(page_views) as sum_pv FROM ga_table WHERE page_url = '{}' 
+            AND date BETWEEN'{}' AND '{}'""".format(page_url, start_date, first_section_time)
+        result_week_sum = self.execSql(execStr)
+        for data in result_week_sum:
+            tmp =dict(data)
+            page_views = tmp['sum_pv']
+            if page_views == None:
+                weekSum.append('')
+                weekSum.append('')
+            else:
+                weekSum.append(int(page_views))
+                weekSum.append('')
+
         #填入開始及結束時間
         dayList.append(['{}~{}'.format(start_date,datetime.datetime.strftime(first_section_time, '%Y-%m-%d'))])
 
@@ -411,6 +428,20 @@ class GaTable(ManaBasic):
             for title in tmp_title_list:
                 tableData[title].append('')
                 tableData[title].append('')
+
+            execStr = """SELECT SUM(page_views) as sum_pv FROM ga_table WHERE page_url = '{}' 
+            AND date BETWEEN'{}' AND '{}'""".format(page_url, first_section_time, next_section_time)
+            result_week_sum = self.execSql(execStr)
+            for data in result_week_sum:
+                tmp =dict(data)
+                page_views = tmp['sum_pv']
+
+                if page_views == None:
+                    weekSum.append('')
+                    weekSum.append('')
+                else:
+                    weekSum.append(int(page_views))
+                    weekSum.append('')
 
             dayList.append(['{}~{}'.format(datetime.datetime.strftime(first_section_time+datetime.timedelta(days=1), '%Y-%m-%d'), 
                 datetime.datetime.strftime(next_section_time, '%Y-%m-%d'))])
@@ -440,10 +471,24 @@ class GaTable(ManaBasic):
                 tableData[title].append('')
                 tableData[title].append('')
 
+            execStr = """SELECT SUM(page_views) as sum_pv FROM ga_table WHERE page_url = '{}' 
+            AND date BETWEEN'{}' AND '{}'""".format(page_url, first_section_time, end_date)
+            result_week_sum = self.execSql(execStr)
+            for data in result_week_sum:
+                tmp =dict(data)
+                page_views = tmp['sum_pv']
+                if page_views == None:
+                    weekSum.append('')
+                    weekSum.append('')
+                else:
+                    weekSum.append(int(page_views))
+                    weekSum.append('')
+
             dayList.append(['{}~{}'.format(
                 datetime.datetime.strftime(first_section_time+datetime.timedelta(days=1), '%Y-%m-%d')
                 , str(end_date))])
-
+        
         self.tableData = tableData #table內的值
         self.dayList = dayList #時間區間
+        self.weekSum = weekSum #全部區間的總數
         return self.template()

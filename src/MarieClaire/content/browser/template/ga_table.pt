@@ -7,13 +7,18 @@
         </tr>
         <tr>
             <th>來源媒介</th>
-            <th tal:repeat="day view/dayList">瀏覽量</th>
-            <th tal:repeat="day view/dayList">名單數</th>
-            
+            <tal:repeat repeat="day view/dayList">
+                <th>瀏覽量</th>
+                <th>名單數</th>
+            </tal:repeat>
         </tr>
         <tr tal:repeat="title view/page_title_list">
             <th>${title}</th>
             <td tal:repeat="data python:view.tableData[title]" style="width:80px">${data}</td>
+        </tr>
+        <tr>
+            <th>總數/by周</th>
+            <th tal:repeat="sum view/weekSum">${sum}</th>
         </tr>
     </table>
 </body>
