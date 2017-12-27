@@ -344,10 +344,11 @@ class UpdataGaTableData(ManaBasic):
                     execStr = """INSERT INTO ga_table(page_url,title,page_views,date) VALUES('{}',
                         '{}', '{}', '{}')""".format(page_url, title, page_views, date)
                     self.execSql(execStr)
-            
+
 
 class GaTable(ManaBasic):
     template = ViewPageTemplateFile('template/ga_table.pt')
+
     def __call__(self):
         checkList = self.request.get('checkList')
         page_url = checkList.split(',')[0]
@@ -357,6 +358,7 @@ class GaTable(ManaBasic):
         tableData = {}
         dayList = []
 
+        # 抓title，並再每個title欄位內先填入空值
         execStr = """SELECT DISTINCT(title) FROM ga_table WHERE date BETWEEN '{}' AND 
             '{}' AND page_url = '{}'""".format(start_date, end_date, page_url)
         result_page_title = self.execSql(execStr)
@@ -366,26 +368,26 @@ class GaTable(ManaBasic):
             title = tmp['title']
             page_title_list.append(title)
             tableData[title] = ['']
-        self.page_title_list = page_title_list
+        self.page_title_list = page_title_list #table 的title
 
-        first_section_time = datetime.datetime.strptime(start_date,'%Y-%m-%d') + datetime.timedelta(days = int(firstTime)-1)
+        #第一次報表資料產生
+        first_section_time = datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days = int(firstTime)-1)
         execStr = """SELECT title,SUM(page_views) as sum_pv FROM ga_table WHERE page_url 
             = '{}' AND date BETWEEN '{}' AND '{}' GROUP BY title 
             """.format(page_url, start_date, first_section_time)
         result_first_section = self.execSql(execStr)
-        
-        for data in result_first_section: #第一次報表資料產生
+
+        for data in result_first_section:
             tmp = dict(data)
             title = tmp['title']
             page_views = int(tmp['sum_pv'])
 
             tableData[title] = [page_views]
 
-
         for title in page_title_list:#先再之後的空位填上空值，讓之後好判斷有無資料
             tableData[title].append('')
-
-        dayList.append(['{}~{}'.format(start_date,datetime.datetime.strftime(first_section_time,'%Y-%m-%d'))])
+        #填入開始及結束時間
+        dayList.append(['{}~{}'.format(start_date,datetime.datetime.strftime(first_section_time, '%Y-%m-%d'))])
 
         next_section_time = first_section_time + datetime.timedelta(days=7)
 
@@ -401,20 +403,23 @@ class GaTable(ManaBasic):
                 tmp = dict(data)
                 title = tmp['title']
                 page_views = int(tmp['sum_pv'])
-
+                #有值的填入數字然後把填過的title刪掉
                 tableData[title].append(page_views)
                 tableData[title].append('')
                 tmp_title_list.remove(title)
-
+            #沒背填到的title補空格
             for title in tmp_title_list:
                 tableData[title].append('')
                 tableData[title].append('')
 
-            dayList.append(['{}~{}'.format(datetime.datetime.strftime(first_section_time,'%Y-%m-%d'), datetime.datetime.strftime(next_section_time,'%Y-%m-%d'))])
+            dayList.append(['{}~{}'.format(datetime.datetime.strftime(first_section_time+datetime.timedelta(days=1), '%Y-%m-%d'), 
+                datetime.datetime.strftime(next_section_time, '%Y-%m-%d'))])
+            #計算下個7天的時間
             first_section_time = next_section_time
-            next_section_time += datetime.timedelta(days=6)
+            next_section_time += datetime.timedelta(days=7)
 
         else:
+            #最後一筆
             execStr = """SELECT title,SUM(page_views) as sum_pv FROM ga_table WHERE 
                 page_url = '{}' AND date BETWEEN '{}' AND '{}' GROUP BY title
                 """.format(page_url, first_section_time, end_date)
@@ -434,8 +439,11 @@ class GaTable(ManaBasic):
             for title in tmp_title_list:
                 tableData[title].append('')
                 tableData[title].append('')
-            dayList.append(['{}~{}'.format(datetime.datetime.strftime(first_section_time,'%Y-%m-%d'), str(end_date))])
 
-        self.tableData = tableData
-        self.dayList = dayList
+            dayList.append(['{}~{}'.format(
+                datetime.datetime.strftime(first_section_time+datetime.timedelta(days=1), '%Y-%m-%d')
+                , str(end_date))])
+
+        self.tableData = tableData #table內的值
+        self.dayList = dayList #時間區間
         return self.template()
