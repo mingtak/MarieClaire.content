@@ -38,7 +38,7 @@
 
     <div tal:condition="view/checkUser">
         <!-- table -->
-        <label tal:repeat="data view/get_table_data">
+        <label tal:repeat="data view/get_table_data" class="ga_table_checkbox">
             <input type="radio" name="ga_table_checkbox" 
                 class="ga_table_checkbox" value="${data}" />${python:data.split(',')[0]}</label>
         <!-- table -->

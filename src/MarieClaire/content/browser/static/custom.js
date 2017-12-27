@@ -265,7 +265,10 @@ $(document).ready(function(){
     $('#nav_table, #nav_detail').click(function (e) {
         $(this).addClass('select_type')
         $(this).siblings().removeClass('select_type')
-        getDfpTable()
-        
+        $('input').prop('checked',false)
     });
+    $('.dfp-line-item').change(function (e) { 
+        getDfpTable()
+    });
+    
 })

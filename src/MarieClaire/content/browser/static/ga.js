@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    
+    $('.ga_page_title, .ga_select_checkbox, .datepicker, .event_checkbox, .del-time, .btn-danger').show();
+    $('.ga_table_checkbox').hide();
     var ga_chart = new Vue({
         el: '#ga_chart',
         data: {
@@ -24,7 +25,9 @@ $(document).ready(function () {
 
         //table
         $('.ga_page_title, .ga_select_checkbox, .datepicker, .event_checkbox, .del-time, .btn-danger').show();                
-        
+        $('.ga_table_checkbox').hide()
+        //table
+        $('input').prop('checked',false)
         if($(this)[0].id == 'nav_pie'){
             $('.ga_select_checkbox').hide();
         }else{
@@ -36,7 +39,11 @@ $(document).ready(function () {
     });
 
     $('#nav_table').click(function (e) {
+        $('input').prop('checked',false)
+        $('.ga_table_checkbox').show()
         $('.ga_page_title, .ga_select_checkbox, .datepicker, .event_checkbox, .del-time, .btn-danger').hide();        
+    });
+    $('.ga_table_checkbox').change(function (e) { 
         getGaTable()
     });
 
@@ -123,10 +130,7 @@ gatGaData = function(ga_chart){
                 
             }
         })
-
         genC3(ga_chart.xs, ga_chart.columns, regions__list, event_order__list, event_name__list)
-        
-
     }).fail(function(){
         alert('Fail')
     })
