@@ -1,5 +1,20 @@
 <html xmlns:tal="http://xml.zope.org/namespaces/tal">
 <body>
-    <p tal:repeat="page_title view/page_title_list">${page_title}</p>
+    <table>
+        <tr>
+            <th style="width:300px">周數</th>
+            <th style="width:80px" colspan="2" tal:repeat="day view/dayList">${python:day[0]}</th>
+        </tr>
+        <tr>
+            <th>來源媒介</th>
+            <th tal:repeat="day view/dayList">瀏覽量</th>
+            <th tal:repeat="day view/dayList">名單數</th>
+            
+        </tr>
+        <tr tal:repeat="title view/page_title_list">
+            <th>${title}</th>
+            <td tal:repeat="data python:view.tableData[title]" style="width:80px">${data}</td>
+        </tr>
+    </table>
 </body>
 </html>

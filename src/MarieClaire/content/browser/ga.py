@@ -355,6 +355,7 @@ class GaTable(ManaBasic):
         end_date = checkList.split(',')[2]
         firstTime = checkList.split(',')[3]
         tableData = {}
+        dayList = []
 
         execStr = """SELECT DISTINCT(title) FROM ga_table WHERE date BETWEEN '{}' AND 
             '{}' AND page_url = '{}'""".format(start_date, end_date, page_url)
@@ -364,61 +365,77 @@ class GaTable(ManaBasic):
             tmp = dict(title)
             title = tmp['title']
             page_title_list.append(title)
-            tableData[title] = 'none'
+            tableData[title] = ['']
         self.page_title_list = page_title_list
 
         first_section_time = datetime.datetime.strptime(start_date,'%Y-%m-%d') + datetime.timedelta(days = int(firstTime)-1)
-        execStr = """SELECT title,page_views,date FROM ga_table WHERE page_url = '{}' AND 
-            date BETWEEN '{}' AND '{}' """.format(page_url, start_date, first_section_time)
+        execStr = """SELECT title,SUM(page_views) as sum_pv FROM ga_table WHERE page_url 
+            = '{}' AND date BETWEEN '{}' AND '{}' GROUP BY title 
+            """.format(page_url, start_date, first_section_time)
         result_first_section = self.execSql(execStr)
         
-        for data in result_first_section:
+        for data in result_first_section: #第一次報表資料產生
             tmp = dict(data)
             title = tmp['title']
-            page_views = int(tmp['page_views'])
-            date = tmp['date']
-            import pdb;pdb.set_trace()
-            # 第一次區間報表還位完成
+            page_views = int(tmp['sum_pv'])
 
-        next_section_time = first_section_time + datetime.timedelta(days=6)
-        if next_section_time <= datetime.datetime.strptime(end_date, '%Y-%m-%d'):
-            execStr = """SELECT title,page_views,date FROM ga_table WHERE page_url = '{}'
-                AND date BETWEEN '{}' AND '{}'""".format(page_url, first_section_time, next_section_time)
+            tableData[title] = [page_views]
+
+
+        for title in page_title_list:#先再之後的空位填上空值，讓之後好判斷有無資料
+            tableData[title].append('')
+
+        dayList.append(['{}~{}'.format(start_date,datetime.datetime.strftime(first_section_time,'%Y-%m-%d'))])
+
+        next_section_time = first_section_time + datetime.timedelta(days=7)
+
+        while next_section_time <= datetime.datetime.strptime(end_date, '%Y-%m-%d'):
+            execStr = """SELECT title,SUM(page_views) as sum_pv FROM ga_table WHERE 
+                page_url = '{}' AND date BETWEEN '{}' AND '{}' GROUP BY title
+                """.format(page_url, first_section_time, next_section_time)
             result_next_section = self.execSql(execStr)
+
+            tmp_title_list = list(page_title_list)
+
             for data in result_next_section:
                 tmp = dict(data)
                 title = tmp['title']
-                page_views = int(tmp['page_views'])
-                tableData[title][0].append(page_views)
-            import pdb;pdb.set_trace()
+                page_views = int(tmp['sum_pv'])
 
-        
+                tableData[title].append(page_views)
+                tableData[title].append('')
+                tmp_title_list.remove(title)
 
-        # execStr = """SELECT date,title FROM ga_table ORDER BY date"""
-        # result_date = self.execSql(execStr)
-        # date_list = []
-        
-            
+            for title in tmp_title_list:
+                tableData[title].append('')
+                tableData[title].append('')
 
-        # execStr = """SELECT title,page_views,date FROM ga_table WHERE page_url = '{}' AND 
-        #     date BETWEEN '{}' AND '{}' ORDER BY date""".format(page_url, start_date, end_date)
-        # result_table_data = self.execSql(execStr)
+            dayList.append(['{}~{}'.format(datetime.datetime.strftime(first_section_time,'%Y-%m-%d'), datetime.datetime.strftime(next_section_time,'%Y-%m-%d'))])
+            first_section_time = next_section_time
+            next_section_time += datetime.timedelta(days=6)
 
-        # tableData = {}
-        # for data in result_table_data:
-        #     tmp = dict(data)
-        #     title = tmp['title']
-        #     page_views = tmp['page_views']
-        #     date = tmp['date']
-            
-        #     if tableData.has_key(title):
-        #         tableData[title][0].append(date)
-        #         tableData[title][1].append(page_views)
-        #     else:
-        #         tableData[title] = [
-        #             [date],
-        #             [page_views]
-        #         ]
+        else:
+            execStr = """SELECT title,SUM(page_views) as sum_pv FROM ga_table WHERE 
+                page_url = '{}' AND date BETWEEN '{}' AND '{}' GROUP BY title
+                """.format(page_url, first_section_time, end_date)
+            result_last_section = self.execSql(execStr)
 
-        # self.tableData = tableData
+            tmp_title_list = list(page_title_list)
+
+            for data in result_last_section:
+                tmp = dict(data)
+                title = tmp['title']
+                page_views = int(tmp['sum_pv'])
+
+                tableData[title].append(page_views)
+                tableData[title].append('')
+                tmp_title_list.remove(title)
+
+            for title in tmp_title_list:
+                tableData[title].append('')
+                tableData[title].append('')
+            dayList.append(['{}~{}'.format(datetime.datetime.strftime(first_section_time,'%Y-%m-%d'), str(end_date))])
+
+        self.tableData = tableData
+        self.dayList = dayList
         return self.template()
