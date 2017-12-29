@@ -76,7 +76,7 @@ from DateTime import DateTime
             </label>
 
             <br><br>
-            <p><span class="datepicker">開始日期:
+            <p class="datepicker"><span class="datepicker">開始日期:
                    <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
                </span>
                結束日期:
@@ -88,20 +88,19 @@ from DateTime import DateTime
                     context=api.portal.get(), portal_type='Event')
             ?>
             
-            <label class="" tal:repeat="item events">
+            <label class="event_checkbox" tal:repeat="item events">
                 <input type='checkbox'  class="event_checkbox " 
                         data-start=${python:item.start} data-end=${python:item.end}
                         data-order=event_${python:repeat.item.number}
                         value=${python:item.Title} ></input>${python:item.Title}</label>
             <br/>
-
-            <span class="hide_adv">
+            <span class="hide_adv del-time">
                 選擇要刪除的時間：<input type="date" name="del_time" class="del-time hide_adv"
                                 value="${python:DateTime().year()}-01-01"/>
             </span>
             <button class="del-btn hide_adv">刪除</button>
             <br/>
-            <button class="download" >下載</button>
+            
       </div>
       <hr>
 

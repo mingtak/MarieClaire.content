@@ -1,0 +1,68 @@
+/* ga_talbe */
+.ga_time{
+    width: 200px;
+    background: yellow;
+    font-size: 16px;
+    padding: 5px;
+}
+.ga_time_title{
+    background: yellow;
+    width: 220px;
+    font-size: 18px;
+    padding: 5px;
+}
+.ga_total{
+    background: moccasin;
+    padding: 5px;
+}
+.ga_item_title{
+    vertical-align: middle;
+}
+.ga_item_data{
+    text-align: right;
+    font-size: 16px;
+    padding: 5px;
+}
+.ga_day_list{
+    padding: 5px;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 16px;
+}
+.ga_total_data{
+    padding: 5px;
+    font-size: 16px;
+    text-align: right;
+}
+
+/* ga_talbe */
+
+/* dfp_table */
+
+.dfp_table_title{
+    padding: 20px;
+    vertical-align: middle;
+    text-align: center;
+}
+.pd5{
+    padding: 5px;
+    vertical-align: middle;
+    text-align: center;
+}
+.text-align-ri{
+    text-align: right
+}
+.dfp_red{
+    background: #F85F73;
+}
+.dfp_beide{
+    background: #FBE8D3;
+}
+.dfp_yellow{
+    background: #FCE38A;
+}
+.dfp_grey{
+    background: #E6E6E9;
+    border: 1px #FFFDFD solid;
+}
+/* dfp_table */

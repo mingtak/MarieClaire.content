@@ -220,6 +220,7 @@ $(document).ready(function(){
     $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
         dfpLine.xs = {}
         dfpLine.columns = []
+        $('.dfp_select_checkbox, .datepicker, .event_checkbox , .del-btn, .del-time').show();        
         $('input').prop('checked',false)
         if($(this)[0].id == 'nav_pie'){
             $('.dfp_select_radio').show();
@@ -265,9 +266,10 @@ $(document).ready(function(){
     $('#nav_table, #nav_detail').click(function (e) {
         $(this).addClass('select_type')
         $(this).siblings().removeClass('select_type')
+        $('.dfp_select_checkbox, .datepicker, .event_checkbox , .del-btn, .del-time, .dfp_select_radio').hide();
         $('input').prop('checked',false)
     });
-    $('.dfp-line-item').change(function (e) { 
+    $('.dfp-line-item, .dfp-select-all').change(function (e) { 
         getDfpTable()
     });
     

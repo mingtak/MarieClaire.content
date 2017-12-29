@@ -1,24 +1,31 @@
 <html xmlns:tal="http://xml.zope.org/namespaces/tal">
+<?python
+    from plone import api
+    portal_url = api.portal.get().absolute_url()
+?>
+<link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/table.css">
+
 <body>
-    <table>
+    <table class="ga_table">
         <tr>
-            <th style="width:300px">周數</th>
-            <th style="width:80px" colspan="2" tal:repeat="day view/dayList">${python:day[0]}</th>
+            <th class="ga_time_title">周數</th>
+            <th class="ga_time" colspan="2" tal:repeat="day view/dayList">${python:day[0]}</th>
         </tr>
         <tr>
-            <th>來源媒介</th>
+            <th style="font-size:16px;vertical-align:middle">來源媒介</th>
             <tal:repeat repeat="day view/dayList">
-                <th>瀏覽量</th>
-                <th>名單數</th>
+                <th class="ga_day_list">瀏覽量</th>
+                <th class="ga_day_list">名單數</th>
             </tal:repeat>
         </tr>
         <tr tal:repeat="title view/page_title_list">
-            <th>${title}</th>
-            <td tal:repeat="data python:view.tableData[title]" style="width:80px">${data}</td>
+            <th class="ga_item_title ">${title}</th>
+            <td tal:repeat="data python:view.tableData[title]" style="width:80px"
+                class="ga_item_data ">${data}</td>
         </tr>
-        <tr>
-            <th>總數/by周</th>
-            <th tal:repeat="sum view/weekSum">${sum}</th>
+        <tr class="ga_total">
+            <th style="font-size:16px;vertical-align:middle">總數/by周</th>
+            <th tal:repeat="sum view/weekSum" class="ga_total_data">${sum}</th>
         </tr>
     </table>
 </body>
