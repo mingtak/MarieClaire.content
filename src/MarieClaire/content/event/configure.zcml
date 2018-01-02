@@ -6,7 +6,7 @@
 
     <subscriber
         for="MarieClaire.content.interfaces.ICustom
-             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+             plone.dexterity.interfaces.IEditFinishedEvent"
         handler=".event.modifyCustom"
     />
     

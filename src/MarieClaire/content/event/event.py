@@ -3,6 +3,4 @@ from plone import api
 def modifyCustom(item, event):
     portal = api.portal.get()
     request = item.REQUEST
-    request.response.redirect('/')
-    #import pdb; pdb.set_trace()
-#    returnc
+    request.response.redirect('%s/custom' %portal.absolute_url())
