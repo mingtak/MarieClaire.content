@@ -20,8 +20,9 @@
         </tr>
         <tr tal:repeat="title view/page_title_list">
             <th class="ga_item_title ">${title}</th>
-            <td tal:repeat="data python:view.tableData[title]" style="width:80px"
-                class="ga_item_data ">${data}</td>
+            <td tal:repeat="data python:view.tableData[title]"
+                style="${python:'background-color:#CCC' if data else ''}"
+                class="ga_item_data" >${data}</td>
         </tr>
         <tr class="ga_total">
             <th style="font-size:16px;vertical-align:middle">總數/by周</th>

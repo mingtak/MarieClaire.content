@@ -31,10 +31,13 @@
         <input type="text" value="${context/title}" id="form-widgets-title"
             name="form.widgets.title" class="text-widget required textline-field"
             style="display:none" />
-        <h2>追蹤網址</h2>
+        <h2>編輯權限</h2>
         <textarea id="form-widgets-ownerList" name="form.widgets.ownerList" class="textarea-widget text-field">${context/ownerList}</textarea>
         <br/>
         <input id="form-buttons-save" name="form.buttons.save" class="submit-widget button-field context" value="儲存" type="submit">
+        <a href="${abs_url}/custom">
+            <button type="button">取消</button>
+        </a>
     </form>
 </metal:block>
 </metal:content-core>

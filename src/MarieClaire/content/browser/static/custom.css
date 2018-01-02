@@ -318,13 +318,20 @@ div.table .row div a {
 .template-custom_edit div.table div.header{
     font-size:12px;
     white-space:nowrap;
+    display: flex;
+    align-items: center;
 }
 
 .template-custom_edit div.record div{
-    height:46px
+    height:46px;
+    display: flex;
+    align-items: center;
 }
-.template-custom_edit div.record div input {
-    width:40%;
+.line_item_est, .line_item_weight{
+    width: 45%;
+}
+.weight, .Est_weight{
+    width: 45%;
 }
 .hide_element, .hide_adv{
     display: none;
@@ -371,4 +378,28 @@ div.table .row div a {
 }
 .order_block{
     background: wheat;
+}
+.back_btn{
+    background-color:#F06868;
+    border-radius:8px;
+    cursor:pointer;
+    color:#FFF;
+    padding:5px;
+    border: 0;
+    font-size: 22px;
+    width: 95px;
+    margin-bottom: 10px;
+    text-decoration: none;
+}
+.back_btn:hover {
+    background-color:#EC8989;
+    border: 0;
+    text-decoration:none;
+}
+.custom_edit_title{
+    font-size: 17px;
+    white-space: normal;
+    height: 60px;
+    display: flex;
+    align-items: center;
 }

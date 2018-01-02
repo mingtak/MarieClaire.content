@@ -7,7 +7,7 @@
   <i18n:registerTranslations directory="locales" />
 
   <includeDependencies package="." />
-
+  <include package=".event" />
   <include package=".browser" />
 
 

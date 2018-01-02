@@ -28,9 +28,13 @@
 from DateTime import DateTime
 ?>
 
-<h4>查看報表</h4>
-<a href="${context/absolute_url}/custom_edit" target="_blank">管理報表</a>
-<ul class="nav nav-pills">
+<a href="${portal_url}/custom" style="float:left" class="back_btn">
+        <img src="${portal_url}/++plone++MarieClaire.content/back.png" style="width:35%"></img>返回</a>
+
+<h2 style="float:right;margin:0">
+    <a href="${context/absolute_url}/custom_edit" style="border:0">管理報表</a></h2>
+
+<ul class="nav nav-pills" style="clear:both">
     <li class="active select_type" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
     <li id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
     <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
@@ -94,12 +98,12 @@ from DateTime import DateTime
                         data-order=event_${python:repeat.item.number}
                         value=${python:item.Title} ></input>${python:item.Title}</label>
             <br/>
-            <span class="hide_adv del-time">
+            <!-- <span class="hide_adv del-time">
                 選擇要刪除的時間：<input type="date" name="del_time" class="del-time hide_adv"
                                 value="${python:DateTime().year()}-01-01"/>
             </span>
             <button class="del-btn hide_adv">刪除</button>
-            <br/>
+            <br/> -->
             
       </div>
       <hr>

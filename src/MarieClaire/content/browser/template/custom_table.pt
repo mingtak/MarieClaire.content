@@ -72,7 +72,10 @@
             tal:repeat="day view/day_list">
             <th class="pd5">${python:day}</th>
             <tal:repeat repeat="index python:range(0, len(day_data[day]))">
-                <td class="pd5 text-align-ri">${python:day_data[day][index]}</td>
+                <td class="pd5 text-align-ri"
+                    style="${python:'background-color:#CCC' if day_data[day][index]!='' else ''}">
+                    ${python:day_data[day][index]}
+                </td>
             </tal:repeat>
         </tr>
         <tr>
@@ -81,7 +84,7 @@
         </tr>
         <tr>
             <th class="pd5">達成率</th>
-            <th colspan="3" tal:repeat="rate view/reaching_rate" class="pd5">${rate}</th>
+            <th colspan="3" tal:repeat="rate view/reaching_rate" class="pd5 text-align-cen">${rate}</th>
         </tr>
     </table>
 </body>

@@ -60,8 +60,15 @@ class UpdateEst(ManaBasic):
         update_id = self.request.form.get('update_id')
         est_name = self.request.form.get('est_name')
         value = self.request.form.get('value')
-        execStr = """UPDATE dfp_line_item SET {} = {} WHERE 
-            LINE_ITEM_ID = '{}' """.format(est_name, value, update_id)
+        update_type = self.request.form.get('update_type')
+
+        if update_type == 'Est_weight':
+            execStr = """UPDATE dfp_line_item SET {} = {} WHERE ORDER_ID = '{}'
+                """.format(est_name, value, update_id)
+        else:
+            execStr = """UPDATE dfp_line_item SET {} = {} WHERE 
+                LINE_ITEM_ID = '{}' """.format(est_name, value, update_id)
+
         self.execSql(execStr)
         return 'Already Update OK.'
 
@@ -363,8 +370,8 @@ class GetDfpTable(ManaBasic):
                 SELECT dfp_ad_server.*,dfp_line_item.LINE_ITEM_NAME,dfp_line_item.EstImp
                 ,dfp_line_item.EstCTR FROM `dfp_ad_server`,`dfp_line_item` 
                 WHERE dfp_ad_server.LINE_ITEM_ID IN {} 
-                AND dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND(DATE BETWEEN '{}'
-                AND '{}') ORDER BY DATE""".format(tuple(checkList), startDate, endDate)
+                AND dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID 
+                ORDER BY DATE""".format(tuple(checkList))
             result = self.execSql(execStr)
             tableData = {}
             for item in result:
@@ -409,8 +416,8 @@ class GetDfpTable(ManaBasic):
             self.tableData = tableData
         elif select_type == 'nav_detail':
             # 抓兩日的差距
-            execStr = """SELECT MIN(DATE),MAX(DATE) FROM dfp_ad_server WHERE DATE BETWEEN 
-                '{}' AND '{}' AND LINE_ITEM_ID IN {} """.format(startDate, endDate, tuple(checkList))
+            execStr = """SELECT MIN(DATE),MAX(DATE) FROM dfp_ad_server WHERE
+                LINE_ITEM_ID IN {} """.format(tuple(checkList))
             day_result = self.execSql(execStr)
             min_day = dict(day_result[0])['MIN(DATE)']
             max_day = dict(day_result[0])['MAX(DATE)']
@@ -435,9 +442,10 @@ class GetDfpTable(ManaBasic):
             result_day_data = {}
             for checked in checkList:
                 execStr = """SELECT AD_SERVER_IMPRESSIONS,AD_SERVER_CLICKS,DATE,LINE_ITEM_ID 
-                    FROM `dfp_ad_server` WHERE LINE_ITEM_ID = '{}' and DATE BETWEEN '{}' AND 
-                    '{}' ORDER BY LINE_ITEM_ID""".format(checked, startDate, endDate)
+                    FROM `dfp_ad_server` WHERE LINE_ITEM_ID = '{}' ORDER BY DATE
+                    """.format(checked)
                 result = self.execSql(execStr)
+
                 tmp_dayList = list(day_list)
                 for item in result:
                     tmp = dict(item)
@@ -477,9 +485,8 @@ class GetDfpTable(ManaBasic):
             
             # 抓最後達成結果
             execStr = """SELECT SUM(AD_SERVER_IMPRESSIONS),SUM(AD_SERVER_CLICKS) FROM 
-                `dfp_ad_server` WHERE LINE_ITEM_ID IN {} AND DATE BETWEEN '{}' AND '{}' 
-                GROUP BY LINE_ITEM_ID
-                """.format(tuple(checkList), startDate, endDate)
+                `dfp_ad_server` WHERE LINE_ITEM_ID IN {} GROUP BY LINE_ITEM_ID
+                """.format(tuple(checkList))
             result_sum = self.execSql(execStr)
             result_sum_list = []
             for item in result_sum:
@@ -495,14 +502,13 @@ class GetDfpTable(ManaBasic):
             # 抓達成率
             execStr = """SELECT SUM(dfp_ad_server.AD_SERVER_IMPRESSIONS),dfp_line_item.EstImp 
                 FROM `dfp_ad_server`,dfp_line_item WHERE dfp_ad_server.LINE_ITEM_ID IN 
-                {} and dfp_ad_server.LINE_ITEM_ID=dfp_line_item.LINE_ITEM_ID AND DATE
-                BETWEEN '{}' AND '{}' GROUP BY dfp_ad_server.LINE_ITEM_ID
-                """.format(tuple(checkList), startDate, endDate)
+                {} and dfp_ad_server.LINE_ITEM_ID=dfp_line_item.LINE_ITEM_ID 
+                GROUP BY dfp_ad_server.LINE_ITEM_ID""".format(tuple(checkList))
             result_reaching_rate = self.execSql(execStr)
             reaching_rate_list = []
             for item in result_reaching_rate:
                 tmp = dict(item)
-                reaching_rate = round(float(tmp['SUM(dfp_ad_server.AD_SERVER_IMPRESSIONS)'])/float(tmp['EstImp']), 2)
+                reaching_rate = round(float(tmp['SUM(dfp_ad_server.AD_SERVER_IMPRESSIONS)'])/float(tmp['EstImp'])*100, 2)
                 reaching_rate_list.append('%s %%' %reaching_rate)
             self.reaching_rate = reaching_rate_list
         # 判斷點擊

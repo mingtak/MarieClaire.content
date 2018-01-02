@@ -1,15 +1,16 @@
 /* ga_talbe */
 .ga_time{
-    width: 200px;
+    min-width: 200px;
     background: yellow;
     font-size: 16px;
     padding: 5px;
 }
 .ga_time_title{
     background: yellow;
-    width: 220px;
+    min-width: 200px;
     font-size: 18px;
     padding: 5px;
+    width: 220px;
 }
 .ga_total{
     background: moccasin;
@@ -22,6 +23,7 @@
     text-align: right;
     font-size: 16px;
     padding: 5px;
+    width: 80px;
 }
 .ga_day_list{
     padding: 5px;
@@ -47,10 +49,14 @@
 .pd5{
     padding: 5px;
     vertical-align: middle;
-    text-align: center;
+    text-align: left;
+    min-width: 100px;
 }
 .text-align-ri{
-    text-align: right
+    text-align: right;
+}
+.text-align-cen{
+    text-align: center;
 }
 .dfp_red{
     background: #F85F73;

@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="MarieClaire.content">
+
+    <subscriber
+        for="MarieClaire.content.interfaces.ICustom
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".event.modifyCustom"
+    />
+    
+</configure>

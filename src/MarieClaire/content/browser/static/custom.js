@@ -178,6 +178,7 @@ getDfpTable = function(){
         data: data,
         success: function (response) {
             $('#line-chart').html(response);
+            $('#line-chart').css('max-height','100%')
         }
     });
 }
