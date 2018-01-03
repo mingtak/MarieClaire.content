@@ -51,7 +51,8 @@ from DateTime import DateTime
       <br>
       <div tal:define="orders view/getOrder">
             <label>請選擇檔期</label><br>
-            <div tal:repeat="item orders" class="order-block">
+            <tal:repeat repeat="item orders">
+              <div class="order-block">
                 <button class="order-btn">${python:item['ORDER_NAME']}</button>
                 <label class=" hide_element">
                     <input type="checkbox" value="select_all" class="dfp-select-all"/>全選</label>
@@ -62,7 +63,8 @@ from DateTime import DateTime
                     <input type="checkbox" value="${python:item['LINE_ITEM_ID']}"
                            class="dfp-line-item" name="dfp-line-item"/>${python:item['LINE_ITEM_NAME']}
                 </label>
-            </div> 
+              </div><br>
+            </tal:repeat>
             <br/><br/>
             <label class="dfp_select_checkbox">
                 <input type="checkbox" class="dfp_select_data" value="1"/>曝光量
@@ -83,7 +85,7 @@ from DateTime import DateTime
 
             <br><br>
             <p class="datepicker"><span class="datepicker">開始日期:
-                   <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
+                   <input type="date" class="start-date" name="start_date" value="${python:(DateTime()-365).strftime('%Y-%m-%d')}"/>
                </span>
                結束日期:
                <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
