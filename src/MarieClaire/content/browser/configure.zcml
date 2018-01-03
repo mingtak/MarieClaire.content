@@ -161,4 +161,11 @@
       layer="zope.interface.Interface"
       permission="cmf.ManagePortal"
       />
+  <browser:page
+      name="custome_value"
+      for="MarieClaire.content.interfaces.ICustom"
+      class=".manage.CustomValue"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
 </configure>

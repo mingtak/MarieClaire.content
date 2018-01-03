@@ -19,6 +19,7 @@
 <metal:block define-macro="content-core">
 <?python
     from plone import api
+    roles = api.user.get_roles()
     current = api.user.get_current().getUserName()
     if current == 'admin':
         identified = True
@@ -42,7 +43,7 @@
             <a href="${python:'%s/custom_report' % url}">DFP Report</a>
             <a href="${python:'%s/ga_edit' % url}">GA Edit</a>
             <a href="${python:'%s/ga_report' % url}">GA Report</a>
-            <a href="${python:'%s/authority_edit' % url}">AUTHORITY EDIT</a>
+            <a tal:condition="python:'Manage' in roles" href="${python:'%s/authority_edit' % url}">AUTHORITY EDIT</a>
         </div>
     </div>
     <!-- 登入者為adminm -->

@@ -1,0 +1,39 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="MarieClaire.content">
+
+<metal:styleslot fill-slot="style_slot">
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
+</metal:styleslot>
+
+<body>
+<metal:content-core fill-slot="content-core">
+<metal:block define-macro="content-core">
+
+<h2 tal:condition="not:view/checkUser">您沒有權限，請洽管理人員</h2>
+
+<a href="${portal_url}/custom" style="float:left" class="back_btn">
+        <img src="${portal_url}/++plone++MarieClaire.content/back.png" style="width:35%"></img>返回</a>
+<br/>
+<br/>
+<tal:condition condition="view/checkUser">
+    <h3>Owner List</h3>
+    <p>${context/ownerList}</p>
+    <hr/>
+    <h3>Post List</h3>
+    <p>${context/postList}</p>
+    <hr/>
+    <h3>Table List</h3>
+    <p>${context/tableList}</p>
+</tal:condition>
+
+</metal:block>
+</metal:content-core>
+
+</body>
+</html>

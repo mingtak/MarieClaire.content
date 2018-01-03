@@ -522,6 +522,27 @@ class GetDfpTable(ManaBasic):
         return self.template()
 
 
+class CustomValue(BrowserView):
+    template = ViewPageTemplateFile('template/custom_value.pt')
+    def checkUser(self):
+        current = api.user.get_current().getUserName()
+        brain = api.content.find(context=self.context)
+        if current == 'admin':
+            return True
+        else:
+            if brain[0].getObject().ownerList == None:
+                return False
+            else:
+                ownerList = brain[0].getObject().ownerList.split('\r\n')
+                if current in ownerList:
+                    return True
+                else:
+                    return False
+
+    def __call__(self):
+        return self.template()
+
+
 """ 尚未使用
 class ManaCustomAdd(ManaBasic):
     template = ViewPageTemplateFile('template/mana_custom_add.pt')
