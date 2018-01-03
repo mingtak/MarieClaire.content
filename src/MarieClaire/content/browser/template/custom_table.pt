@@ -20,6 +20,17 @@
                 <th class="dfp_table_title dfp_yellow">Clicks</th>
                 <th class="dfp_table_title dfp_yellow">CTR</th>
             </tr>
+            <tr>
+                <th colspan="2"></th>
+                <th></th>
+                <th>${view/Est_imp}</th>
+                <th>${python:'%s %%' %round(float(view.Est_clk) / float(view.Est_imp)*100,2)}</th>
+                <th>${view/Est_clk}</th>
+                <th>${view/delivery_imp}</th>
+                <th>${python:'%s %%'%round(float(view.delivery_imp) / float(view.Est_imp)*100,2)}</th>
+                <th>${view/delivery_clk}</th>
+                <th>${python:'%s %%' %round(float(float(view.delivery_clk) / float(view.delivery_imp)*100),2)}</th>
+            </tr>
             <tr tal:repeat="key keys">
                 <td class="pd5 dfp_grey">${python:data[key][0][0]}</td>
                 <td class="pd5 dfp_grey">${python:data[key][0][1]}</td>
@@ -28,7 +39,7 @@
                 <td class="pd5">${python:'%s %%' %data[key][5][0]}</td>
                 <td class="pd5">${python:int(int(data[key][4][0])*float(data[key][5][0])/100)}</td>
                 <td class="pd5 dfp_grey">${python:data[key][1][0]}</td>
-                <td class="pd5 dfp_grey">${python:round(float(float(data[key][1][0])/float(data[key][4][0])),2)}</td>
+                <td class="pd5 dfp_grey">${python:'%s %%'% round(float(float(data[key][1][0])/float(data[key][4][0]))*100,2)}</td>
                 <td class="pd5 dfp_grey">${python:data[key][2][0]}</td>
                 <td class="pd5 dfp_grey">${python:'%s %%' %round(float(data[key][2][0])/float(data[key][1][0])*100,2)}</td>
             </tr>
@@ -71,7 +82,7 @@
         <tr tal:define="day_data view/result_day_data"
             tal:repeat="day view/day_list">
             <th class="pd5">${python:day}</th>
-            <tal:repeat repeat="index python:range(0, len(day_data[day]))">
+            <tal:repeat repeat="index python:range(0, len(view.day_title)*3)">
                 <td class="pd5 text-align-ri"
                     style="${python:'background-color:#CCC' if day_data[day][index]!='' else ''}">
                     ${python:day_data[day][index]}

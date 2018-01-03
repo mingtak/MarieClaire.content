@@ -414,6 +414,33 @@ class GetDfpTable(ManaBasic):
                             [tmp['EstCTR']]
                         ]
             self.tableData = tableData
+
+            execStr = """SELECT EstImp,EstCTR FROM dfp_line_item WHERE LINE_ITEM_ID IN {}
+                """.format(tuple(checkList))
+            result_est = self.execSql(execStr)
+            # 預期目標的總數
+            sum_Est_imp = 0
+            sum_Est_clk = 0
+            for item in result_est:
+                tmp = dict(item)
+                imp = int(tmp['EstImp'])
+                ctr = int(tmp['EstCTR'])
+                sum_Est_imp += imp
+                sum_Est_clk += int(imp*ctr/100)
+            self.Est_imp = sum_Est_imp
+            self.Est_clk = sum_Est_clk
+            self.Est_ctr = round(float(self.Est_clk / self.Est_imp *100),2)
+            # 達成的總數
+            execStr = """SELECT SUM(AD_SERVER_IMPRESSIONS)as sum_imp,SUM(AD_SERVER_CLICKS)
+                as sum_clk FROM `dfp_ad_server` WHERE LINE_ITEM_ID IN {}""".format(tuple(checkList))
+            result_dev = self.execSql(execStr)
+
+            tmp = dict(result_dev[0])
+            self.delivery_imp = int(tmp['sum_imp'])
+            self.delivery_clk = int(tmp['sum_clk'])
+            self.delivery_ctr = round(float(self.delivery_clk / self.delivery_imp *100),2)
+
+
         elif select_type == 'nav_detail':
             # 抓兩日的差距
             execStr = """SELECT MIN(DATE),MAX(DATE) FROM dfp_ad_server WHERE

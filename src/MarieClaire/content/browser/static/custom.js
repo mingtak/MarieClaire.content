@@ -3,30 +3,32 @@
 // dfp Line chart
 genC3 = function(xs, columns, regions__list, event_order__list, event_name__list){
     groups_columns = []
-    selected_len = checkedSelect().length
-    /* 用來判斷堆疊 */
-    if(selected_len == 2){
-        for(i=1; i<=columns.length; i+=3){
+    checkList_len = checkedList().length  //他選的line_item數
+    selected_len = checkedSelect().length //他選曝光量、點擊量、CTR
+    
+    // /* 用來判斷堆疊 */ 
+    if(selected_len == 1 && checkList_len > 1){
+        tmp = []
+        for(i=1; i<=checkList_len*2; i+=2){
+            tmp.push(columns[i][0])
+        }
+        groups_columns.push(tmp)
+    }
+    else if(selected_len == 2 && checkList_len > 1){
+        for(i=1; i<=selected_len; i++){
             tmp = []
-            for(j=1; j<=selected_len; j++){
-                if(i==1){
-                    tmp.push(columns[j][0])
-                }else{
-                    tmp.push(columns[i+j-1][0])
-                }
+            for(j=1; j<=checkList_len*3; j+=3){
+                tmp.push(columns[i+j-1][0])
             }
             groups_columns.push(tmp)
         }
+        
     }
-    if(selected_len == 3){
-        for(i=1; i<=columns.length; i+=4){
+    else if (selected_len == 3 && checkList_len > 1){
+        for(i=1; i<=selected_len; i++){
             tmp = []
-            for(j=1; j<=3; j++){
-                if(i==1){
-                    tmp.push(columns[j][0])
-                }else{
-                    tmp.push(columns[i+j-1][0])
-                }
+            for(j=1; j<=checkList_len*4; j+=4){
+                tmp.push(columns[i+j-1][0])
             }
             groups_columns.push(tmp)
         }
