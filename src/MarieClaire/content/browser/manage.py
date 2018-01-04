@@ -593,6 +593,12 @@ class CustomValue(BrowserView):
         return self.template()
 
 
+class IsManager(BrowserView):
+
+    def __call__(self):
+        return 'Manager' in api.user.get_roles()
+
+
 """ 尚未使用
 class ManaCustomAdd(ManaBasic):
     template = ViewPageTemplateFile('template/mana_custom_add.pt')
