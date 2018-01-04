@@ -424,7 +424,7 @@ class GetDfpTable(ManaBasic):
             for item in result_est:
                 tmp = dict(item)
                 imp = int(tmp['EstImp'])
-                ctr = int(tmp['EstCTR'])
+                ctr = float(tmp['EstCTR'])
                 sum_Est_imp += imp
                 sum_Est_clk += int(imp*ctr/100)
             self.Est_imp = sum_Est_imp

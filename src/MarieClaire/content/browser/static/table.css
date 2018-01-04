@@ -49,8 +49,10 @@
 .pd5{
     padding: 5px;
     vertical-align: middle;
-    text-align: left;
     min-width: 100px;
+}
+.text-align-le{
+    text-align: left;
 }
 .text-align-ri{
     text-align: right;
