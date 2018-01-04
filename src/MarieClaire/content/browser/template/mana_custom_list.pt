@@ -43,7 +43,6 @@
             <a href="${python:'%s/custom_report' % url}">DFP報表</a>
             <a href="${python:'%s/ga_edit' % url}">GA管理</a>
             <a href="${python:'%s/ga_report' % url}">GA報表</a>
-            <a tal:condition="python:'Manage' in roles" href="${python:'%s/authority_edit' % url}">權限管理</a>
         </div>
     </div>
     <!-- 登入者為admin -->
@@ -52,11 +51,11 @@
         <div class="col-md-1">${repeat/item/number}</div>
         <div class="col-md-5">${item/Title}</div>
         <div class="col-md-6">
-            <a href="${python:'%s/custom_edit' % item.getURL()}">DFP Edit</a>
-            <a href="${python:'%s/custom_report' % item.getURL()}">DFP Report</a>
-            <a href="${python:'%s/ga_edit' % item.getURL()}">GA Edit</a>
-            <a href="${python:'%s/ga_report' % item.getURL()}">GA Report</a>
-            <a href="${python:'%s/authority_edit' % item.getURL()}">AUTHORITY EDIT</a>
+            <a href="${python:'%s/custom_edit' % item.getURL()}">DFP管理</a>
+            <a href="${python:'%s/custom_report' % item.getURL()}">DFP報表</a>
+            <a href="${python:'%s/ga_edit' % item.getURL()}">GA管理</a>
+            <a href="${python:'%s/ga_report' % item.getURL()}">GA報表</a>
+            <a href="${python:'%s/authority_edit' % item.getURL()}">權限管理</a>
         </div>
     </div>
 
