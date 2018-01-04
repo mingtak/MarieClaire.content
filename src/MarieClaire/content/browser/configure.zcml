@@ -168,4 +168,13 @@
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
+
+  <browser:page
+      name="update_custom"
+      for="MarieClaire.content.interfaces.ICustom"
+      class=".manage.UpdateCustom"
+      layer="zope.interface.Interface"
+      permission="cmf.ModifyPortalContent"
+      />
+
 </configure>

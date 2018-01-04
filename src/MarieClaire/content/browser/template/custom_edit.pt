@@ -32,8 +32,8 @@
     <div class="row header">
         <div class="col-md-2 pd5 custom_edit_title">訂單ID</div>
         <div class="col-md-4 pd5 custom_edit_title">訂單名稱</div>
-        <div class="col-md-2 pd5 custom_edit_title">本檔績效(Clicks / Impressions)</div>
-        <div class="col-md-2 pd5 custom_edit_title">加權(Clicks / Impressions)</div>
+        <div class="col-md-2 pd5 custom_edit_title">本檔績效<br>(Clicks / Impressions)</div>
+        <div class="col-md-2 pd5 custom_edit_title">加權<br>(Clicks / Impressions)</div>
         <div class="col-md-2 pd5 custom_edit_title">預期點擊率(%)/預期曝光數</div>
 
     </div>
