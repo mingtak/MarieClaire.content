@@ -10,92 +10,92 @@
         <tal:define define="data view/tableData">
             <?python keys = data.keys() ?>
             <tr>
-                <th colspan="2" class="dfp_table_title dfp_red">Media/channel</th>
-                <th class="dfp_table_title dfp_red">Period</th>
-                <th class="dfp_table_title dfp_beide">Est,Imp</th>
-                <th class="dfp_table_title dfp_beide">Est,CTR</th>
-                <th class="dfp_table_title dfp_beide">Est,Clikcs</th>
-                <th class="dfp_table_title dfp_yellow">Imps Delivery</th>
-                <th class="dfp_table_title dfp_yellow">Imps Achievement</th>
-                <th class="dfp_table_title dfp_yellow">Clicks</th>
-                <th class="dfp_table_title dfp_yellow">CTR</th>
+                <th colspan="2" class="dfp_table_title dfp_red" style="border:1px solid #777; background-color:#F85F73">Media/channel</th>
+                <th class="dfp_table_title dfp_red" style="border:1px solid #777; background-color:#f85f73">Period</th>
+                <th class="dfp_table_title dfp_beide" style="border:1px solid #777; background-color:#fbe8d3">Est,Imp</th>
+                <th class="dfp_table_title dfp_beide" style="border:1px solid #777; background-color:#fbe8d3">Est,CTR</th>
+                <th class="dfp_table_title dfp_beide" style="border:1px solid #777; background-color:#fbe8d3">Est,Clikcs</th>
+                <th class="dfp_table_title dfp_yellow" style="border:1px solid #777; background-color:#fce38a">Imps Delivery</th>
+                <th class="dfp_table_title dfp_yellow" style="border:1px solid #777; background-color:#fce38a">Imps Achievement</th>
+                <th class="dfp_table_title dfp_yellow" style="border:1px solid #777; background-color:#fce38a">Clicks</th>
+                <th class="dfp_table_title dfp_yellow" style="border:1px solid #777; background-color:#fce38a">CTR</th>
             </tr>
             <tr>
-                <th colspan="2"></th>
-                <th></th>
-                <th class="text-align-cen">${view/Est_imp}</th>
-                <th class="text-align-cen">${python:'%s %%' %round(float(view.Est_clk) / float(view.Est_imp)*100,2)}</th>
-                <th class="text-align-cen">${view/Est_clk}</th>
-                <th class="text-align-cen">${view/delivery_imp}</th>
-                <th class="text-align-cen">${python:'%s %%'%round(float(view.delivery_imp) / float(view.Est_imp)*100,2)}</th>
-                <th class="text-align-cen">${view/delivery_clk}</th>
-                <th class="text-align-cen">${python:'%s %%' %round(float(float(view.delivery_clk) / float(view.delivery_imp)*100),2)}</th>
+                <th colspan="2" style="border:1px solid #777"></th>
+                <th style="border:1px solid #777"></th>
+                <th class="text-align-cen" style="border:1px solid #777">${view/Est_imp}</th>
+                <th class="text-align-cen" style="border:1px solid #777">${python:'%s %%' %round(float(view.Est_clk) / float(view.Est_imp)*100,2)}</th>
+                <th class="text-align-cen" style="border:1px solid #777">${view/Est_clk}</th>
+                <th class="text-align-cen" style="border:1px solid #777">${view/delivery_imp}</th>
+                <th class="text-align-cen" style="border:1px solid #777">${python:'%s %%'%round(float(view.delivery_imp) / float(view.Est_imp)*100,2)}</th>
+                <th class="text-align-cen" style="border:1px solid #777">${view/delivery_clk}</th>
+                <th class="text-align-cen" style="border:1px solid #777">${python:'%s %%' %round(float(float(view.delivery_clk) / float(view.delivery_imp)*100),2)}</th>
             </tr>
             <tr tal:repeat="key keys">
-                <td class="pd5 dfp_grey">${python:data[key][0][0]}</td>
-                <td class="pd5 dfp_grey">${python:data[key][0][1]}</td>
-                <td class="pd5 dfp_grey">${python:data[key][0][2]}</td>
-                <td class="pd5 text-align-ri">${python:data[key][4][0]}</td>
-                <td class="pd5 text-align-ri">${python:'%s %%' %data[key][5][0]}</td>
-                <td class="pd5 text-align-ri">${python:int(int(data[key][4][0])*float(data[key][5][0])/100)}</td>
-                <td class="pd5 dfp_grey text-align-ri">${python:data[key][1][0]}</td>
-                <td class="pd5 dfp_grey text-align-ri">${python:'%s %%'% round(float(float(data[key][1][0])/float(data[key][4][0]))*100,2)}</td>
-                <td class="pd5 dfp_grey text-align-ri">${python:data[key][2][0]}</td>
-                <td class="pd5 dfp_grey text-align-ri">${python:'%s %%' %round(float(data[key][2][0])/float(data[key][1][0])*100,2)}</td>
+                <td class="pd5 dfp_grey" style="border:1px solid #777; background-color:#cecece">${python:data[key][0][0]}</td>
+                <td class="pd5 dfp_grey" style="border:1px solid #777; background-color:#cecece">${python:data[key][0][1]}</td>
+                <td class="pd5 dfp_grey" style="border:1px solid #777; background-color:#cecece">${python:data[key][0][2]}</td>
+                <td class="pd5 text-align-ri" style="border:1px solid #777">${python:data[key][4][0]}</td>
+                <td class="pd5 text-align-ri" style="border:1px solid #777">${python:'%s %%' %data[key][5][0]}</td>
+                <td class="pd5 text-align-ri" style="border:1px solid #777">${python:int(int(data[key][4][0])*float(data[key][5][0])/100)}</td>
+                <td class="pd5 dfp_grey text-align-ri" style="border:1px solid #777; background-color:#cecece">${python:data[key][1][0]}</td>
+                <td class="pd5 dfp_grey text-align-ri" style="border:1px solid #777; background-color:#cecece">${python:'%s %%'% round(float(float(data[key][1][0])/float(data[key][4][0]))*100,2)}</td>
+                <td class="pd5 dfp_grey text-align-ri" style="border:1px solid #777; background-color:#cecece">${python:data[key][2][0]}</td>
+                <td class="pd5 dfp_grey text-align-ri" style="border:1px solid #777; background-color:#cecece">${python:'%s %%' %round(float(data[key][2][0])/float(data[key][1][0])*100,2)}</td>
             </tr>
         </tal:define>
     </table>
 
     <table tal:condition="view/select_detail">
         <tr>
-            <th></th>
+            <th style="border:1px solid #aaa"></th>
             <tal:repeat repeat="title view/day_title">
-                <th colspan="3" class="dfp_table_title">${python:title.split('_')[0]}</th>
+                <th colspan="3" class="dfp_table_title" style="border:1px solid #aaa">${python:title.split('_')[0]}</th>
             </tal:repeat>
         </tr>
         <tr>
-            <th></th>
+            <th style="border:1px solid #aaa"></th>
             <tal:repeat repeat="title view/day_title">
-                <th colspan="3" class="dfp_table_title">${python:title.split('_')[1]}</th>
+                <th colspan="3" class="dfp_table_title" style="border:1px solid #aaa">${python:title.split('_')[1]}</th>
             </tal:repeat>
         </tr>
         <tr>
-            <th></th>
+            <th style="border:1px solid #aaa"></th>
             <tal:repeat repeat="title view/day_title">
-                <th colspan="3" class="dfp_table_title">${python:title.split('_')[2]}</th>
+                <th colspan="3" class="dfp_table_title" style="border:1px solid #aaa">${python:title.split('_')[2]}</th>
             </tal:repeat>
         </tr>
         <tr>
-            <th></th>
+            <th style="border:1px solid #aaa"></th>
             <tal:repeat repeat="title python:view.day_title">
-                <th class="pd5">Impression</th>
-                <th class="pd5">Clicks</th>
-                <th class="pd5">CTR</th>
+                <th class="pd5" style="border:1px solid #aaa">Impression</th>
+                <th class="pd5" style="border:1px solid #aaa">Clicks</th>
+                <th class="pd5" style="border:1px solid #aaa">CTR</th>
             </tal:repeat>
         </tr>
 
         <tr>
-            <th class="pd5">購買曝光數</th>
-            <th tal:repeat="est python:view.est" class="pd5 text-align-ri">${est}</th>
+            <th class="pd5" style="border:1px solid #aaa">購買曝光數</th>
+            <th tal:repeat="est python:view.est" class="pd5 text-align-ri" style="border:1px solid #aaa">${est}</th>
         </tr>
 
         <tr tal:define="day_data view/result_day_data"
             tal:repeat="day view/day_list">
-            <th class="pd5">${python:day}</th>
+            <th class="pd5" style="border:1px solid #aaa">${python:day}</th>
             <tal:repeat repeat="index python:range(0, len(view.day_title)*3)">
                 <td class="pd5 text-align-ri"
-                    style="${python:'background-color:#ff2' if day_data[day][index]!='' else ''}">
+                    style="${python:'background-color:#ff2; border:1px solid #aaa' if day_data[day][index]!='' else 'border:1px solid #aaa'}">
                     ${python:day_data[day][index]}
                 </td>
             </tal:repeat>
         </tr>
         <tr>
-            <th class="pd5">總和</th>
-            <th tal:repeat="sum view/sum_list" class="pd5 text-align-ri">${sum}</th>
+            <th class="pd5" style="border:1px solid #aaa">總和</th>
+            <th tal:repeat="sum view/sum_list" class="pd5 text-align-ri" style="border:1px solid #aaa">${sum}</th>
         </tr>
         <tr>
-            <th class="pd5">達成率</th>
-            <th colspan="3" tal:repeat="rate view/reaching_rate" class="pd5 text-align-cen">${rate}</th>
+            <th class="pd5" style="border:1px solid #aaa">達成率</th>
+            <th colspan="3" tal:repeat="rate view/reaching_rate" class="pd5 text-align-cen" style="border:1px solid #aaa">${rate}</th>
         </tr>
     </table>
 </body>
