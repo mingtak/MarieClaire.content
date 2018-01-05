@@ -1,12 +1,12 @@
 /* ga_talbe */
 .ga_time{
     min-width: 200px;
-    background: yellow;
+    background-color: yellow;
     font-size: 16px;
     padding: 5px;
 }
 .ga_time_title{
-    background: yellow;
+    background-color: yellow;
     min-width: 200px;
     font-size: 18px;
     padding: 5px;
@@ -61,16 +61,16 @@
     text-align: center;
 }
 .dfp_red{
-    background: #F85F73;
+    background-color: #F85F73;
 }
 .dfp_beide{
-    background: #FBE8D3;
+    background-color: #FBE8D3;
 }
 .dfp_yellow{
-    background: #FCE38A;
+    background-color: #FCE38A;
 }
 .dfp_grey{
-    background: #E6E6E9;
+    background-color: #E6E6E9;
     border: 1px #FFFDFD solid;
 }
 /* dfp_table */
