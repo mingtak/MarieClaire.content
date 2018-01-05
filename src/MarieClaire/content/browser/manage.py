@@ -10,11 +10,34 @@ from MarieClaire.content import DBSTR
 from sqlalchemy import create_engine
 from cStringIO import StringIO
 import csv
-
+from plone.protect.interfaces import IDisableCSRFProtection
+from zope.interface import alsoProvides
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
 ENGINE = create_engine(DBSTR, echo=True)
+
+class UpdateCustom(BrowserView):
+
+    def __call__(self):
+        context = self.context
+        request = self.request
+        portal = api.portal.get()
+        alsoProvides(request, IDisableCSRFProtection)
+
+        if api.user.is_anonymous():
+            request.response.redirect(portal.absolute_url())
+            return
+
+        if 'form.widgets.ownerList' in request.form:
+            context.ownerList = request.form['form.widgets.ownerList']
+        if 'form.widgets.postList' in request.form:
+            context.postList = request.form['form.widgets.postList']
+        if 'form.widgets.tableList' in request.form:
+            context.tableList = request.form['form.widgets.tableList']
+
+        request.response.redirect('%s/manage_list' % portal.absolute_url())
+        return
 
 
 class ManaBasic(BrowserView):
@@ -568,6 +591,12 @@ class CustomValue(BrowserView):
 
     def __call__(self):
         return self.template()
+
+
+class IsManager(BrowserView):
+
+    def __call__(self):
+        return 'Manager' in api.user.get_roles()
 
 
 """ 尚未使用

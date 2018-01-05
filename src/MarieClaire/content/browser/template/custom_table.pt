@@ -84,7 +84,7 @@
             <th class="pd5">${python:day}</th>
             <tal:repeat repeat="index python:range(0, len(view.day_title)*3)">
                 <td class="pd5 text-align-ri"
-                    style="${python:'background-color:#CCC' if day_data[day][index]!='' else ''}">
+                    style="${python:'background-color:#ff2' if day_data[day][index]!='' else ''}">
                     ${python:day_data[day][index]}
                 </td>
             </tal:repeat>
