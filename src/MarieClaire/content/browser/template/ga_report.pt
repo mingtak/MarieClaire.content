@@ -79,12 +79,12 @@
                     value=${python:item.Title} ></input>${python:item.Title}</label>
         <br/>
         
-        <!-- <span class="del-time">
+        <span class="del-time">
                     選擇要刪除的時間：<input type="date" name="del_time" class="del-time"
                                     value="${python:DateTime().year()}-01-01"/>
                 </span>
                 <button class="del-btn btn btn-danger">刪除</button>
-                <br/> -->
+                <br/>
         
 
         <div class="chart">

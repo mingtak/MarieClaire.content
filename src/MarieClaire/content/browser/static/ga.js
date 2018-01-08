@@ -50,9 +50,10 @@ $(document).ready(function () {
     $('.del-btn').click(function (e) {
         if( confirm('確認要刪除嘛') ){
             data = {
-                'time':$('.del-time').val(),
+                'time':$('input.del-time').val(),
                 'check_list':checkedList()
             }
+            debugger
             url = window.location.href.replace('ga_report', '@@del_ga_data')
             $.ajax({
                 type: "POST",

@@ -239,7 +239,7 @@ $(document).ready(function(){
     $('.del-btn').click(function (e) {
         if( confirm('確認要刪除嘛') ){
             data = {
-                'time':$('.del-time').val(),
+                'time':$('input.del-time').val(),
                 'check_list':checkedList()
             }
             url = window.location.href.replace('custom_report', '@@del_line_item')

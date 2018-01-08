@@ -10,11 +10,34 @@ from MarieClaire.content import DBSTR
 from sqlalchemy import create_engine
 from cStringIO import StringIO
 import csv
-
+from plone.protect.interfaces import IDisableCSRFProtection
+from zope.interface import alsoProvides
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
 ENGINE = create_engine(DBSTR, echo=True)
+
+class UpdateCustom(BrowserView):
+
+    def __call__(self):
+        context = self.context
+        request = self.request
+        portal = api.portal.get()
+        alsoProvides(request, IDisableCSRFProtection)
+
+        if api.user.is_anonymous():
+            request.response.redirect(portal.absolute_url())
+            return
+
+        if 'form.widgets.ownerList' in request.form:
+            context.ownerList = request.form['form.widgets.ownerList']
+        if 'form.widgets.postList' in request.form:
+            context.postList = request.form['form.widgets.postList']
+        if 'form.widgets.tableList' in request.form:
+            context.tableList = request.form['form.widgets.tableList']
+
+        request.response.redirect('%s/manage_list' % portal.absolute_url())
+        return
 
 
 class ManaBasic(BrowserView):
@@ -53,7 +76,7 @@ class UpdateWeight(ManaBasic):
             execStr = """UPDATE dfp_ad_server SET {} = {} 
                 WHERE LINE_ITEM_ID = '{}'""".format(weight_name, weight, update_id)
         self.execSql(execStr)
-        return 'Already Update OK.'
+        return weight
 
 class UpdateEst(ManaBasic):
     def __call__(self):
@@ -71,6 +94,19 @@ class UpdateEst(ManaBasic):
 
         self.execSql(execStr)
         return 'Already Update OK.'
+
+
+class UpdateDateData(ManaBasic):
+    def __call__(self):
+        update_name = self.request.form.get('update_name')
+        line_item_id = self.request.form.get('line_item_id')
+        value = self.request.form.get('value')
+        date = self.request.form.get('date')
+        execStr = """UPDATE dfp_ad_server SET {} = {} WHERE LINE_ITEM_ID = '{}' AND 
+        date = '{}' """.format(update_name, value, line_item_id, date)
+        self.execSql(execStr)
+        return value
+
 
 class ManaCustomList(ManaBasic):
     template = ViewPageTemplateFile('template/mana_custom_list.pt')
@@ -226,7 +262,37 @@ class CustomEdit(ManaBasic):
         execStr = """SELECT EstImp,EstCTR FROM dfp_line_item WHERE LINE_ITEM_ID = 
             '{}'""".format(line_item_id)
         return dict(self.execSql(execStr)[0])
+    
+    def get_date_data(self, line_item_id):
+        
+        execStr = """SELECT dfp_ad_server.* FROM dfp_ad_server WHERE LINE_ITEM_ID = '{}' 
+            ORDER BY DATE""".format(line_item_id)
+        result_data = self.execSql(execStr)
+        date_data = {}        
+        for data in result_data:
+            tmp = dict(data)
+            date = str(tmp['DATE'])
+            impressions = tmp['AD_SERVER_IMPRESSIONS']
+            click = tmp['AD_SERVER_CLICKS']
+            ctr = '%s %%' %round((float(click)/float(impressions)*100),2)
+            date_data[date] = {
+                'impressions':impressions,
+                'clicks':click,
+                'ctr':ctr,
+                'cli_weight':tmp['cli_weight'],
+                'im_weight':tmp['im_weight'],
+            }
+        return date_data 
 
+    def get_date_list(self, line_item_id):
+        execStr = """SELECT date FROM dfp_ad_server WHERE LINE_ITEM_ID = '{}'
+        ORDER BY DATE""".format(line_item_id)
+        result = self.execSql(execStr)
+        date_list = []
+        for item in result:
+            tmp = dict(item)
+            date_list.append(str(tmp['date']))
+        return date_list
 
     def __call__(self):
         if self.isAnonymous():
@@ -348,7 +414,6 @@ class DelLineItem(ManaBasic):
 
         if type(checkList) == str:
             checkList = [checkList, 'zzzzz']
-
         execStr = """DELETE FROM dfp_ad_server WHERE LINE_ITEM_ID IN {} 
         AND DATE = '{}' """.format(tuple(checkList), time)
         self.execSql(execStr)
@@ -374,45 +439,33 @@ class GetDfpTable(ManaBasic):
                 ORDER BY DATE""".format(tuple(checkList))
             result = self.execSql(execStr)
             tableData = {}
+            delivery_imp = 0
+            delivery_clk = 0
             for item in result:
                 tmp = dict(item)
                 line_item_id = tmp['LINE_ITEM_ID']
                 Date = str(tmp['DATE'])
                 line_item_name = str(tmp['LINE_ITEM_NAME'])
-                if select_type == 'nav_table':
-                    if tableData.has_key(line_item_id):
-                            tableData[line_item_id][1][-1] += int(tmp['AD_SERVER_IMPRESSIONS'])
-                            tableData[line_item_id][2][-1] += int(tmp['AD_SERVER_CLICKS'])
-                            tableData[line_item_id][3][-1] += float(tmp['AD_SERVER_CTR'])
-                    else:
-                        tableData[line_item_id] = [
-                            [line_item_name.split('_')[0],line_item_name.split('_')[1],line_item_name.split('_')[2]],
-                            [tmp['AD_SERVER_IMPRESSIONS']],
-                            [tmp['AD_SERVER_CLICKS']],
-                            [tmp['AD_SERVER_CTR']],
-                            [tmp['EstImp']],
-                            [tmp['EstCTR']]
-                        ]
-                elif select_type == 'nav_detail':
-                    if tableData.has_key(line_item_id):
-                        if Date == tableData[line_item_id][3][-1]:
-                            tableData[line_item_id][4][-1] += int(tmp['AD_SERVER_IMPRESSIONS'])
-                            tableData[line_item_id][5][-1] += int(tmp['AD_SERVER_CLICKS'])
-                        else:
-                            tableData[line_item_id][3].append(Date)
-                            tableData[line_item_id][4].append( int(tmp['AD_SERVER_IMPRESSIONS']))
-                            tableData[line_item_id][5].append( int(tmp['AD_SERVER_CLICKS']))
-                    else:
-                        tableData[line_item_id] = [
-                            [line_item_name.split('_')[0]],
-                            [line_item_name.split('_')[1]],
-                            [line_item_name.split('_')[2]],
-                            [Date],
-                            [tmp['AD_SERVER_IMPRESSIONS']],
-                            [tmp['AD_SERVER_CLICKS']],
-                            [tmp['EstImp']],
-                            [tmp['EstCTR']]
-                        ]
+                cli_weight = tmp['cli_weight']
+                im_weight = tmp['im_weight']
+                if tableData.has_key(line_item_id):
+                        tableData[line_item_id][1][-1] += round(tmp['AD_SERVER_IMPRESSIONS']*im_weight,0)
+                        tableData[line_item_id][2][-1] += round(tmp['AD_SERVER_CLICKS']*cli_weight,0)
+                else:
+                    tableData[line_item_id] = [
+                        [line_item_name.split('_')[0],line_item_name.split('_')[1],line_item_name.split('_')[2]],
+                        [round(tmp['AD_SERVER_IMPRESSIONS']*im_weight,0)],
+                        [round(tmp['AD_SERVER_CLICKS']*cli_weight,0)],
+                        [tmp['AD_SERVER_CTR']],#這沒用到，再template另外計算
+                        [tmp['EstImp']],
+                        [tmp['EstCTR']]
+                    ]
+                # 計算總數
+                delivery_imp += round(tmp['AD_SERVER_IMPRESSIONS']*im_weight,0)
+                delivery_clk += round(tmp['AD_SERVER_CLICKS']*cli_weight,0)
+            self.delivery_imp = int(delivery_imp)
+            self.delivery_clk = int(delivery_clk)
+            self.delivery_ctr = '%s %%' %(round( (float(delivery_clk) / float(delivery_imp) *100), 2))
             self.tableData = tableData
 
             execStr = """SELECT EstImp,EstCTR FROM dfp_line_item WHERE LINE_ITEM_ID IN {}
@@ -430,16 +483,6 @@ class GetDfpTable(ManaBasic):
             self.Est_imp = sum_Est_imp
             self.Est_clk = sum_Est_clk
             self.Est_ctr = round(float(self.Est_clk / self.Est_imp *100),2)
-            # 達成的總數
-            execStr = """SELECT SUM(AD_SERVER_IMPRESSIONS)as sum_imp,SUM(AD_SERVER_CLICKS)
-                as sum_clk FROM `dfp_ad_server` WHERE LINE_ITEM_ID IN {}""".format(tuple(checkList))
-            result_dev = self.execSql(execStr)
-
-            tmp = dict(result_dev[0])
-            self.delivery_imp = int(tmp['sum_imp'])
-            self.delivery_clk = int(tmp['sum_clk'])
-            self.delivery_ctr = round(float(self.delivery_clk / self.delivery_imp *100),2)
-
 
         elif select_type == 'nav_detail':
             # 抓兩日的差距
@@ -465,27 +508,35 @@ class GetDfpTable(ManaBasic):
                 day_title.append(tmp['LINE_ITEM_NAME'])
             self.day_title = day_title
 
-            # 抓line_item data
+            # 抓line_item的data
             result_day_data = {}
+            sum_oneday_data = {}
             for checked in checkList:
                 execStr = """SELECT AD_SERVER_IMPRESSIONS,AD_SERVER_CLICKS,DATE,LINE_ITEM_ID 
-                    FROM `dfp_ad_server` WHERE LINE_ITEM_ID = '{}' ORDER BY DATE
+                    ,im_weight,cli_weight FROM `dfp_ad_server` WHERE LINE_ITEM_ID = '{}' 
+                    ORDER BY DATE
                     """.format(checked)
                 result = self.execSql(execStr)
-
                 tmp_dayList = list(day_list)
                 for item in result:
                     tmp = dict(item)
                     date = str(tmp['DATE'])
-                    impressions = tmp['AD_SERVER_IMPRESSIONS']
-                    clicks = tmp['AD_SERVER_CLICKS']
+                    impressions = round(tmp['AD_SERVER_IMPRESSIONS']*tmp['im_weight'], 0)
+                    clicks = round(tmp['AD_SERVER_CLICKS']*tmp['cli_weight'], 0)
                     ctr = round(float(clicks) / float(impressions)*100,2)
                     if result_day_data.has_key(date):
-                        result_day_data[date].append(impressions)
-                        result_day_data[date].append(clicks)
+                        result_day_data[date].append(int(impressions))
+                        result_day_data[date].append(int(clicks))
                         result_day_data[date].append('%s %%' %ctr)
                     else:
-                        result_day_data[date] = [impressions, clicks, '%s %%' %ctr]
+                        result_day_data[date] = [int(impressions), int(clicks), '%s %%' %ctr]
+                    # 算一天總合
+                    if sum_oneday_data.has_key(date):
+                        sum_oneday_data[date][0] += int(impressions)
+                        sum_oneday_data[date][1] += int(clicks)
+                    else:
+                        sum_oneday_data[date] = [int(impressions), int(clicks)]
+                    # 若那天有資料填入就刪掉那天日期    
                     tmp_dayList.remove(date) 
                 # 把剩餘的日期填空
                 for tmp_day in tmp_dayList:
@@ -495,9 +546,17 @@ class GetDfpTable(ManaBasic):
                         result_day_data[tmp_day].append('')
                     else:
                         result_day_data[tmp_day] = ['', '', '']
+                    if sum_oneday_data.has_key(tmp_day):
+                        pass
+                    else:
+                        sum_oneday_data[tmp_day] = [0,0]
+
+            self.sum_oneday_data = sum_oneday_data
             self.result_day_data = result_day_data
             
             # 抓預期目標
+            oneday_EstImp = 0
+            oneday_EstClk = 0
             execStr = """SELECT EstImp,EstCTR FROM dfp_line_item WHERE LINE_ITEM_ID 
                 IN {}""".format(tuple(checkList))
             result_est = self.execSql(execStr)
@@ -508,36 +567,57 @@ class GetDfpTable(ManaBasic):
                 estList.append(tmp['EstImp'])
                 estList.append(click)
                 estList.append('%s %%' %tmp['EstCTR'])
+                oneday_EstImp += int(tmp["EstImp"])
+                oneday_EstClk += click
+            oneday_ctr = '%s %%'%(round(float(oneday_EstClk) / float(oneday_EstImp)*100,2))
             self.est = estList
-            
+            self.oneday_EstImp = oneday_EstImp
+            self.oneday_EstClk = oneday_EstClk
+            self.oneday_ctr = oneday_ctr
             # 抓最後達成結果
-            execStr = """SELECT SUM(AD_SERVER_IMPRESSIONS),SUM(AD_SERVER_CLICKS) FROM 
-                `dfp_ad_server` WHERE LINE_ITEM_ID IN {} GROUP BY LINE_ITEM_ID
-                """.format(tuple(checkList))
-            result_sum = self.execSql(execStr)
             result_sum_list = []
-            for item in result_sum:
-                tmp = dict(item)
-                impressions = int(tmp['SUM(AD_SERVER_IMPRESSIONS)'])
-                clicks = int(tmp['SUM(AD_SERVER_CLICKS)'])
-                ctr = round(float(clicks)/float(impressions)*100, 2)
-                result_sum_list.append(impressions)
-                result_sum_list.append(clicks)
-                result_sum_list.append('%s %%' %ctr)
-            self.sum_list = result_sum_list
-
-            # 抓達成率
-            execStr = """SELECT SUM(dfp_ad_server.AD_SERVER_IMPRESSIONS),dfp_line_item.EstImp 
-                FROM `dfp_ad_server`,dfp_line_item WHERE dfp_ad_server.LINE_ITEM_ID IN 
-                {} and dfp_ad_server.LINE_ITEM_ID=dfp_line_item.LINE_ITEM_ID 
-                GROUP BY dfp_ad_server.LINE_ITEM_ID""".format(tuple(checkList))
-            result_reaching_rate = self.execSql(execStr)
             reaching_rate_list = []
-            for item in result_reaching_rate:
-                tmp = dict(item)
-                reaching_rate = round(float(tmp['SUM(dfp_ad_server.AD_SERVER_IMPRESSIONS)'])/float(tmp['EstImp'])*100, 2)
-                reaching_rate_list.append('%s %%' %reaching_rate)
-            self.reaching_rate = reaching_rate_list
+            total_reaching_imp = 0
+            total_reaching_cli = 0
+            
+            for checked in checkList:
+                sum_imp = 0
+                sum_click = 0
+                # 單個LINE_ITEM_ID 的資料
+                execStr = """SELECT AD_SERVER_IMPRESSIONS,AD_SERVER_CLICKS,im_weight
+                    ,cli_weight FROM `dfp_ad_server` WHERE LINE_ITEM_ID = '{}'
+                    """.format(checked)
+                result_sum = self.execSql(execStr)
+                if result_sum != []:#單選一個會多跑一次空值
+                    for item in result_sum:
+                        tmp = dict(item)
+                        sum_imp += round((int(tmp['AD_SERVER_IMPRESSIONS'])*tmp['im_weight']),0)
+                        sum_click += round((int(tmp['AD_SERVER_CLICKS'])*tmp['cli_weight']),0)
+                    ctr = round(float(sum_click)/float(sum_imp)*100, 2)
+                    result_sum_list.append(int(sum_imp))
+                    result_sum_list.append(int(sum_click))
+                    result_sum_list.append('%s %%' %ctr)
+                    total_reaching_imp += int(sum_imp)
+                    total_reaching_cli += int(sum_click)
+                    total_reaching_ctr = '%s %%'%(round(float(total_reaching_cli) / float(total_reaching_imp)*100,2))
+                self.total_reaching_imp = total_reaching_imp
+                self.total_reaching_cli = total_reaching_cli
+                self.total_reaching_ctr = total_reaching_ctr
+                execStr = """SELECT EstImp FROM dfp_line_item WHERE LINE_ITEM_ID = '{}'
+                    """.format(checked)
+                result_estimp = self.execSql(execStr)
+                if result_estimp != []:#單選一個會多跑一次空值
+                    for item in result_estimp:
+                        tmp = dict(item)
+                        est_imp = tmp['EstImp']
+                        reaching_rate ='%s %%' %(round(sum_imp / int(est_imp)*100, 2))
+                        reaching_rate_list.append(reaching_rate)
+            sum_reaching_rate = 0
+            for rate in reaching_rate_list:
+                sum_reaching_rate += float(rate.split('%')[0])
+            self.sum_reaching_rate = '%s %%' %(round(sum_reaching_rate / len(reaching_rate_list), 2))
+            self.reaching_rate_list = reaching_rate_list
+            self.sum_list = result_sum_list
         # 判斷點擊
         if select_type == 'nav_table':
             self.select_table = True
@@ -568,6 +648,12 @@ class CustomValue(BrowserView):
 
     def __call__(self):
         return self.template()
+
+
+class IsManager(BrowserView):
+
+    def __call__(self):
+        return 'Manager' in api.user.get_roles()
 
 
 """ 尚未使用

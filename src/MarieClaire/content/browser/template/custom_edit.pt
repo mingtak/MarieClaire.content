@@ -32,14 +32,14 @@
     <div class="row header">
         <div class="col-md-2 pd5 custom_edit_title">訂單ID</div>
         <div class="col-md-4 pd5 custom_edit_title">訂單名稱</div>
-        <div class="col-md-2 pd5 custom_edit_title">本檔績效(Clicks / Impressions)</div>
-        <div class="col-md-2 pd5 custom_edit_title">加權(Clicks / Impressions)</div>
+        <div class="col-md-2 pd5 custom_edit_title">本檔績效<br>(Clicks / Impressions)</div>
+        <div class="col-md-2 pd5 custom_edit_title">加權<br>(Clicks / Impressions)</div>
         <div class="col-md-2 pd5 custom_edit_title">預期點擊率(%)/預期曝光數</div>
 
     </div>
     <div tal:repeat="item view/orderIds" class="row record">
         <div>
-            <div class="col-md-2 order_block">${item}</div>
+            <div class="col-md-2 order_block order" style="cursor:pointer">${item}</div>
             <div class="col-md-4 order_block">${python:view.orderData[item]['ORDER_NAME']}</div>
             <div class="col-md-2 order_block">
                 ${python:view.orderData[item]['AD_SERVER_CLICKS']} / ${python:view.orderData[item]['AD_SERVER_IMPRESSIONS']}
@@ -61,48 +61,78 @@
         </div>
         <tal:repeat define="line_item_data python:view.getLineItem(item)" 
                         repeat="line_item line_item_data">
-            <div>
-                <div class="col-md-2">${python:line_item}</div>
-                <div class="col-md-4">${python:line_item_data[line_item]['LINE_ITEM_NAME']}</div>
-                <div class="col-md-2">
-                    ${python:line_item_data[line_item]['AD_SERVER_CLICKS']}/${python:line_item_data[line_item]['AD_SERVER_IMPRESSIONS']}
+            <section class="line_item_list">
+                <div style="background-color:#FFFCCA">
+                    <div class="col-md-2 line_item" style="cursor:pointer">${python:line_item}</div>
+                    <div class="col-md-4">${python:line_item_data[line_item]['LINE_ITEM_NAME']}</div>
+                    <div class="col-md-2">
+                        ${python:line_item_data[line_item]['AD_SERVER_CLICKS']}/${python:line_item_data[line_item]['AD_SERVER_IMPRESSIONS']}
+                    </div>
+                    <div class="col-md-2 last">
+                        <input class="line_item_weight" data-line_item_id="${line_item}" data-name="cli_weight"
+                            type="number" step="0.1"  placeholder="群組變更"> / 
+                        <input class="line_item_weight" data-line_item_id="${line_item}" data-name="im_weight"
+                            type="number" step="0.1"  placeholder="群組變更">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" style="display:inline"  value="${python:line_item_data[line_item]['EstCTR']}"
+                            class="line_item_est" data-line_item_id="${line_item}" data-name="EstCTR"/> / 
+                        <input type="number" style="display:inline"  value="${python:line_item_data[line_item]['EstImp']}"
+                            class="line_item_est" data-line_item_id="${line_item}" data-name="EstImp"/> 
+                    </div>
                 </div>
-                <div class="col-md-2 last">
-                    <input class="line_item_weight" data-line_item_id="${line_item}" data-name="cli_weight"
-                        type="number" step="0.1" value="${python:line_item_data[line_item]['cli_weight']}"> / 
-                    <input class="line_item_weight" data-line_item_id="${line_item}" data-name="im_weight"
-                        type="number" step="0.1" value="${python:line_item_data[line_item]['im_weight']}">
-                </div>
-                <div class="col-md-2">
-                    <input type="number" style="display:inline" value="${python:line_item_data[line_item]['EstCTR']}"
-                        class="line_item_est" data-line_item_id="${line_item}" data-name="EstCTR"/> / 
-                    <input type="number" style="display:inline" value="${python:line_item_data[line_item]['EstImp']}" 
-                        class="line_item_est" data-line_item_id="${line_item}" data-name="EstImp"/> 
-                </div>
-            </div>
+                <section class="date_detail">
+                    <div style="background-color:#C9D6DF">
+                        <div class="col-md-2">日期</div>
+                        <div class="col-md-2">點擊數</div>
+                        <div class="col-md-2">曝光率</div>
+                        <div class="col-md-2">點擊權重</div>
+                        <div class="col-md-2">曝光率權重</div>
+                    </div>
+                    <div tal:define="data python:view.get_date_data(line_item);date python:view.get_date_list(line_item)"
+                        tal:repeat="item date">
+                        <div class="col-md-2">${item}</div>
+                        <div class="col-md-2">${python:data[item]['clicks']}</div>
+                        <div class="col-md-2">${python:data[item]['impressions']}</div>
+                        <div class="col-md-2">
+                            <input type="number" value="${python:data[item]['cli_weight']}"
+                                class="date_cli" data-line_item_id="${line_item}" 
+                                data-name="cli_weight" data-date="${item}" style="width:80%" step="0.1"/>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" value="${python:data[item]['im_weight']}"
+                                class="date_im" data-line_item_id="${line_item}" 
+                                data-name="im_weight" data-date="${item}" style="width:80%" step="0.1"/>
+                        </div>
+                    </div>
+                </section>
+            </section>
         </tal:repeat>
+
     </div>
 </div>
 
-
 <script>
+$('.order').click(function(){
+    $(this).parent().siblings().toggle()
+})
+$('.line_item').click(function(){
+    $(this).parent().siblings().toggle()
+})
 // post
-updateWeight = function(update_id, weight_name, weight, update_type){
+updateWeight = function(update_id, weight_name, weight, update_type, target){
     url = window.location.href.replace('custom_edit', '@@update_weight')
-
     data = {
         update_id: update_id,
         weight_name: weight_name,
         weight: weight,
         update_type:update_type
     }
-
     $.post(
         url,
         data = data,
     ).done(function(value){
-        alert(value)
-        window.location = window.location.href 
+        target.val(value)
     }).fail(function(){
         alert('Fail')
     })
@@ -120,8 +150,25 @@ updateEst = function(update_id, est_name, value){
         url,
         data = data,
     ).done(function(value){
-        alert(value)
-        window.location = window.location.href 
+        $('.line_item_est').data.reload()
+    }).fail(function(){
+        alert('Fail')
+    })
+}
+
+updateDateData = function(update_name, value, line_item_id, date){
+    url = window.location.href.replace('custom_edit', '@@update_date_data')
+    data = {
+        update_name: update_name,
+        line_item_id: line_item_id,
+        value: value,
+        date:date
+    }
+    $.post(
+        url,
+        data = data,
+    ).done(function(value){
+         
     }).fail(function(){
         alert('Fail')
     })
@@ -129,19 +176,23 @@ updateEst = function(update_id, est_name, value){
 
 // update weight
 $(document).ready(function(){
+    $('.date_detail,.line_item_list').hide()
     $('.weight').change(function(){
         update_type="order"
         update_id = $(this).data('order_id')
         weight_name = $(this).data('name')
         weight = $(this).val()
-        updateWeight(update_id, weight_name, weight, update_type)
+        updateWeight(update_id, weight_name, weight, update_type )
     })
     $('.line_item_weight').change(function(){
         update_type="line_item"
         update_id = $(this).data('line_item_id')
         weight_name = $(this).data('name')
         weight = $(this).val()
-        updateWeight(update_id, weight_name, weight, update_type)
+        if(weight_name == 'cli_weight'){
+            target = $(this).parent().parent().siblings().find('.date_cli')
+        }
+        updateWeight(update_id, weight_name, weight, update_type, target)
     })
     $('.line_item_est').change(function(){
         update_type = "Est_data"
@@ -156,6 +207,13 @@ $(document).ready(function(){
         value = $(this).val()
         update_id = $(this).data('order_id')
         updateEst(update_id, est_name, value, update_type)
+    })
+    $('.date_cli,.date_im').change(function(){
+        update_name = $(this).data('name')
+        value = $(this).val()
+        line_item_id = $(this).data('line_item_id')
+        date = $(this).data('date')
+        updateDateData(update_name, value, line_item_id, date)
     })
 })
 </script>
