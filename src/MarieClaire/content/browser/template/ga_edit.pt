@@ -37,6 +37,22 @@
         <textarea  id="form-widgets-postList" name="form.widgets.postList" class="textarea-widget text-field">${context/postList}</textarea>
         
         <h2>追蹤表格網址</h2>
+        <h4 style="display:inline">範例：</h4>
+        <div style="display:inline">
+            <h4 style="display:inline;color:#FF9A00">/events/2018/01/example/</h4>
+            <span style="display:inline;margin:0 10px">,</span>
+            <h4 style="display:inline;color:#07689F">2018-01-01</h4>
+            <span style="display:inline;margin:0 10px">,</span>
+            <h4 style="display:inline;color:#BE3144">2018-12-31</h4>
+            <span style="display:inline;margin:0 10px">,</span>
+            <h4 style="display:inline;margin-left:10px;color:#04837B">9</h4>
+            <br/>
+            <h4 style="display:inline;margin-left:150px">網址</h4>
+            <h4 style="display:inline;margin-left:130px">開始時間</h4>
+            <h4 style="display:inline;margin-left:50px">結束時間</h4>
+            <h4 style="display:inline;margin-left:15px">第一次報表時間</h4>
+        </div>
+
         <textarea id="form-widgets-tableList" name="form.widgets.tableList" class="textarea-widget text-field">${context/tableList}</textarea>
         <br/>
         <input id="form-buttons-save" name="form.buttons.save" class="submit-widget button-field context" value="儲存" type="submit">
