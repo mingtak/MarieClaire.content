@@ -45,9 +45,9 @@
                 ${python:view.orderData[item]['AD_SERVER_CLICKS']} / ${python:view.orderData[item]['AD_SERVER_IMPRESSIONS']}
             </div>
             <div class="col-md-2 last order_block">
-                <input class="weight" data-order_id="${item}" data-name="cli_weight"
+                <input class="order_cli" data-order_id="${item}" data-name="cli_weight"
                     type="number" step="0.1" placeholder="群組變更"> / 
-                <input class="weight" data-order_id="${item}" data-name="im_weight"
+                <input class="order_im" data-order_id="${item}" data-name="im_weight"
                     type="number" step="0.1" placeholder="群組變更">
             </div>
             <div class="col-md-2 last order_block">
@@ -76,9 +76,9 @@
                     </div>
                     <div class="col-md-2">
                         <input type="number" style="display:inline"  value="${python:line_item_data[line_item]['EstCTR']}"
-                            class="line_item_est" data-line_item_id="${line_item}" data-name="EstCTR"/> / 
+                            class="line_item_ctr" data-line_item_id="${line_item}" data-name="EstCTR"/> / 
                         <input type="number" style="display:inline"  value="${python:line_item_data[line_item]['EstImp']}"
-                            class="line_item_est" data-line_item_id="${line_item}" data-name="EstImp"/> 
+                            class="line_item_imp" data-line_item_id="${line_item}" data-name="EstImp"/> 
                     </div>
                 </div>
                 <section class="date_detail">
@@ -150,7 +150,7 @@ updateEst = function(update_id, est_name, value){
         url,
         data = data,
     ).done(function(value){
-        $('.line_item_est').data.reload()
+        target.val(value)
     }).fail(function(){
         alert('Fail')
     })
@@ -168,7 +168,7 @@ updateDateData = function(update_name, value, line_item_id, date){
         url,
         data = data,
     ).done(function(value){
-         
+
     }).fail(function(){
         alert('Fail')
     })
@@ -177,20 +177,29 @@ updateDateData = function(update_name, value, line_item_id, date){
 // update weight
 $(document).ready(function(){
     $('.date_detail,.line_item_list').hide()
-    $('.weight').change(function(){
+    $('.order_cli, .order_im').change(function(){
         update_type="order"
         update_id = $(this).data('order_id')
         weight_name = $(this).data('name')
         weight = $(this).val()
-        updateWeight(update_id, weight_name, weight, update_type )
+        <!-- order權重改變 底下的line_item的每個全重都改 -->
+        if (weight_name == 'cli_weight'){
+            target = $(this).parent().parent().siblings().find('.date_cli')
+        }else{
+            target = $(this).parent().parent().siblings().find('.date_im')
+        }
+        updateWeight(update_id, weight_name, weight, update_type, target)
     })
     $('.line_item_weight').change(function(){
         update_type="line_item"
         update_id = $(this).data('line_item_id')
         weight_name = $(this).data('name')
         weight = $(this).val()
+        <!-- line_item 底下的個日權重改變 -->
         if(weight_name == 'cli_weight'){
             target = $(this).parent().parent().siblings().find('.date_cli')
+        }else{
+            target = $(this).parent().parent().siblings().find('.date_im')
         }
         updateWeight(update_id, weight_name, weight, update_type, target)
     })
@@ -206,7 +215,12 @@ $(document).ready(function(){
         est_name = $(this).data('name')
         value = $(this).val()
         update_id = $(this).data('order_id')
-        updateEst(update_id, est_name, value, update_type)
+        if(est_name == 'EstCTR'){
+            target = $(this).parent().parent().siblings().find('.line_item_ctr')
+        }else{
+            target = $(this).parent().parent().siblings().find('.line_item_imp')
+        }
+        updateEst(update_id, est_name, value, update_type, target)
     })
     $('.date_cli,.date_im').change(function(){
         update_name = $(this).data('name')

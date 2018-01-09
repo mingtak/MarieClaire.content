@@ -327,10 +327,10 @@ div.table .row div a {
     display: flex;
     align-items: center;
 }
-.line_item_est, .line_item_weight{
+.line_item_imp, .line_item_ctr, .line_item_weight{
     width: 45%;
 }
-.weight, .Est_weight{
+.order_cli, .order_im, .Est_weight{
     width: 45%;
 }
 .hide_element, .hide_adv{

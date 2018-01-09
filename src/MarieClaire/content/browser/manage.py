@@ -93,7 +93,7 @@ class UpdateEst(ManaBasic):
                 LINE_ITEM_ID = '{}' """.format(est_name, value, update_id)
 
         self.execSql(execStr)
-        return 'Already Update OK.'
+        return value
 
 
 class UpdateDateData(ManaBasic):
