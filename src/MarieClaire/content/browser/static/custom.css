@@ -327,7 +327,7 @@ div.table .row div a {
     display: flex;
     align-items: center;
 }
-.line_item_imp, .line_item_ctr, .line_item_weight{
+.line_item_imp, .line_item_ctr, .line_item_weight, .date_cli, .date_im{
     width: 45%;
 }
 .order_cli, .order_im, .Est_weight{
