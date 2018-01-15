@@ -84,26 +84,23 @@
                 <section class="date_detail">
                     <div style="background-color:#C9D6DF">
                         <div class="col-md-2">日期</div>
-                        <div class="col-md-2">點擊數</div>
-                        <div class="col-md-2">曝光率</div>
-                        <div class="col-md-2">點擊權重</div>
-                        <div class="col-md-2">曝光率權重</div>
+                        <div class="col-md-2 col-md-offset-4">點擊/曝光</div>
+                        <div class="col-md-2">權重</div>
+                        <div class="col-md-2">固定變更</div>
                     </div>
                     <div tal:define="data python:view.get_date_data(line_item);date python:view.get_date_list(line_item)"
                         tal:repeat="item date">
                         <div class="col-md-2">${item}</div>
-                        <div class="col-md-2">${python:data[item]['clicks']}</div>
-                        <div class="col-md-2">${python:data[item]['impressions']}</div>
+                        <div class="col-md-2 col-md-offset-4">${python:data[item]['clicks']} / ${python:data[item]['impressions']}</div>
                         <div class="col-md-2">
                             <input type="number" value="${python:data[item]['cli_weight']}"
                                 class="date_cli" data-line_item_id="${line_item}" 
-                                data-name="cli_weight" data-date="${item}" style="width:80%" step="0.1"/>
-                        </div>
-                        <div class="col-md-2">
+                                data-name="cli_weight" data-date="${item}" step="0.1"/> / 
                             <input type="number" value="${python:data[item]['im_weight']}"
-                                class="date_im" data-line_item_id="${line_item}" 
-                                data-name="im_weight" data-date="${item}" style="width:80%" step="0.1"/>
+                                class="date_im" data-line_item_id="${line_item}"
+                                data-name="im_weight" data-date="${item}" step="0.1"/>
                         </div>
+                        <div class="col-md-2"><a href="javascript:volid(0)">確認固定</a></div>
                     </div>
                 </section>
             </section>
