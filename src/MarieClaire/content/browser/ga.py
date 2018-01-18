@@ -131,22 +131,33 @@ class GetGaData(ManaBasic):
 
         db_list = []
         day_list = []
-        execStr = """SELECT page_url FROM ga_url WHERE url_id IN {}""".format(tuple(checkList))
-        db_url = self.execSql(execStr)
-        logger.info('LINE 136: %s' % checkList)
-#        import pdb; pdb.set_trace()
-# TODO: Error
-        for url in db_url:
-            tmp = dict(url)
+
+# 針對 url_id會被過濾掉的解 start
+        db_url = []
+        db_url_id = []
+        for tmp_url_id in checkList:
+            execStr = """SELECT page_url FROM ga_url WHERE url_id = '{}'""".format(tmp_url_id)
+            tmp_db_url = self.execSql(execStr)
+            for tmp_item in tmp_db_url:
+                db_url.append(tmp_item)
+                db_url_id.append(tmp_url_id)
+
+        for i in range(len(db_url)):
+            tmp = dict(db_url[i])
             full_url = tmp['page_url'] + '%%'
-            logger.info('LINE 139: %s' % url)
+            logger.info('LINE 139: %s' % db_url[i])
             execStr = """ SELECT users,time_on_page,page_views,url_id,page_title,date FROM
                 ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}'
                 """.format(full_url, start, end)
             result = self.execSql(execStr)
+            tmp_result = []
+            for tmp_item in result:
+                tmp_result.append(dict(tmp_item))
+                tmp_result[-1]['url_id'] = db_url_id[i]
+            result = tmp_result
             db_list.append(result)
+# 針對 url_id會被過濾掉的解 end
 
-    #        import pdb; pdb.set_trace()
         drawData = {}
         xs = {}
         if select_type == 'nav_pie':
