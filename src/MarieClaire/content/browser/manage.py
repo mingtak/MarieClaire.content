@@ -361,6 +361,11 @@ class GetDfpReport(ManaBasic):
             AND dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND(DATE BETWEEN '{}'
             AND '{}') ORDER BY DATE""".format(tuple(checkList), startDate, endDate)
         result = self.execSql(execStr)
+
+        execStr = """SELECT DISTINCT(DATE) FROM dfp_ad_server WHERE LINE_ITEM_ID in {}
+            and DATE BETWEEN '{}' AND '{}'""".format(tuple(checkList), startDate, endDate)
+        dayList = self.execSql(execStr)
+
         toList = []
         for item in result:
             tmp = dict(item)
@@ -416,8 +421,19 @@ class GetDfpReport(ManaBasic):
                     ( round( (float(item['AD_SERVER_CLICKS'])*item['cli_weight'])/(float(item['AD_SERVER_IMPRESSIONS'])*item['im_weight'])*100 , 1) )],
                     ]
 
+        if select_type == 'nav_bar':
+            if type(request.form.get('checkList[]')) == str: 
+                checkList = [request.form.get('checkList[]')]  
+            for checked in checkList:
+                for day in dayList:
+                    tmp = dict(day)
+                    date = str(tmp['DATE'])
+                    if date not in drawData[checked][0]:
+                        drawData[checked][0].append(date)
+                        drawData[checked][1].append(0)
+                        drawData[checked][2].append(0)
+                        drawData[checked][3].append(0)
         return json.dumps([xs, drawData])
-
 
 class DelLineItem(ManaBasic):
 
