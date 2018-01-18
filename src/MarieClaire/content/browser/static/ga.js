@@ -153,32 +153,32 @@ checkedSelect  = function(){
 
 genC3 = function(xs, columns, regions__list, event_order__list, event_name__list){
     select_type = $('.select_type')[0].id
-
     selected_len = checkedSelect().length
+    checkedList_len = checkedList().length
+
     groups_columns = []
     if (select_type != 'nav_pie'){
+        if(selected_len == 1){
+            tmp = []
+            for(i=1; i<=columns.length; i+=2){
+                tmp.push(columns[i][0])
+            }
+            groups_columns.push(tmp)
+        }
         if(selected_len == 2){
-            for(i=1; i<=columns.length; i+=3){
+            for(i=1;i<=selected_len;i++){
                 tmp = []
-                for(j=1; j<=selected_len; j++){
-                    if(i==1){
-                        tmp.push(columns[j][0])
-                    }else{
-                        tmp.push(columns[i+j-1][0])
-                    }
+                for(j=1; j<=columns.length; j+=3){
+                    tmp.push(columns[j+i-1][0])
                 }
                 groups_columns.push(tmp)
             }
         }
         if(selected_len == 3){
-            for(i=1; i<=columns.length; i+=4){
+            for(i=1; i<=selected_len; i++){
                 tmp = []
-                for(j=1; j<=3; j++){
-                    if(i==1){
-                        tmp.push(columns[j][0])
-                    }else{
-                        tmp.push(columns[i+j-1][0])
-                    }
+                for(j=1; j<=columns.length; j+=4){
+                    tmp.push(columns[i+j-1][0])
                 }
                 groups_columns.push(tmp)
             }
@@ -205,6 +205,7 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
             type: draw_type,
             groups: groups_columns
         },
+        bar: {width:30},
         axis: {
             x: {
                 type: 'timeseries',

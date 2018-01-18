@@ -55,6 +55,7 @@ genC3 = function(xs, columns, regions__list, event_order__list, event_name__list
             type: draw_type,
             groups: groups_columns
         },
+        bar: {width:30},
         axis: {
             x: {
                 type: 'timeseries',
