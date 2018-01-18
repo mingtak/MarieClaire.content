@@ -12,6 +12,8 @@ from cStringIO import StringIO
 import csv
 from plone.protect.interfaces import IDisableCSRFProtection
 from zope.interface import alsoProvides
+import requests
+from requests.auth import HTTPBasicAuth
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
@@ -36,6 +38,7 @@ class UpdateCustom(BrowserView):
         if 'form.widgets.tableList' in request.form:
             context.tableList = request.form['form.widgets.tableList']
         request.response.redirect('%s/custom' % portal.absolute_url())
+        requests.get('http://localhost:8080/MarieClaire/@@update_ga_table_data', auth=HTTPBasicAuth('updater', 'w3K0Bd'))
         return
 
 

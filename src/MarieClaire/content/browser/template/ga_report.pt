@@ -24,12 +24,23 @@
 <body>
 <metal:content-core fill-slot="content-core">
 <metal:block define-macro="content-core">
-    <?python
-        from DateTime import DateTime
-    ?>
+<?python
+from DateTime import DateTime
+from plone import api
+roles = api.user.get_roles()
+?>
+
+<a href="${portal_url}/custom" class="back_btn">返回客戶列表</a>
+<h4 style="float:right;margin:0" tal:condition="python:'Editor' in roles or 'Manager' in roles">
+    <a href="${context/absolute_url}/ga_edit" style="border:0">GA管理</a></h4>
+<br>
+<br>
+
+
+<!--
     <a href="${portal_url}/custom" style="float:left" class="back_btn">
         <img src="${portal_url}/++plone++MarieClaire.content/back.png" style="width:35%"></img>返回</a>
-
+-->
     <ul class="nav nav-pills" style="clear:both">
         <li class="active select_type" id="nav_line"><a data-toggle="pill"  >GA折線圖</a></li>
         <li  id="nav_bar"><a data-toggle="pill"  >GA柱型圖</a></li>
@@ -40,14 +51,16 @@
 
     <div tal:condition="view/checkUser">
         <!-- table -->
-        <label tal:repeat="data view/get_table_data" class="ga_table_checkbox">
+        <p tal:repeat="data view/get_table_data" class="ga_table_checkbox">
             <input type="radio" name="ga_table_checkbox" 
-                class="ga_table_checkbox" value="${data}" />${python:data.split(',')[0]}</label>
+                class="ga_table_checkbox" value="${data}" />${python:data.split(',')[0]}</p>
         <!-- table -->
 
-        <label tal:repeat="data view/get_db_data" class="ga_page_title" >
+        <p tal:repeat="data view/get_db_data" class="ga_page_title" >
             <input type="checkbox" value="${data/url_id}" class="ga_page_title"/>
-            <a href="http://${data/page_url}" target="_blank">${data/page_title}</a></label>
+            <a href="http://${data/page_url}" target="_blank">${data/page_title}</a>
+
+        </p>
         <br/>
         <label class="ga_select_checkbox">
             <input type="checkbox" class="ga_select_data" value="1"/>瀏覽數
@@ -60,10 +73,10 @@
         </label>
 
         <p><span class="datepicker">開始日期:
-                <input type="date" class="start-date" name="start_date" value="${python:DateTime().year()}-01-01"/>
+                <input type="date" class="start-date" name="start_date" value="${python:(DateTime()-90).strftime('%Y-%m-%d')}"/>
             </span>
             <span class="datepicker">結束日期:
-                <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
+                <input type="date" class="end-date" name="end_date" value="${python:DateTime().strftime('%Y-%m-%d')}"/>
             </span>
         </p>
 

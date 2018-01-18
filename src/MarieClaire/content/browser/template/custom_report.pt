@@ -32,11 +32,11 @@ roles = api.user.get_roles()
 
 <h2 tal:condition="not:view/checkUser">您沒有權限，請洽管理人員</h2>
 
-<a href="${portal_url}/custom" style="float:left" class="back_btn">
-        <img src="${portal_url}/++plone++MarieClaire.content/back.png" style="width:35%"></img>返回</a>
-
-<h2 style="float:right;margin:0" tal:condition="python:'Editor' in roles or 'Manager' in roles">
-    <a href="${context/absolute_url}/custom_edit" style="border:0">管理報表</a></h2>
+<a href="${portal_url}/custom" class="back_btn">返回客戶列表</a>
+<h4 style="float:right;margin:0" tal:condition="python:'Editor' in roles or 'Manager' in roles">
+    <a href="${context/absolute_url}/custom_edit" style="border:0">DFP管理</a></h4>
+<br>
+<br>
 
 <ul class="nav nav-pills" style="clear:both" tal:condition="view/checkUser">
     <li class="active select_type" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>

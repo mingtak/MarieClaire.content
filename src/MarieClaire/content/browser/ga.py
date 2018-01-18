@@ -137,8 +137,8 @@ class GetGaData(ManaBasic):
             tmp = dict(url)
             full_url = tmp['page_url'] + '%%'
             execStr = """ SELECT users,time_on_page,page_views,url_id,page_title,date FROM 
-                ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}'
-                """.format(full_url, start, end)
+                ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}' AND url_id IN {}
+                """.format(full_url, start, end, tuple(checkList))
             result = self.execSql(execStr)
             db_list.append(result)
 
