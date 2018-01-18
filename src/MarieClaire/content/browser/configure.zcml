@@ -161,14 +161,14 @@
       layer="zope.interface.Interface"
       permission="cmf.ManagePortal"
       />
-  <browser:page
+<!--  <browser:page
       name="custome_value"
       for="MarieClaire.content.interfaces.ICustom"
       class=".manage.CustomValue"
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
-
+-->
   <browser:page
       name="update_custom"
       for="MarieClaire.content.interfaces.ICustom"
@@ -176,7 +176,13 @@
       layer="zope.interface.Interface"
       permission="cmf.ModifyPortalContent"
       />
-
+  <browser:page
+      name="update_status"
+      for="*"
+      class=".manage.UpdateStatus"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
   <browser:page
       name="is_manager"
       for="*"

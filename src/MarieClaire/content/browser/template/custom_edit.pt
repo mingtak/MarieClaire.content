@@ -92,15 +92,21 @@
                         tal:repeat="item date">
                         <div class="col-md-2">${item}</div>
                         <div class="col-md-2 col-md-offset-4">${python:data[item]['clicks']} / ${python:data[item]['impressions']}</div>
-                        <div class="col-md-2">
+                        <div class="col-md-2" tal:define="status python:data[item]['status']">
                             <input type="number" value="${python:data[item]['cli_weight']}"
                                 class="date_cli" data-line_item_id="${line_item}" 
-                                data-name="cli_weight" data-date="${item}" step="0.1"/> / 
+                                data-name="cli_weight" data-date="${item}" step="0.1" 
+                                data-status="${python:data[item]['status']}"
+                                /> / 
                             <input type="number" value="${python:data[item]['im_weight']}"
                                 class="date_im" data-line_item_id="${line_item}"
-                                data-name="im_weight" data-date="${item}" step="0.1"/>
+                                data-name="im_weight" data-date="${item}" step="0.1"
+                                data-status="${python:data[item]['status']}"/>
                         </div>
-                        <div class="col-md-2"><a href="javascript:volid(0)">確認固定</a></div>
+                        <div class="col-md-2">
+                            <a class="status" data-line_item_id="${line_item}" 
+                               data-line_item_date="${item}" style="cursor:pointer"
+                               data-status="${python:data[item]['status']}">確認固定</a></div>
                     </div>
                 </section>
             </section>
@@ -111,13 +117,14 @@
 
 <script>
 $('.order').click(function(){
-    $(this).parent().siblings().toggle()
+    $(this).parent().siblings().slideToggle(550)
 })
 $('.line_item').click(function(){
-    $(this).parent().siblings().toggle()
+    $(this).parent().siblings().slideToggle(550)
 })
+
 // post
-updateWeight = function(update_id, weight_name, weight, update_type, target){
+updateWeight = function(update_id, weight_name, weight, update_type, target, own){
     url = window.location.href.replace('custom_edit', '@@update_weight')
     data = {
         update_id: update_id,
@@ -129,6 +136,7 @@ updateWeight = function(update_id, weight_name, weight, update_type, target){
         url,
         data = data,
     ).done(function(value){
+        own.val(null)
         target.val(value)
     }).fail(function(){
         alert('Fail')
@@ -170,6 +178,20 @@ updateDateData = function(update_name, value, line_item_id, date){
         alert('Fail')
     })
 }
+updataStatus = function(line_item_id, date){
+    url = window.location.href.replace('custom_edit', '@@update_status')
+    data = {
+        line_item_id: line_item_id,
+        date:date
+    }
+    $.post(
+        url,
+        data = data,
+    ).done(function(value){
+    }).fail(function(){
+        alert('Fail')
+    })
+}
 
 // update weight
 $(document).ready(function(){
@@ -179,26 +201,28 @@ $(document).ready(function(){
         update_id = $(this).data('order_id')
         weight_name = $(this).data('name')
         weight = $(this).val()
+        own = $(this)
         <!-- order權重改變 底下的line_item的每個全重都改 -->
         if (weight_name == 'cli_weight'){
-            target = $(this).parent().parent().siblings().find('.date_cli')
+            target = $(this).parent().parent().siblings().find('.date_cli:enabled')
         }else{
-            target = $(this).parent().parent().siblings().find('.date_im')
+            target = $(this).parent().parent().siblings().find('.date_im:enabled')
         }
-        updateWeight(update_id, weight_name, weight, update_type, target)
+        updateWeight(update_id, weight_name, weight, update_type, target, own)
     })
     $('.line_item_weight').change(function(){
         update_type="line_item"
         update_id = $(this).data('line_item_id')
         weight_name = $(this).data('name')
         weight = $(this).val()
+        own = $(this)
         <!-- line_item 底下的個日權重改變 -->
         if(weight_name == 'cli_weight'){
-            target = $(this).parent().parent().siblings().find('.date_cli')
+            target = $(this).parent().parent().siblings().find('.date_cli:enabled')
         }else{
-            target = $(this).parent().parent().siblings().find('.date_im')
+            target = $(this).parent().parent().siblings().find('.date_im:enabled')
         }
-        updateWeight(update_id, weight_name, weight, update_type, target)
+        updateWeight(update_id, weight_name, weight, update_type, target, own)
     })
     $('.line_item_est').change(function(){
         update_type = "Est_data"
@@ -225,6 +249,25 @@ $(document).ready(function(){
         line_item_id = $(this).data('line_item_id')
         date = $(this).data('date')
         updateDateData(update_name, value, line_item_id, date)
+    })
+    $('.status').click(function(){
+        $(this).parent().parent().find('input').prop('disabled',true)
+        $(this).css('pointer-events','none')
+        $(this).css('color','grey')
+        line_item_id = $(this).data('line_item_id')
+        date = $(this).data('line_item_date')
+        updataStatus(line_item_id, date)
+    })
+    $('input').each(function(){
+        if ($(this).data('status') == 'disabled'){
+            $(this).prop('disabled',true)
+        }
+    })
+    $('a').each(function(){
+        if ($(this).data('status') == 'disabled'){
+            $(this).css('pointer-events','none')
+            $(this).css('color','grey')
+        }
     })
 })
 </script>

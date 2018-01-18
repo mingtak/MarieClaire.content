@@ -21,7 +21,7 @@
     from plone import api
     roles = api.user.get_roles()
     current = api.user.get_current().getUserName()
-    if current == 'admin':
+    if 'Manager' in roles:
         identified = True
         brain = api.content.find(Type='Custom', sort_on='created', sort_order='reverse')
     else:
@@ -39,13 +39,13 @@
         <div class="col-md-1">${repeat/item/number}</div>
         <div class="col-md-5">${item/title}</div>
         <div class="col-md-6" tal:define="url item/url">
-            <a href="${python:'%s/custom_edit' % url}">DFP管理</a>
+            <a href="${python:'%s/custom_edit' % url}" tal:condition="python:'Editor' in roles">DFP管理</a>
             <a href="${python:'%s/custom_report' % url}">DFP報表</a>
-            <a href="${python:'%s/ga_edit' % url}">GA管理</a>
+            <a href="${python:'%s/ga_edit' % url}" tal:condition="python:'Editor' in roles">GA管理</a>
             <a href="${python:'%s/ga_report' % url}">GA報表</a>
         </div>
     </div>
-    <!-- 登入者為admin -->
+    <!-- 登入者為 Manager -->
     <div tal:condition="identified" 
          tal:repeat="item brain" class="row">
         <div class="col-md-1">${repeat/item/number}</div>

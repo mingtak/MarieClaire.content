@@ -15,7 +15,7 @@ ENGINE = create_engine(DBSTR, echo=True)
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
-CLIENT_SECRETS_PATH = '/home/henry/MarieClaire/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
+CLIENT_SECRETS_PATH = '/home/marieclaire/Plone/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
 VIEW_ID = '5906876'
 
 def execSql(execStr):
@@ -41,7 +41,7 @@ def initialize_analyticsreporting():
     # If the credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # credentials will get written back to a file.
-    storage = file.Storage('analyticsreporting.dat')
+    storage = file.Storage('/home/marieclaire/Plone/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/script/analyticsreporting.dat')
     credentials = storage.get()
     if credentials is None or credentials.invalid:
         credentials = tools.run_flow(flow, storage, flags)
@@ -114,7 +114,10 @@ def save2db(response, count):
         dimensions = row.get('dimensions', [])
         host_name = dimensions[0].encode('utf-8')
         full_url = host_name + dimensions[1].encode('utf-8')
+
+# page_url也要處理特殊字元
         page_url = host_name + dimensions[4].encode('utf-8') + dimensions[5].encode('utf-8').split('/')[1] + '/' + dimensions[6].encode('utf-8').split('/')[1]
+#        page_url = page_url.replace('"','”'.decode('utf-8')).replace("'","’".decode('utf-8')).replace("%","％".decode('utf-8'))
         page_title = dimensions[2].replace('"','”'.decode('utf-8')).replace("'","’".decode('utf-8')).replace("%","％".decode('utf-8'))
         date = dimensions[3][:4] + '-' +dimensions[3][4:6] + '-' + dimensions[3][6:8]
 
@@ -130,7 +133,11 @@ def save2db(response, count):
             execStr = """ SELECT url_id FROM ga_url WHERE page_url = "{}" """.format(page_url)
             url_id = execSql(execStr)
         except :
-            import pdb;pdb.set_trace()
+#先寫到檔案去，再決定怎麼後續處理
+            with open('/tmp/wrong_page_url', 'a') as file:
+                file.write('%s\n' % page_url)
+            continue
+#            import pdb;pdb.set_trace()
 
         if url_id == []: #判斷有沒有url_id，若沒有代表他是這url_id的第1筆，就直接寫進去
             execStr = """ INSERT INTO ga_url(page_url) VALUES("{}") """.format(page_url)

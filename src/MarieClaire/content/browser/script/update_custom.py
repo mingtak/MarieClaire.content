@@ -48,6 +48,7 @@ def main():
                 json={'@type': 'Custom', 'id': id, 'title': title},
                 auth=(ACCOUNT['id'], ACCOUNT['pwd'])
             )
+            print 'ok'
         except:pass
 
 if __name__ == '__main__':

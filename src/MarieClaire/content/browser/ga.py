@@ -41,20 +41,19 @@ class GaReport(ManaBasic):
     template = ViewPageTemplateFile('template/ga_report.pt')
 
     def checkUser(self):
-        current = api.user.get_current().getUserName()
-        brain = api.content.find(context=self.context)
-        if current == 'admin':
+        current = api.user.get_current().id
+        roles = api.user.get_roles()
+        if 'Manager' in roles:
             return True
         else:
-            if brain[0].getObject().ownerList == None:
+            if self.context.ownerList is None:
                 return False
             else:
-                ownerList = brain[0].getObject().ownerList.split('\r\n')
-                for owner in ownerList:
-                    if owner == current:
-                        return True
-                    else:
-                        return False
+                ownerList = self.context.ownerList.split('\r\n')
+                if current in ownerList:
+                    return True
+                else:
+                    return False
 
     def get_db_data(self):
         id = self.context.id
@@ -91,20 +90,20 @@ class GaEdit(ManaBasic):
     template = ViewPageTemplateFile('template/ga_edit.pt')
 
     def checkUser(self):
-        current = api.user.get_current().getUserName()
-        brain = api.content.find(context=self.context)
-        if current == 'admin':
+        current = api.user.get_current().id
+        roles = api.user.get_roles()
+        if 'Manager' in roles:
             return True
         else:
-            if brain[0].getObject().ownerList == None:
+            if self.context.ownerList is None:
                 return False
             else:
-                ownerList = brain[0].getObject().ownerList.split('\r\n')
-                for owner in ownerList:
-                    if owner == current:
-                        return True
-                    else:
-                        return False
+                ownerList = self.context.ownerList.split('\r\n')
+                if current in ownerList:
+                    return True
+                else:
+                    return False
+
 
     def get_id(self):
         id = self.context.id
@@ -246,7 +245,8 @@ class AuthorityEdit(ManaBasic):
     def checkUser(self):
         current = api.user.get_current().getUserName()
         brain = api.content.find(context=self.context)
-        if current == 'admin':
+        roles = api.user.get_roles()
+        if 'Manager' in roles:
             return True
         else:
             if brain[0].getObject().ownerList == None:
@@ -271,7 +271,7 @@ class UpdataGaTableData(ManaBasic):
     def __call__(self):
         SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
         DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
-        CLIENT_SECRETS_PATH = '/home/henry/MarieClaire/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
+        CLIENT_SECRETS_PATH = '/home/marieclaire/Plone/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
         
         parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -282,7 +282,7 @@ class UpdataGaTableData(ManaBasic):
             CLIENT_SECRETS_PATH, scope=SCOPES,
             message=tools.message_if_missing(CLIENT_SECRETS_PATH))
 
-        storage = file.Storage('analyticsreporting.dat')
+        storage = file.Storage('/home/marieclaire/Plone/zeocluster/analyticsreporting.dat')
         credentials = storage.get()
         if credentials is None or credentials.invalid:
             credentials = tools.run_flow(flow, storage, flags)
@@ -295,36 +295,40 @@ class UpdataGaTableData(ManaBasic):
 
     def get_report(self, analytics):
         VIEW_ID = '5906876'
-        brain = api.content.find(context=self.context)
-        brain_tableList = brain[0].getObject().tableList
-        tableList = brain_tableList.split('\r\n')
-        for data in tableList:
-            page_url = data.split(',')[0]
-            start_date = data.split(',')[1]
-            end_date = data.split(',')[2]
+        brain = api.content.find(Type="Custom")
+        for item in brain:
+            brain_tableList = item.getObject().tableList
+            try:
+                tableList = brain_tableList.split('\r\n')
+                for data in tableList:
+                    page_url = data.split(',')[0]
+                    start_date = data.split(',')[1]
+                    end_date = data.split(',')[2]
 
-            response = analytics.reports().batchGet(
-                body={
-                'reportRequests': [
-                    {
-                    'viewId': VIEW_ID,
-                    'dateRanges': [{'startDate': start_date, 'endDate': end_date}],
-                    'metrics': [
-                                {'expression': 'ga:pageviews'},
-                                ],
-                    'dimensions': [
-                                    {'name': 'ga:date'},
-                                    {'name': 'ga:sourceMedium'},
-                                    {'name': 'ga:pagePath'}
-                                ],
-                    "orderBys":[
-                                {"fieldName":"ga:date"}
-                                ],
-                    "filtersExpression": 'ga:pagePath=~%s' %page_url,
-                    }],
-                }
-            ).execute()
-            self.save2db(response)
+                    response = analytics.reports().batchGet(
+                        body={
+                        'reportRequests': [
+                            {
+                            'viewId': VIEW_ID,
+                            'dateRanges': [{'startDate': start_date, 'endDate': end_date}],
+                            'metrics': [
+                                        {'expression': 'ga:pageviews'},
+                                        ],
+                            'dimensions': [
+                                            {'name': 'ga:date'},
+                                            {'name': 'ga:sourceMedium'},
+                                            {'name': 'ga:pagePath'}
+                                        ],
+                            "orderBys":[
+                                        {"fieldName":"ga:date"}
+                                        ],
+                            "filtersExpression": 'ga:pagePath=~%s' %page_url,
+                            }],
+                        }
+                    ).execute()
+                    self.save2db(response)
+            except:
+                pass
 
     def save2db(self, response):
         for report in response.get('reports', []):

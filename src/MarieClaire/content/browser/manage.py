@@ -35,16 +35,21 @@ class UpdateCustom(BrowserView):
             context.postList = request.form['form.widgets.postList']
         if 'form.widgets.tableList' in request.form:
             context.tableList = request.form['form.widgets.tableList']
-
-        request.response.redirect('%s/manage_list' % portal.absolute_url())
+        request.response.redirect('%s/custom' % portal.absolute_url())
         return
 
 
 class ManaBasic(BrowserView):
 
     def execSql(self, execStr):
-        conn = ENGINE.connect() # DB連線
-        execResult = conn.execute(execStr)
+        try:
+            conn = ENGINE.connect() # DB連線
+            execResult = conn.execute(execStr)
+        except:
+            time.sleep(1)
+            logger.info('Connect MySQL error, Retry.')
+            conn = ENGINE.connect() # DB連線
+            execResult = conn.execute(execStr)
         conn.close()
         if execResult.returns_rows:
             return execResult.fetchall()
@@ -71,10 +76,10 @@ class UpdateWeight(ManaBasic):
         if update_type == 'order':
             execStr = """\
                 UPDATE dfp_ad_server
-                SET {} = {} WHERE ORDER_ID = '{}'""".format(weight_name, weight, update_id)
+                SET {} = {} WHERE ORDER_ID = '{}' AND status != 'disabled'""".format(weight_name, weight, update_id)
         else:
             execStr = """UPDATE dfp_ad_server SET {} = {} 
-                WHERE LINE_ITEM_ID = '{}'""".format(weight_name, weight, update_id)
+                WHERE LINE_ITEM_ID = '{}' AND status != 'disabled'""".format(weight_name, weight, update_id)
         self.execSql(execStr)
         return weight
 
@@ -108,6 +113,15 @@ class UpdateDateData(ManaBasic):
         return value
 
 
+class UpdateStatus(ManaBasic):
+    def __call__(self):
+        date = self.request.get('date')
+        line_item_id = self.request.get('line_item_id')
+        execStr = """UPDATE dfp_ad_server SET status = 'disabled' WHERE date ='{}' AND 
+            LINE_ITEM_ID = '{}'""".format(date, line_item_id)
+        self.execSql(execStr)
+
+
 class ManaCustomList(ManaBasic):
     template = ViewPageTemplateFile('template/mana_custom_list.pt')
     def getCustomList(self):
@@ -136,20 +150,19 @@ class ManaCustomList(ManaBasic):
 class CustomReport(ManaBasic):
     template = ViewPageTemplateFile('template/custom_report.pt')
     def checkUser(self):
-        current = api.user.get_current().getUserName()
-        brain = api.content.find(context=self.context)
-        if current == 'admin':
+        current = api.user.get_current().id
+        roles = api.user.get_roles()
+        if 'Manager' in roles:
             return True
         else:
-            if brain[0].getObject().ownerList == None:
+            if self.context.ownerList is None:
                 return False
             else:
-                ownerList = brain[0].getObject().ownerList.split('\r\n')
-                for owner in ownerList:
-                    if owner == current:
-                        return True
-                    else:
-                        return False
+                ownerList = self.context.ownerList.split('\r\n')
+                if current in ownerList:
+                    return True
+                else:
+                    return False
 
     def getOrder(self):
         id = self.context.id
@@ -209,20 +222,19 @@ class CustomEdit(ManaBasic):
     template = ViewPageTemplateFile('template/custom_edit.pt')
 
     def checkUser(self):
-        current = api.user.get_current().getUserName()
-        brain = api.content.find(context=self.context)
-        if current == 'admin':
+        current = api.user.get_current().id
+        roles = api.user.get_roles()
+        if 'Manager' in roles:
             return True
         else:
-            if brain[0].getObject().ownerList == None:
+            if self.context.ownerList is None:
                 return False
             else:
-                ownerList = brain[0].getObject().ownerList.split('\r\n')
-                for owner in ownerList:
-                    if owner == current:
-                        return True
-                    else:
-                        return False
+                ownerList = self.context.ownerList.split('\r\n')
+                if current in ownerList:
+                    return True
+                else:
+                    return False
 
     def getOrderList(self):
         id = self.context.id
@@ -281,6 +293,7 @@ class CustomEdit(ManaBasic):
                 'ctr':ctr,
                 'cli_weight':tmp['cli_weight'],
                 'im_weight':tmp['im_weight'],
+                'status':tmp['status']
             }
         return date_data 
 
@@ -629,12 +642,14 @@ class GetDfpTable(ManaBasic):
         return self.template()
 
 
+# 用不到了廢棄
 class CustomValue(BrowserView):
     template = ViewPageTemplateFile('template/custom_value.pt')
     def checkUser(self):
         current = api.user.get_current().getUserName()
         brain = api.content.find(context=self.context)
-        if current == 'admin':
+        roles = api.user.get_roles()
+        if 'Manager' in roles:
             return True
         else:
             if brain[0].getObject().ownerList == None:
