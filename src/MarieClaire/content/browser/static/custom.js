@@ -156,7 +156,6 @@ drawLine = function(dfpLine){
                 regions__list.push({start: event_start, end: event_end, class:event_order})
                 event_order__list.push(event_order)
                 event_name__list.push(event_name)
-                
             }
         })
         genC3(dfpLine.xs, dfpLine.columns, regions__list, event_order__list, event_name__list)
