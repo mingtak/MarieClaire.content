@@ -133,15 +133,20 @@ class GetGaData(ManaBasic):
         day_list = []
         execStr = """SELECT page_url FROM ga_url WHERE url_id IN {}""".format(tuple(checkList))
         db_url = self.execSql(execStr)
+        logger.info('LINE 136: %s' % checkList)
+#        import pdb; pdb.set_trace()
+# TODO: Error
         for url in db_url:
             tmp = dict(url)
             full_url = tmp['page_url'] + '%%'
-            execStr = """ SELECT users,time_on_page,page_views,url_id,page_title,date FROM 
-                ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}' AND url_id IN {}
-                """.format(full_url, start, end, tuple(checkList))
+            logger.info('LINE 139: %s' % url)
+            execStr = """ SELECT users,time_on_page,page_views,url_id,page_title,date FROM
+                ga_data WHERE full_url LIKE '{}' AND date BETWEEN '{}' AND '{}'
+                """.format(full_url, start, end)
             result = self.execSql(execStr)
             db_list.append(result)
 
+    #        import pdb; pdb.set_trace()
         drawData = {}
         xs = {}
         if select_type == 'nav_pie':
@@ -189,6 +194,24 @@ class GetGaData(ManaBasic):
                             ['%s 使用人數' % page_title, int(tmp['users'])],
                             ['%s 平均停留時間(秒)' % page_title, round(float(tmp['time_on_page'])/int(tmp['page_views']), 2)]
                         ]
+
+        # bar chart use.柱型圖補0，使能堆疊
+        if select_type == 'nav_bar':
+            execStr = """SELECT DISTINCT(DATE) FROM ga_data WHERE url_id in {} 
+            AND DATE BETWEEN '{}' AND '{}'""".format(tuple(checkList), start, end)
+            dayList = self.execSql(execStr)
+            if type(self.request.form.get('checkList[]')) == str:
+                checkList = [self.request.form.get('checkList[]')] 
+            for checked in checkList:
+                for day in dayList:
+                    tmp = dict(day)
+                    date = str(tmp['DATE'])
+                    if date not in drawData[checked][0]:
+                        drawData[checked][0].append(date)
+                        drawData[checked][1].append(0)
+                        drawData[checked][2].append(0)
+                        drawData[checked][3].append(0)
+
         return json.dumps([xs, drawData])
 
 
