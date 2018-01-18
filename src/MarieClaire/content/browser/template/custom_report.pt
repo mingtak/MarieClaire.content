@@ -90,7 +90,7 @@ roles = api.user.get_roles()
                    <input type="date" class="start-date" name="start_date" value="${python:(DateTime()-365).strftime('%Y-%m-%d')}"/>
                </span>
                結束日期:
-               <input type="date" class="end-date" name="end_date" value="${python:DateTime().year()}-12-31"/>
+               <input type="date" class="end-date" name="end_date" value="${python:DateTime().strftime('%Y-%m-%d')}"/>
             </p>
             <?python 
                 from plone import api
@@ -106,7 +106,7 @@ roles = api.user.get_roles()
             <br/>
             <span class=" del-time">
                 選擇要刪除的時間：<input type="date" name="del_time" class="del-time"
-                                value="${python:DateTime().year()}-01-01"/>
+                                value="${python:(DateTime()+1).strftime('%Y-%m-%d')}"/>
             </span>
             <button class="del-btn">刪除</button>
             <br/>

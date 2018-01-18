@@ -224,7 +224,16 @@ $(document).ready(function(){
         }
         updateWeight(update_id, weight_name, weight, update_type, target, own)
     })
+/*
     $('.line_item_est').change(function(){
+        update_type = "Est_data"
+        update_id = $(this).data('line_item_id')
+        est_name = $(this).data('name')
+        value = $(this).val()
+        updateEst(update_id, est_name, value,update_type)
+    })
+*/
+    $('.line_item_ctr,.line_item_imp').change(function(){
         update_type = "Est_data"
         update_id = $(this).data('line_item_id')
         est_name = $(this).data('name')
