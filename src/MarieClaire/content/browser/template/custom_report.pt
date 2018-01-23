@@ -42,8 +42,8 @@ roles = api.user.get_roles()
     <li class="active select_type" id="nav_line"><a data-toggle="pill"  >DFP折線圖</a></li>
     <li id="nav_bar"><a data-toggle="pill"  >DFP柱型圖</a></li>
     <li id="nav_pie"><a data-toggle="pill"  >DFP圓餅圖</a></li>
-    <li id="nav_table"><a data-toggle="pill" >DFP報表</a></li>
-    <li id="nav_detail"><a data-toggle="pill" >DFP Detail</a></li>
+    <li id="nav_table"><a data-toggle="pill" >媒體走期</a></li>
+    <li id="nav_detail"><a data-toggle="pill" >Details</a></li>
 </ul>
 
 
@@ -68,6 +68,20 @@ roles = api.user.get_roles()
               </div><br>
             </tal:repeat>
             <br/><br/>
+
+
+<div class="contain_select_checkbox">
+    <label class="dfp_select_checkbox">
+        <input type="checkbox" class="dfp_select_data" value="1"/>曝光量
+    </label>
+    <label class="dfp_select_checkbox">
+         <input type="checkbox" class="dfp_select_data" value="2"/>點擊量
+    </label>
+    <label class="dfp_select_checkbox">
+         <input type="checkbox" class="dfp_select_data" value="3"/>CTR(%)
+    </label>
+</div>
+<!--
             <label class="dfp_select_checkbox">
                 <input type="checkbox" class="dfp_select_data" value="1"/>曝光量
             </label>
@@ -77,7 +91,7 @@ roles = api.user.get_roles()
             <label class="dfp_select_checkbox">
                 <input type="checkbox" class="dfp_select_data" value="3"/>CTR(%)
             </label>
-
+-->
             <label class="dfp_select_radio">
                 <input type="radio" name="dfp_select_data" class="dfp_select_data" value="1"/>曝光量
             </label>
