@@ -154,7 +154,7 @@ class ManaCustomList(ManaBasic):
             item = brain.getObject()
             item_ownerList = item.ownerList
             if item_ownerList != None:
-                ownerList = item_ownerList.split()
+                ownerList = item_ownerList.split('\n')
                 for owner in ownerList:
                     if current == owner:
                         result.append({
@@ -180,7 +180,7 @@ class CustomReport(ManaBasic):
             if self.context.ownerList is None:
                 return False
             else:
-                ownerList = self.context.ownerList.split()
+                ownerList = self.context.ownerList.split('\n')
                 if current in ownerList:
                     return True
                 else:
@@ -260,7 +260,7 @@ class CustomEdit(ManaBasic):
             if self.context.ownerList is None:
                 return False
             else:
-                ownerList = self.context.ownerList.split()
+                ownerList = self.context.ownerList.split('\n')
                 if current in ownerList:
                     return True
                 else:
@@ -554,29 +554,34 @@ class GetDfpTable(ManaBasic):
             extra_edit_description = ''
             extra_edit_totalsum = 0
 
-        for item in extra_edit:
-            tmp = dict(item)
-            value = tmp['value']
-            item_list = value.split()
-            #預防再輸入時多一個換行，會導致錯誤
-            if '' in item_list:
-                item_list.remove('')
-            for data in item_list:
-                url = data.split(',')[0]
-                date = data.split(',')[1]
-                breakline = '<br>'
-                extra_edit_description += str(date)+' ' + data.split(',')[2] + breakline
-                execStr = """SELECT SUM(page_views)as sum_page_views FROM ga_data WHERE 
-                              full_url LIKE '{}%%' AND date >= '{}'
-                          """.format(url, date)
-                result = self.execSql(execStr)
-                if extra_edit_data.has_key(date):
-                    extra_edit_data[date] += int(dict(result[0])['sum_page_views'])
-                else:
-                    try:
-                        extra_edit_data[date] = int(dict(result[0])['sum_page_views'])
-                    except:
-                        extra_edit_data[date] = 0
+            for item in extra_edit:
+                tmp = dict(item)
+                value = tmp['value']
+                item_list = value.split('\n')
+                #預防再輸入時多一個換行，會導致錯誤
+
+                for i in range(len(item_list)-1, -1, -1):
+                    if not item_list[i]:
+                        item_list.pop(i)
+                for data in item_list:
+                    url = data.split(',')[0]
+                    date = data.split(',')[1]
+                    weight = data.split(',')[3]
+                    breakline = '<br>'
+                    extra_edit_description += str(date)+' ' + data.split(',')[2] + breakline
+                    execStr = """SELECT SUM(page_views)as sum_page_views FROM ga_data WHERE 
+                                  full_url LIKE '{}%%' AND date >= '{}'
+                              """.format(url, date)
+                    result = self.execSql(execStr)
+
+
+                    if extra_edit_data.has_key(date):
+                        extra_edit_data[date] += int(round(int(dict(result[0])['sum_page_views']) * float(weight), 0))
+                    else:
+                        try:
+                            extra_edit_data[date] = int(round(int(dict(result[0])['sum_page_views']) * float(weight), 0))
+                        except:
+                            extra_edit_data[date] = 0
 
             # 算page_views的總和
             for k,v in extra_edit_data.items():
@@ -785,7 +790,7 @@ class CustomValue(BrowserView):
             if brain[0].getObject().ownerList == None:
                 return False
             else:
-                ownerList = brain[0].getObject().ownerList.split()
+                ownerList = brain[0].getObject().ownerList.split('\n')
                 if current in ownerList:
                     return True
                 else:

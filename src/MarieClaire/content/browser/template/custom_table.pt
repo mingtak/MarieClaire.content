@@ -49,8 +49,9 @@
     <table tal:condition="view/select_detail">
         <tr>
             <th style="border:1px solid #aaa"></th>
-            <tal:repeat repeat="title view/day_title">
-                <th colspan="3" class="dfp_table_title" style="border:1px solid #aaa">${python:title.split('_')[0]}</th>
+            <tal:repeat repeat="title view/day_title" tal:on-error="nothing">
+                <th colspan="3" class="dfp_table_title" style="border:1px solid #aaa">${python:title.split('_')[0]}
+                </th>
             </tal:repeat>
             <th rowspan="3" colspan="3" class="dfp_table_title" style="border:1px solid #aaa">Total</th>
         </tr>
