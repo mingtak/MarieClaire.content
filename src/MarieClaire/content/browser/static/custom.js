@@ -220,22 +220,28 @@ $(document).ready(function(){
         dfpLine.columns = []
         drawLine(dfpLine)
     })
-    $('#nav_line, #nav_bar, #nav_pie').click(function (e) { 
+
+    $('#nav_line, #nav_bar, #nav_pie').click(function (e) {
         dfpLine.xs = {}
         dfpLine.columns = []
-        $('.dfp_select_checkbox, .datepicker, .event_checkbox , .del-btn, .del-time').show();        
+        $('.dfp_select_checkbox, .datepicker, .event_checkbox , .del-btn, .del-time').show();
         $('input').prop('checked',false)
         if($(this)[0].id == 'nav_pie'){
             $('.dfp_select_radio').show();
             $('.dfp_select_checkbox').hide();
-        }else{
+            $('.del-time, .del-btn, .event_checkbox, .datepicker').hide();
+        }if($(this)[0].id == 'nav_line'){
+            $('.contain_select_checkbox label:last-child').show()
+        }else if($(this)[0].id == 'nav_bar'){
             $('.dfp_select_radio').hide();
             $('.dfp_select_checkbox').show();
+            $('.contain_select_checkbox label:last-child').hide()
         }
         $(this).addClass('select_type')
         $(this).siblings().removeClass('select_type')
         drawLine(dfpLine)
     });
+
     $('.del-btn').click(function (e) {
         if( confirm('確認要刪除嘛') ){
             data = {

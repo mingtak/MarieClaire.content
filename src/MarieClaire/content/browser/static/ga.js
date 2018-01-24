@@ -29,7 +29,8 @@ $(document).ready(function () {
         //table
         $('input').prop('checked',false)
         if($(this)[0].id == 'nav_pie'){
-            $('.ga_select_checkbox').hide();
+            //$('.ga_select_checkbox').hide();
+            $('.ga_select_checkbox, .event_checkbox, .del-time, .del-btn').hide();
         }else{
             $('.ga_select_checkbox').show();
         }

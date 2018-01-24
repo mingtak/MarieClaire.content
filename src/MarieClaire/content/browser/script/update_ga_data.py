@@ -18,6 +18,9 @@ DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
 CLIENT_SECRETS_PATH = '/home/marieclaire/Plone/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
 VIEW_ID = '5906876'
 
+EndDay = datetime.datetime.now()
+StartDay = EndDay - datetime.timedelta(days = 90)
+
 def execSql(execStr):
     conn = ENGINE.connect() # DB連線
     execResult = conn.execute(execStr)
@@ -59,7 +62,7 @@ def get_report(analytics, index):
         'reportRequests': [
         {
             'viewId': VIEW_ID,
-            'dateRanges': [{'startDate': '2017-12-10', 'endDate': '2017-12-15'}],
+            'dateRanges': [{'startDate': StartDay.strftime('%Y-%m-%d'), 'endDate': EndDay.strftime('%Y-%m-%d')}],
             'metrics': [
                         {'expression': 'ga:timeOnPage'},
                         {'expression': 'ga:pageviews'},
@@ -156,6 +159,7 @@ def save2db(response, count):
             try:
                 execSql(execStr)
             except:
+                continue
                 import pdb; pdb.set_trace()
 
         else:
@@ -165,6 +169,7 @@ def save2db(response, count):
             try:
                 result = execSql(execStr)
             except:
+                continue
                 import pdb;pdb.set_trace()
 
             if result == []:
@@ -180,6 +185,7 @@ def save2db(response, count):
                 try:
                     execSql(execStr)
                 except:
+                    continue
                     import pdb; pdb.set_trace()
             else:
                 execStr = """SELECT page_views,page_title FROM ga_data WHERE page_url = "{}"
