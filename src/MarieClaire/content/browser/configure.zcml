@@ -197,4 +197,13 @@
       layer="zope.interface.Interface"
       permission="zope2.View"
       />
+
+ <browser:page
+      name="update_extra_edit"
+      for="MarieClaire.content.interfaces.ICustom"
+      class=".manage.UpdateExtraEdit"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+
 </configure>

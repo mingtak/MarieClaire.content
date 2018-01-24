@@ -112,6 +112,9 @@
             </section>
         </tal:repeat>
 
+        <textarea cols="30" rows="10" class="extra_edit" data-order="${item}"  
+                  tal:define="extra_edit_date python:view.get_extra_edit_data(item)" 
+                  value="">${extra_edit_date}</textarea>
     </div>
 </div>
 
@@ -140,6 +143,20 @@ updateWeight = function(update_id, weight_name, weight, update_type, target, own
         target.val(value)
     }).fail(function(){
         alert('Fail')
+    })
+}
+
+updataExtraEdit = function(val,order){
+    url = window.location.href.replace('custom_edit', '@@update_extra_edit')
+    data = {
+        val: val,
+        order:order
+    }
+    $.post(
+        url,
+        data = data,
+    ).done(function(value){
+    }).fail(function(){
     })
 }
 
@@ -195,7 +212,7 @@ updataStatus = function(line_item_id, date){
 
 // update weight
 $(document).ready(function(){
-    $('.date_detail,.line_item_list').hide()
+    $('.date_detail,.line_item_list,.extra_edit').hide()
     $('.order_cli, .order_im').change(function(){
         update_type="order"
         update_id = $(this).data('order_id')
@@ -224,15 +241,7 @@ $(document).ready(function(){
         }
         updateWeight(update_id, weight_name, weight, update_type, target, own)
     })
-/*
-    $('.line_item_est').change(function(){
-        update_type = "Est_data"
-        update_id = $(this).data('line_item_id')
-        est_name = $(this).data('name')
-        value = $(this).val()
-        updateEst(update_id, est_name, value,update_type)
-    })
-*/
+
     $('.line_item_ctr,.line_item_imp').change(function(){
         update_type = "Est_data"
         update_id = $(this).data('line_item_id')
@@ -240,6 +249,7 @@ $(document).ready(function(){
         value = $(this).val()
         updateEst(update_id, est_name, value,update_type)
     })
+
     $('.Est_weight').change(function(){
         update_type = "Est_weight"
         est_name = $(this).data('name')
@@ -252,6 +262,7 @@ $(document).ready(function(){
         }
         updateEst(update_id, est_name, value, update_type, target)
     })
+
     $('.date_cli,.date_im').change(function(){
         update_name = $(this).data('name')
         value = $(this).val()
@@ -259,6 +270,7 @@ $(document).ready(function(){
         date = $(this).data('date')
         updateDateData(update_name, value, line_item_id, date)
     })
+
     $('.status').click(function(){
         $(this).parent().parent().find('input').prop('disabled',true)
         $(this).css('pointer-events','none')
@@ -267,16 +279,24 @@ $(document).ready(function(){
         date = $(this).data('line_item_date')
         updataStatus(line_item_id, date)
     })
+
     $('input').each(function(){
         if ($(this).data('status') == 'disabled'){
             $(this).prop('disabled',true)
         }
     })
+
     $('a').each(function(){
         if ($(this).data('status') == 'disabled'){
             $(this).css('pointer-events','none')
             $(this).css('color','grey')
         }
+    })
+
+    $('.extra_edit').change(function(){
+        val = $(this).val()
+        order = $(this).data('order')
+        updataExtraEdit(val, order)
     })
 })
 </script>

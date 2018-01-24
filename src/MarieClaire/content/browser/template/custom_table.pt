@@ -63,7 +63,9 @@
         <tr>
             <th style="border:1px solid #aaa" class="dfp_table_title">廣告執行期間</th>
             <tal:repeat repeat="title view/day_title">
-                <th colspan="3" class="dfp_table_title" style="border:1px solid #aaa">${python:title.split('_')[2]}</th>
+                <th colspan="3" class="dfp_table_title" style="border:1px solid #aaa"
+                    tal:content="structure python:title.split('_')[2]">
+                </th>
             </tal:repeat>
         </tr>
         <tr>

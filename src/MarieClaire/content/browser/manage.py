@@ -14,10 +14,12 @@ from plone.protect.interfaces import IDisableCSRFProtection
 from zope.interface import alsoProvides
 import requests
 from requests.auth import HTTPBasicAuth
+import copy
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
 ENGINE = create_engine(DBSTR, echo=True)
+
 
 class UpdateCustom(BrowserView):
 
@@ -62,6 +64,23 @@ class ManaBasic(BrowserView):
         if api.user.is_anonymous():
             self.request.response.redirect('%s/login' % portal.absolute_url())
         return api.user.is_anonymous()
+
+
+class UpdateExtraEdit(ManaBasic):
+
+    def __call__(self):
+        order_id = self.request.get('order')
+        val = self.request.get('val')
+        execStr = """SELECT * FROM extra_edit WHERE order_id = '{}'""".format(order_id)
+        result = self.execSql(execStr)
+        if result == []:
+            execStr = """INSERT INTO extra_edit(order_id, value) VALUES('{}','{}')
+                """.format(order_id, val)
+            self.execSql(execStr)
+        else:
+            execStr = """UPDATE extra_edit SET value = '{}' WHERE order_id = '{}'
+                """.format(val, order_id)
+            self.execSql(execStr)
 
 
 class UpdateWeight(ManaBasic):
@@ -135,7 +154,7 @@ class ManaCustomList(ManaBasic):
             item = brain.getObject()
             item_ownerList = item.ownerList
             if item_ownerList != None:
-                ownerList = item_ownerList.split('\r\n')
+                ownerList = item_ownerList.split()
                 for owner in ownerList:
                     if current == owner:
                         result.append({
@@ -161,7 +180,7 @@ class CustomReport(ManaBasic):
             if self.context.ownerList is None:
                 return False
             else:
-                ownerList = self.context.ownerList.split('\r\n')
+                ownerList = self.context.ownerList.split()
                 if current in ownerList:
                     return True
                 else:
@@ -224,6 +243,14 @@ class DownloadFile(ManaBasic):
 class CustomEdit(ManaBasic):
     template = ViewPageTemplateFile('template/custom_edit.pt')
 
+    def get_extra_edit_data(self, order_id):
+        execStr = """SELECT value FROM extra_edit WHERE order_id = '{}'""".format(order_id)
+        result = self.execSql(execStr)
+        if result:
+            return dict(result[0])['value']
+        else:
+            return ''
+
     def checkUser(self):
         current = api.user.get_current().id
         roles = api.user.get_roles()
@@ -233,7 +260,7 @@ class CustomEdit(ManaBasic):
             if self.context.ownerList is None:
                 return False
             else:
-                ownerList = self.context.ownerList.split('\r\n')
+                ownerList = self.context.ownerList.split()
                 if current in ownerList:
                     return True
                 else:
@@ -450,6 +477,7 @@ class DelLineItem(ManaBasic):
         AND DATE = '{}' """.format(tuple(checkList), time)
         self.execSql(execStr)
 
+
 class GetDfpTable(ManaBasic):
     template = ViewPageTemplateFile('template/custom_table.pt')
     def __call__(self):
@@ -517,6 +545,42 @@ class GetDfpTable(ManaBasic):
             self.Est_ctr = round(float(self.Est_clk / self.Est_imp *100),2)
 
         elif select_type == 'nav_detail':
+            # 抓extra_edit的資料
+            execStr = """SELECT DISTINCT extra_edit.value FROM `dfp_ad_server`,extra_edit 
+                WHERE extra_edit.order_id IN (SELECT DISTINCT ORDER_ID FROM dfp_ad_server 
+                WHERE LINE_ITEM_ID IN {})""".format(tuple(checkList))
+            extra_edit = self.execSql(execStr)
+            extra_edit_data = {}
+            extra_edit_description = ''
+            extra_edit_totalsum = 0
+
+        for item in extra_edit:
+            tmp = dict(item)
+            value = tmp['value']
+            item_list = value.split()
+            #預防再輸入時多一個換行，會導致錯誤
+            if '' in item_list:
+                item_list.remove('')
+            for data in item_list:
+                url = data.split(',')[0]
+                date = data.split(',')[1]
+                breakline = '<br>'
+                extra_edit_description += str(date)+' ' + data.split(',')[2] + breakline
+                execStr = """SELECT SUM(page_views)as sum_page_views FROM ga_data WHERE 
+                              full_url LIKE '{}%%' AND date >= '{}'
+                          """.format(url, date)
+                result = self.execSql(execStr)
+                if extra_edit_data.has_key(date):
+                    extra_edit_data[date] += int(dict(result[0])['sum_page_views'])
+                else:
+                    try:
+                        extra_edit_data[date] = int(dict(result[0])['sum_page_views'])
+                    except:
+                        extra_edit_data[date] = 0
+
+            # 算page_views的總和
+            for k,v in extra_edit_data.items():
+                extra_edit_totalsum += v
             # 抓兩日的差距
             execStr = """SELECT MIN(DATE),MAX(DATE) FROM dfp_ad_server WHERE
                 LINE_ITEM_ID IN {} """.format(tuple(checkList))
@@ -528,8 +592,6 @@ class GetDfpTable(ManaBasic):
             for i in range(0, int(days)+1):
                 day = str(min_day + datetime.timedelta(days=i))
                 day_list.append(day)
-
-            self.day_list = day_list
             # 抓title
             execStr = """SELECT LINE_ITEM_NAME FROM dfp_line_item WHERE LINE_ITEM_ID 
                 IN {}""".format(tuple(checkList))
@@ -538,6 +600,8 @@ class GetDfpTable(ManaBasic):
             for title in result_day_title:
                 tmp = dict(title)
                 day_title.append(tmp['LINE_ITEM_NAME'])
+            extra_edit_title = '內頻道文章_ _' + extra_edit_description
+            day_title.append(extra_edit_title)
             self.day_title = day_title
 
             # 抓line_item的data
@@ -582,10 +646,45 @@ class GetDfpTable(ManaBasic):
                         pass
                     else:
                         sum_oneday_data[tmp_day] = [0,0]
+            # 把extra_edit的值填進resulr_day_data和sum_oneday_data
+            tmp_extra_edit_data = copy.copy(extra_edit_data)
 
+            for day in day_list:
+                if day in tmp_extra_edit_data.keys():
+                    result_day_data[day].append(tmp_extra_edit_data[day])
+                    result_day_data[day].append('')
+                    result_day_data[day].append('')
+                    sum_oneday_data[day][0] += tmp_extra_edit_data[day]
+                    del tmp_extra_edit_data[day]
+                else:
+                    result_day_data[day].append('')
+                    result_day_data[day].append('')
+                    result_day_data[day].append('')
+            if tmp_extra_edit_data != {}:
+                tmp_check_list = list(checkList)
+                if 'zzzzz' in tmp_check_list:
+                    tmp_check_list.remove('zzzzz')
+                leng = len(tmp_check_list)
+                for k,v in tmp_extra_edit_data.items():
+                    sum_oneday_data[str(k)] = [v,0]
+                    tmp_list = []
+                    for i in range(0,leng):
+                        tmp_list.append('')
+                        tmp_list.append('')
+                        tmp_list.append('')
+                    extra_edit_list = list(tmp_list)
+
+                    result_day_data[str(k)] = extra_edit_list
+                    result_day_data[str(k)].append(str(v))
+                    result_day_data[str(k)].append('')
+                    result_day_data[str(k)].append('')
+
+                    day_list.append(str(k))
+            day_list.sort()
+            self.day_list = day_list
             self.sum_oneday_data = sum_oneday_data
             self.result_day_data = result_day_data
-            
+
             # 抓預期目標
             oneday_EstImp = 0
             oneday_EstClk = 0
@@ -602,6 +701,10 @@ class GetDfpTable(ManaBasic):
                 oneday_EstImp += int(tmp["EstImp"])
                 oneday_EstClk += click
             oneday_ctr = '%s %%'%(round(float(oneday_EstClk) / float(oneday_EstImp)*100,2))
+            # 填入空質extra_edit
+            estList.append('')
+            estList.append('')
+            estList.append('')
             self.est = estList
             self.oneday_EstImp = oneday_EstImp
             self.oneday_EstClk = oneday_EstClk
@@ -611,7 +714,7 @@ class GetDfpTable(ManaBasic):
             reaching_rate_list = []
             total_reaching_imp = 0
             total_reaching_cli = 0
-            
+
             for checked in checkList:
                 sum_imp = 0
                 sum_click = 0
@@ -632,9 +735,10 @@ class GetDfpTable(ManaBasic):
                     total_reaching_imp += int(sum_imp)
                     total_reaching_cli += int(sum_click)
                     total_reaching_ctr = '%s %%'%(round(float(total_reaching_cli) / float(total_reaching_imp)*100,2))
-                self.total_reaching_imp = total_reaching_imp
+                self.total_reaching_imp = total_reaching_imp + int(extra_edit_totalsum)
                 self.total_reaching_cli = total_reaching_cli
                 self.total_reaching_ctr = total_reaching_ctr
+
                 execStr = """SELECT EstImp FROM dfp_line_item WHERE LINE_ITEM_ID = '{}'
                     """.format(checked)
                 result_estimp = self.execSql(execStr)
@@ -644,12 +748,19 @@ class GetDfpTable(ManaBasic):
                         est_imp = tmp['EstImp']
                         reaching_rate ='%s %%' %(round(sum_imp / int(est_imp)*100, 2))
                         reaching_rate_list.append(reaching_rate)
-            sum_reaching_rate = 0
-            for rate in reaching_rate_list:
-                sum_reaching_rate += float(rate.split('%')[0])
-            self.sum_reaching_rate = '%s %%' %(round(sum_reaching_rate / len(reaching_rate_list), 2))
+
+            # 送最後達到的imp/預計達到的imp
+            self.sum_reaching_rate = '%s %%' %round(float(self.total_reaching_imp) / float(self.oneday_EstImp) *100,2)
+
+            # 讓extra的達成率空一個
+            reaching_rate_list.append('')
             self.reaching_rate_list = reaching_rate_list
+            # 把extra的總和填進去
+            result_sum_list.append(int(extra_edit_totalsum))
+            result_sum_list.append('')
+            result_sum_list.append('')
             self.sum_list = result_sum_list
+
         # 判斷點擊
         if select_type == 'nav_table':
             self.select_table = True
@@ -674,7 +785,7 @@ class CustomValue(BrowserView):
             if brain[0].getObject().ownerList == None:
                 return False
             else:
-                ownerList = brain[0].getObject().ownerList.split('\r\n')
+                ownerList = brain[0].getObject().ownerList.split()
                 if current in ownerList:
                     return True
                 else:
@@ -688,17 +799,3 @@ class IsManager(BrowserView):
 
     def __call__(self):
         return 'Manager' in api.user.get_roles()
-
-
-""" 尚未使用
-class ManaCustomAdd(ManaBasic):
-    template = ViewPageTemplateFile('template/mana_custom_add.pt')
-    def __call__(self):
-        if self.isAnonymous():
-            return
-
-        return self.template()
-
-"""
-
-

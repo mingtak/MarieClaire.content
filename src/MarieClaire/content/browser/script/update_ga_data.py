@@ -19,7 +19,7 @@ CLIENT_SECRETS_PATH = '/home/marieclaire/Plone/zeocluster/src/MarieClaire.conten
 VIEW_ID = '5906876'
 
 EndDay = datetime.datetime.now()
-StartDay = EndDay - datetime.timedelta(days = 90)
+StartDay = EndDay - datetime.timedelta(days = 5)
 
 def execSql(execStr):
     conn = ENGINE.connect() # DB連線
