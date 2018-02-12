@@ -30,7 +30,7 @@
     <form tal:condition="view/checkUser"
           data-pat-autotoc="levels: legend; section: fieldset; className: autotabs" 
           class="rowlike enableUnloadProtection   kssattr-formname-edit" 
-          action="${python:'{}/@@edit'.format(context.absolute_url())}" method="post" enctype="multipart/form-data" id="form">
+          action="${python:'{}/@@update_custom'.format(context.absolute_url())}" method="post" enctype="multipart/form-data" id="form">
         <input type="text" value="${context/title}" id="form-widgets-title"
             name="form.widgets.title" class="text-widget required textline-field"
             style="display:none" />

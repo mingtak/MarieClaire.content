@@ -156,7 +156,7 @@ class ManaCustomList(ManaBasic):
             if item_ownerList != None:
                 ownerList = item_ownerList.split('\n')
                 for owner in ownerList:
-                    if current == owner:
+                    if current == owner.strip():
                         result.append({
                             'title': item.title,
                             'url':brain.getURL()
@@ -181,10 +181,12 @@ class CustomReport(ManaBasic):
                 return False
             else:
                 ownerList = self.context.ownerList.split('\n')
-                if current in ownerList:
-                    return True
-                else:
-                    return False
+                for tmpId in ownerList:
+                    if current == tmpId.strip():
+                        return True
+                    else:
+                        continue
+                return False
 
     def getOrder(self):
         id = self.context.id
@@ -261,10 +263,12 @@ class CustomEdit(ManaBasic):
                 return False
             else:
                 ownerList = self.context.ownerList.split('\n')
-                if current in ownerList:
-                    return True
-                else:
-                    return False
+                for tmpId in ownerList:
+                    if current == tmpId.strip():
+                        return True
+                    else:
+                        continue
+                return False
 
     def getOrderList(self):
         id = self.context.id
@@ -559,10 +563,10 @@ class GetDfpTable(ManaBasic):
                 value = tmp['value']
                 item_list = value.split('\n')
                 #預防再輸入時多一個換行，會導致錯誤
-
                 for i in range(len(item_list)-1, -1, -1):
                     if not item_list[i]:
                         item_list.pop(i)
+
                 for data in item_list:
                     url = data.split(',')[0]
                     date = data.split(',')[1]
@@ -570,18 +574,13 @@ class GetDfpTable(ManaBasic):
                     breakline = '<br>'
                     extra_edit_description += str(date)+' ' + data.split(',')[2] + breakline
                     execStr = """SELECT SUM(page_views)as sum_page_views FROM ga_data WHERE 
-                                  full_url LIKE '{}%%' AND date >= '{}'
-                              """.format(url, date)
+                        full_url LIKE '{}%%' AND date >= '{}'
+                        """.format(url, date)
                     result = self.execSql(execStr)
-
-
                     if extra_edit_data.has_key(date):
                         extra_edit_data[date] += int(round(int(dict(result[0])['sum_page_views']) * float(weight), 0))
                     else:
-                        try:
-                            extra_edit_data[date] = int(round(int(dict(result[0])['sum_page_views']) * float(weight), 0))
-                        except:
-                            extra_edit_data[date] = 0
+                        extra_edit_data[date] = int(round(int(dict(result[0])['sum_page_views']) * float(weight), 0))
 
             # 算page_views的總和
             for k,v in extra_edit_data.items():
@@ -605,8 +604,9 @@ class GetDfpTable(ManaBasic):
             for title in result_day_title:
                 tmp = dict(title)
                 day_title.append(tmp['LINE_ITEM_NAME'])
-            extra_edit_title = '內頻道文章_ _' + extra_edit_description
-            day_title.append(extra_edit_title)
+            if extra_edit_description:
+                extra_edit_title = '內頻道文章_ _' + extra_edit_description
+                day_title.append(extra_edit_title)
             self.day_title = day_title
 
             # 抓line_item的data
@@ -651,40 +651,41 @@ class GetDfpTable(ManaBasic):
                         pass
                     else:
                         sum_oneday_data[tmp_day] = [0,0]
-            # 把extra_edit的值填進resulr_day_data和sum_oneday_data
-            tmp_extra_edit_data = copy.copy(extra_edit_data)
+            # 用來判斷應該要有幾個格子
+            tmp_checkList = list(checkList)
+            if 'zzzzz' in tmp_checkList:
+                        tmp_checkList.remove('zzzzz')
+            for day,value in extra_edit_data.items():
+                if day in result_day_data.keys():
+                    # 單選會多3個空格
+                    if len(tmp_checkList) == 1:
+                        result_day_data[day].remove('')
+                        result_day_data[day].remove('')
+                        result_day_data[day].remove('')
+                    result_day_data[day].append(value)
+                    result_day_data[day].append('')
+                    result_day_data[day].append('')
 
-            for day in day_list:
-                if day in tmp_extra_edit_data.keys():
-                    result_day_data[day].append(tmp_extra_edit_data[day])
-                    result_day_data[day].append('')
-                    result_day_data[day].append('')
-                    sum_oneday_data[day][0] += tmp_extra_edit_data[day]
-                    del tmp_extra_edit_data[day]
+                    sum_oneday_data[day][0] += value
                 else:
-                    result_day_data[day].append('')
-                    result_day_data[day].append('')
-                    result_day_data[day].append('')
-            if tmp_extra_edit_data != {}:
-                tmp_check_list = list(checkList)
-                if 'zzzzz' in tmp_check_list:
-                    tmp_check_list.remove('zzzzz')
-                leng = len(tmp_check_list)
-                for k,v in tmp_extra_edit_data.items():
-                    sum_oneday_data[str(k)] = [v,0]
                     tmp_list = []
-                    for i in range(0,leng):
+                    # 計算前面要多幾個空格
+                    for i in range(0, len(tmp_checkList)):
                         tmp_list.append('')
                         tmp_list.append('')
                         tmp_list.append('')
-                    extra_edit_list = list(tmp_list)
-
-                    result_day_data[str(k)] = extra_edit_list
-                    result_day_data[str(k)].append(str(v))
-                    result_day_data[str(k)].append('')
-                    result_day_data[str(k)].append('')
-
-                    day_list.append(str(k))
+                    result_day_data[day] = tmp_list
+                    result_day_data[day].append(value)
+                    result_day_data[day].append('')
+                    result_day_data[day].append('')
+                    sum_oneday_data[day] = [value, 0, 0]
+                    day_list.append(day)
+            #檢查空格式否正確
+            for day,value in result_day_data.items():
+                leng = (len(checkList)+1)*3
+                if len(value) != leng:
+                    for i in range(0, leng - len(value)):
+                        result_day_data[day].append('')
             day_list.sort()
             self.day_list = day_list
             self.sum_oneday_data = sum_oneday_data
@@ -707,9 +708,10 @@ class GetDfpTable(ManaBasic):
                 oneday_EstClk += click
             oneday_ctr = '%s %%'%(round(float(oneday_EstClk) / float(oneday_EstImp)*100,2))
             # 填入空質extra_edit
-            estList.append('')
-            estList.append('')
-            estList.append('')
+            if extra_edit_description:
+                estList.append('')
+                estList.append('')
+                estList.append('')
             self.est = estList
             self.oneday_EstImp = oneday_EstImp
             self.oneday_EstClk = oneday_EstClk
@@ -719,7 +721,7 @@ class GetDfpTable(ManaBasic):
             reaching_rate_list = []
             total_reaching_imp = 0
             total_reaching_cli = 0
-
+            
             for checked in checkList:
                 sum_imp = 0
                 sum_click = 0
@@ -743,7 +745,7 @@ class GetDfpTable(ManaBasic):
                 self.total_reaching_imp = total_reaching_imp + int(extra_edit_totalsum)
                 self.total_reaching_cli = total_reaching_cli
                 self.total_reaching_ctr = total_reaching_ctr
-
+           
                 execStr = """SELECT EstImp FROM dfp_line_item WHERE LINE_ITEM_ID = '{}'
                     """.format(checked)
                 result_estimp = self.execSql(execStr)
@@ -756,14 +758,16 @@ class GetDfpTable(ManaBasic):
 
             # 送最後達到的imp/預計達到的imp
             self.sum_reaching_rate = '%s %%' %round(float(self.total_reaching_imp) / float(self.oneday_EstImp) *100,2)
-
+            
             # 讓extra的達成率空一個
-            reaching_rate_list.append('')
+            if extra_edit_description:
+                reaching_rate_list.append('')
             self.reaching_rate_list = reaching_rate_list
             # 把extra的總和填進去
-            result_sum_list.append(int(extra_edit_totalsum))
-            result_sum_list.append('')
-            result_sum_list.append('')
+            if extra_edit_description:
+                result_sum_list.append(int(extra_edit_totalsum))
+                result_sum_list.append('')
+                result_sum_list.append('')
             self.sum_list = result_sum_list
 
         # 判斷點擊
@@ -791,10 +795,12 @@ class CustomValue(BrowserView):
                 return False
             else:
                 ownerList = brain[0].getObject().ownerList.split('\n')
-                if current in ownerList:
-                    return True
-                else:
-                    return False
+                for tmpId in ownerList:
+                    if current == tmpId.strip():
+                        return True
+                    else:
+                        continue
+                return False
 
     def __call__(self):
         return self.template()

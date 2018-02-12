@@ -49,11 +49,13 @@ class GaReport(ManaBasic):
             if self.context.ownerList is None:
                 return False
             else:
-                ownerList = self.context.ownerList.split('\r\n')
-                if current in ownerList:
-                    return True
-                else:
-                    return False
+                ownerList = self.context.ownerList.split('\n')
+                for tmpId in ownerList:
+                    if current == tmpId.strip():
+                        return True
+                    else:
+                        continue
+                return False
 
     def get_db_data(self):
         id = self.context.id
@@ -98,11 +100,13 @@ class GaEdit(ManaBasic):
             if self.context.ownerList is None:
                 return False
             else:
-                ownerList = self.context.ownerList.split('\r\n')
-                if current in ownerList:
-                    return True
-                else:
-                    return False
+                ownerList = self.context.ownerList.split('\n')
+                for tmpId in ownerList:
+                    if current == tmpId.strip():
+                        return True
+                    else:
+                        continue
+                return False
 
 
     def get_id(self):
@@ -286,12 +290,13 @@ class AuthorityEdit(ManaBasic):
             if brain[0].getObject().ownerList == None:
                 return False
             else:
-                ownerList = brain[0].getObject().ownerList.split('\r\n')
+                ownerList = brain[0].getObject().ownerList.split('\n')
                 for owner in ownerList:
-                    if owner == current:
+                    if owner == current.strip():
                         return True
                     else:
-                        return False
+                        continue
+                return False
 
     def get_id(self):
         id = self.context.id

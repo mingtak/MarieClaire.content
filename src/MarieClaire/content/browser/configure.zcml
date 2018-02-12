@@ -159,7 +159,7 @@
       for="*"
       class=".ga.GaTable"
       layer="zope.interface.Interface"
-      permission="cmf.ManagePortal"
+      permission="zope2.View"
       />
 <!--  <browser:page
       name="custome_value"
