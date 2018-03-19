@@ -43,8 +43,12 @@ class GaReport(ManaBasic):
     def checkUser(self):
         current = api.user.get_current().id
         roles = api.user.get_roles()
-        if 'Manager' in roles:
+        if 'Manager' in roles or 'ALL' in self.context.ownerList:
             return True
+        elif 'AE' in self.context.ownerList and 'Reader' in api.user.get_roles():
+            return True
+        elif 'PLANNER' in self.context.ownerList and 'Editor' in api.user.get_roles():
+            return True 
         else:
             if self.context.ownerList is None:
                 return False
@@ -94,7 +98,11 @@ class GaEdit(ManaBasic):
     def checkUser(self):
         current = api.user.get_current().id
         roles = api.user.get_roles()
-        if 'Manager' in roles:
+        if 'Manager' in roles or 'ALL' in self.context.ownerList:
+            return True
+        elif 'AE' in self.context.ownerList and 'Reader' in api.user.get_roles():
+            return True
+        elif 'PLANNER' in self.context.ownerList and 'Editor' in api.user.get_roles():
             return True
         else:
             if self.context.ownerList is None:
@@ -284,7 +292,11 @@ class AuthorityEdit(ManaBasic):
         current = api.user.get_current().getUserName()
         brain = api.content.find(context=self.context)
         roles = api.user.get_roles()
-        if 'Manager' in roles:
+        if 'Manager' in roles or 'ALL' in self.context.ownerList:
+            return True
+        elif 'AE' in self.context.ownerList and 'Reader' in api.user.get_roles():
+            return True
+        elif 'PLANNER' in self.context.ownerList and 'Editor' in api.user.get_roles():
             return True
         else:
             if brain[0].getObject().ownerList == None:

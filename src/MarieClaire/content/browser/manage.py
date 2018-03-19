@@ -15,6 +15,7 @@ from zope.interface import alsoProvides
 import requests
 from requests.auth import HTTPBasicAuth
 import copy
+import time as TIME
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
@@ -51,7 +52,7 @@ class ManaBasic(BrowserView):
             conn = ENGINE.connect() # DB連線
             execResult = conn.execute(execStr)
         except:
-            time.sleep(1)
+            TIME.sleep(1)
             logger.info('Connect MySQL error, Retry.')
             conn = ENGINE.connect() # DB連線
             execResult = conn.execute(execStr)
@@ -155,12 +156,35 @@ class ManaCustomList(ManaBasic):
             item_ownerList = item.ownerList
             if item_ownerList != None:
                 ownerList = item_ownerList.split('\n')
-                for owner in ownerList:
-                    if current == owner.strip():
+                appended = False
+                if 'ALL' in ownerList:
+                    result.append({
+                        'title': item.title,
+                        'url':brain.getURL()
+                    })
+                    appended = True
+                elif 'AE' in ownerList:
+                    if 'Reader' in api.user.get_roles():
                         result.append({
                             'title': item.title,
                             'url':brain.getURL()
                         })
+                        appended = True
+                elif 'PLANNER' in ownerList:
+                    if 'Editor' in api.user.get_roles():
+                        result.append({
+                            'title': item.title,
+                            'url':brain.getURL()
+                        })
+                        appended = True
+#                import pdb; pdb.set_trace()
+                if not appended:
+                    for owner in ownerList:
+                        if current == owner.strip():
+                            result.append({
+                                'title': item.title,
+                                'url':brain.getURL()
+                            })
         return result
 
     def __call__(self):
@@ -174,7 +198,11 @@ class CustomReport(ManaBasic):
     def checkUser(self):
         current = api.user.get_current().id
         roles = api.user.get_roles()
-        if 'Manager' in roles:
+        if 'Manager' in roles or 'ALL' in self.context.ownerList:
+            return True
+        elif 'AE' in self.context.ownerList and 'Reader' in api.user.get_roles():
+            return True
+        elif 'PLANNER' in self.context.ownerList and 'Editor' in api.user.get_roles():
             return True
         else:
             if self.context.ownerList is None:
@@ -256,7 +284,11 @@ class CustomEdit(ManaBasic):
     def checkUser(self):
         current = api.user.get_current().id
         roles = api.user.get_roles()
-        if 'Manager' in roles:
+        if 'Manager' in roles or 'ALL' in self.context.ownerList:
+            return True
+        elif 'AE' in self.context.ownerList and 'Reader' in api.user.get_roles():
+            return True
+        elif 'PLANNER' in self.context.ownerList and 'Editor' in api.user.get_roles():
             return True
         else:
             if self.context.ownerList is None:
@@ -788,7 +820,11 @@ class CustomValue(BrowserView):
         current = api.user.get_current().getUserName()
         brain = api.content.find(context=self.context)
         roles = api.user.get_roles()
-        if 'Manager' in roles:
+        if 'Manager' in roles or 'ALL' in self.context.ownerList:
+            return True
+        elif 'AE' in self.context.ownerList and 'Reader' in api.user.get_roles():
+            return True
+        elif 'PLANNER' in self.context.ownerList and 'Editor' in api.user.get_roles():
             return True
         else:
             if brain[0].getObject().ownerList == None:
