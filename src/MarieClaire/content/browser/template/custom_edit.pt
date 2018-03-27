@@ -30,8 +30,8 @@
 
 <div class="table" tal:condition="view/checkUser" style="clear:both">
     <div class="row header">
-        <div class="col-md-2 pd5 custom_edit_title">訂單ID</div>
-        <div class="col-md-4 pd5 custom_edit_title">訂單名稱</div>
+        <div class="col-md-2 pd5 custom_edit_title">訂單/委刊項 ID</div>
+        <div class="col-md-4 pd5 custom_edit_title">訂單/委刊項 名稱</div>
         <div class="col-md-2 pd5 custom_edit_title">本檔績效<br>(Clicks / Impressions)</div>
         <div class="col-md-2 pd5 custom_edit_title">加權<br>(Clicks / Impressions)</div>
         <div class="col-md-2 pd5 custom_edit_title">預期點擊率(%)/預期曝光數</div>
@@ -91,15 +91,19 @@
                     <div tal:define="data python:view.get_date_data(line_item);date python:view.get_date_list(line_item)"
                         tal:repeat="item date">
                         <div class="col-md-2">${item}</div>
-                        <div class="col-md-2 col-md-offset-4">${python:data[item]['clicks']} / ${python:data[item]['impressions']}</div>
+                        <div class="col-md-2 col-md-offset-4">
+                            <span id="before_${line_item}-${item}">${python:data[item]['clicks']} / ${python:data[item]['impressions']} </span>
+                            <span id="after_${line_item}-${item}"> (${python:int(data[item]['clicks'] * data[item]['cli_weight'])} /
+                              ${python:int(data[item]['impressions'] * data[item]['im_weight'])})</span>
+                        </div>
                         <div class="col-md-2" tal:define="status python:data[item]['status']">
                             <input type="number" value="${python:data[item]['cli_weight']}"
-                                class="date_cli" data-line_item_id="${line_item}" 
+                                id="cli_${line_item}-${item}" class="date_cli" data-line_item_id="${line_item}" 
                                 data-name="cli_weight" data-date="${item}" step="0.1" 
                                 data-status="${python:data[item]['status']}"
                                 /> / 
                             <input type="number" value="${python:data[item]['im_weight']}"
-                                class="date_im" data-line_item_id="${line_item}"
+                                id="im_${line_item}-${item}" class="date_im" data-line_item_id="${line_item}"
                                 data-name="im_weight" data-date="${item}" step="0.1"
                                 data-status="${python:data[item]['status']}"/>
                         </div>
@@ -269,6 +273,9 @@ $(document).ready(function(){
         line_item_id = $(this).data('line_item_id')
         date = $(this).data('date')
         updateDateData(update_name, value, line_item_id, date)
+
+        postfix = $(this).attr('id').split('_')[1]
+        afterValue(postfix)
     })
 
     $('.status').click(function(){
@@ -298,6 +305,19 @@ $(document).ready(function(){
         order = $(this).data('order')
         updataExtraEdit(val, order)
     })
+
+
+// afterValue: 計算加權後
+    function afterValue(postfix) {
+        before = $('#before_' + postfix).text()
+        bCli = Number(before.split('/')[0])
+        bIm = Number(before.split('/')[1])
+        after = $('#after_' + postfix)
+        cliWeight = $('#cli_' + postfix).val()
+        imWeight = $('#im_' + postfix).val()
+        after.text(' (' + Math.round(bCli*cliWeight) + '/' + Math.round(bIm*imWeight) + ')')
+    }
+
 })
 </script>
 
