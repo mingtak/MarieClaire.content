@@ -37,29 +37,29 @@
         <div class="col-md-2 pd5 custom_edit_title">預期點擊率(%)/預期曝光數</div>
 
     </div>
-    <div tal:repeat="item view/orderIds" class="row record">
+    <div tal:repeat="order_item view/orderIds" class="row record">
         <div>
-            <div class="col-md-2 order_block order" style="cursor:pointer">${item}</div>
-            <div class="col-md-4 order_block">${python:view.orderData[item]['ORDER_NAME']}</div>
+            <div class="col-md-2 order_block order" style="cursor:pointer">${order_item}</div>
+            <div class="col-md-4 order_block">${python:view.orderData[order_item]['ORDER_NAME']}</div>
             <div class="col-md-2 order_block">
-                ${python:view.orderData[item]['AD_SERVER_CLICKS']} / ${python:view.orderData[item]['AD_SERVER_IMPRESSIONS']}
+                ${python:view.orderData[order_item]['AD_SERVER_CLICKS']} / ${python:view.orderData[order_item]['AD_SERVER_IMPRESSIONS']}
             </div>
             <div class="col-md-2 last order_block">
-                <input class="order_cli" data-order_id="${item}" data-name="cli_weight"
+                <input class="order_cli" data-order_id="${order_item}" data-name="cli_weight"
                     type="number" step="0.1" placeholder="群組變更"> / 
-                <input class="order_im" data-order_id="${item}" data-name="im_weight"
+                <input class="order_im" data-order_id="${order_item}" data-name="im_weight"
                     type="number" step="0.1" placeholder="群組變更">
             </div>
             <div class="col-md-2 last order_block">
-                <input class="Est_weight" data-order_id="${item}" data-name="EstCTR"
+                <input class="Est_weight" data-order_id="${order_item}" data-name="EstCTR"
                     type="number" step="0.1" placeholder="群組變更"> / 
-                <input class="Est_weight" data-order_id="${item}" data-name="EstImp"
+                <input class="Est_weight" data-order_id="${order_item}" data-name="EstImp"
                     type="number" step="0.1" placeholder="群組變更">
                 
             </div>
             
         </div>
-        <tal:repeat define="line_item_data python:view.getLineItem(item)" 
+        <tal:repeat define="line_item_data python:view.getLineItem(order_item)"
                         repeat="line_item line_item_data">
             <section class="line_item_list">
                 <div style="background-color:#FFFCCA">
@@ -92,18 +92,25 @@
                         tal:repeat="item date">
                         <div class="col-md-2">${item}</div>
                         <div class="col-md-2 col-md-offset-4">
-                            <span id="before_${line_item}-${item}">${python:data[item]['clicks']} / ${python:data[item]['impressions']} </span>
-                            <span id="after_${line_item}-${item}"> (${python:int(data[item]['clicks'] * data[item]['cli_weight'])} /
-                              ${python:int(data[item]['impressions'] * data[item]['im_weight'])})</span>
+                            <span id="before_${order_item}-${line_item}-${item}">
+                                ${python:data[item]['clicks']} / ${python:data[item]['impressions']}
+                            </span>
+                            <span id="after_${order_item}-${line_item}-${item}"
+                                  class="after_${order_item}-${line_item}">
+                                (${python:int(data[item]['clicks'] * data[item]['cli_weight'])} /
+                                 ${python:int(data[item]['impressions'] * data[item]['im_weight'])})
+                            </span>
                         </div>
                         <div class="col-md-2" tal:define="status python:data[item]['status']">
                             <input type="number" value="${python:data[item]['cli_weight']}"
-                                id="cli_${line_item}-${item}" class="date_cli" data-line_item_id="${line_item}" 
+                                id="cli_${order_item}-${line_item}-${item}"
+                                class="date_cli" data-line_item_id="${line_item}" 
                                 data-name="cli_weight" data-date="${item}" step="0.1" 
                                 data-status="${python:data[item]['status']}"
                                 /> / 
                             <input type="number" value="${python:data[item]['im_weight']}"
-                                id="im_${line_item}-${item}" class="date_im" data-line_item_id="${line_item}"
+                                id="im_${order_item}-${line_item}-${item}"
+                                class="date_im" data-line_item_id="${line_item}"
                                 data-name="im_weight" data-date="${item}" step="0.1"
                                 data-status="${python:data[item]['status']}"/>
                         </div>
@@ -116,8 +123,8 @@
             </section>
         </tal:repeat>
 
-        <textarea cols="30" rows="10" class="extra_edit" data-order="${item}"  
-                  tal:define="extra_edit_date python:view.get_extra_edit_data(item)" 
+        <textarea cols="30" rows="10" class="extra_edit" data-order="${order_item}"
+                  tal:define="extra_edit_date python:view.get_extra_edit_data(order_item)" 
                   value="">${extra_edit_date}</textarea>
     </div>
 </div>
