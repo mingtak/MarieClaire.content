@@ -179,8 +179,13 @@ getDfpTable = function(){
         url: url,
         data: data,
         success: function (response) {
-            $('#line-chart').html(response);
-            $('#line-chart').css('max-height','100%')
+            if(response.startsWith("<!DOCTYPE html>")) {
+                $('#line-chart').html();
+            }
+            else {
+                $('#line-chart').html(response);
+                $('#line-chart').css('max-height','100%')
+            }
         }
     });
 }

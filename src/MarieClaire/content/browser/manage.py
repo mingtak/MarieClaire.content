@@ -669,8 +669,8 @@ class GetDfpTable(ManaBasic):
                         sum_oneday_data[date][1] += int(clicks)
                     else:
                         sum_oneday_data[date] = [int(impressions), int(clicks)]
-                    # 若那天有資料填入就刪掉那天日期    
-                    tmp_dayList.remove(date) 
+                    # 若那天有資料填入就刪掉那天日期
+                    tmp_dayList.remove(date)
                 # 把剩餘的日期填空
                 for tmp_day in tmp_dayList:
                     if result_day_data.has_key(tmp_day):
@@ -753,7 +753,7 @@ class GetDfpTable(ManaBasic):
             reaching_rate_list = []
             total_reaching_imp = 0
             total_reaching_cli = 0
-            
+
             for checked in checkList:
                 sum_imp = 0
                 sum_click = 0
@@ -777,7 +777,7 @@ class GetDfpTable(ManaBasic):
                 self.total_reaching_imp = total_reaching_imp + int(extra_edit_totalsum)
                 self.total_reaching_cli = total_reaching_cli
                 self.total_reaching_ctr = total_reaching_ctr
-           
+
                 execStr = """SELECT EstImp FROM dfp_line_item WHERE LINE_ITEM_ID = '{}'
                     """.format(checked)
                 result_estimp = self.execSql(execStr)
@@ -790,7 +790,7 @@ class GetDfpTable(ManaBasic):
 
             # 送最後達到的imp/預計達到的imp
             self.sum_reaching_rate = '%s %%' %round(float(self.total_reaching_imp) / float(self.oneday_EstImp) *100,2)
-            
+
             # 讓extra的達成率空一個
             if extra_edit_description:
                 reaching_rate_list.append('')
@@ -801,6 +801,9 @@ class GetDfpTable(ManaBasic):
                 result_sum_list.append('')
                 result_sum_list.append('')
             self.sum_list = result_sum_list
+        else:
+            request.response.redirect('%s/custom_report' % self.context.absolute_url())
+            return
 
         # 判斷點擊
         if select_type == 'nav_table':
