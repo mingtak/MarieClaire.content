@@ -802,7 +802,7 @@ class GetDfpTable(ManaBasic):
                 result_sum_list.append('')
             self.sum_list = result_sum_list
         else:
-            request.response.redirect('%s/custom_report' % self.context.absolute_url())
+#            request.response.redirect('%s/custom_report' % self.context.absolute_url())
             return
 
         # 判斷點擊
