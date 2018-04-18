@@ -179,7 +179,7 @@ getDfpTable = function(){
         url: url,
         data: data,
         success: function (response) {
-            if(response.startsWith("<!DOCTYPE html>")) {
+            if(!response.startsWith("<!DOCTYPE html>")) {
                 $('#line-chart').html();
             }
             else {
