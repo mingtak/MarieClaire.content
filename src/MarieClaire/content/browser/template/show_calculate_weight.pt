@@ -1,0 +1,85 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      i18n:domain="MarieClaire.content">
+
+
+<body>
+
+<style>
+#est_imp, #est_ctr,input{
+    padding-left: 5px;
+    border-radius: 5px;
+    background: white;
+    font-size: 16px;
+    border:1px solid;
+    line-height:34px;
+    margin-top: 20px;
+}
+button{
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    background: #A6ED8E;
+    border-radius: 5px;
+    font-size: 17px;
+}
+</style>
+<?python
+from plone import api
+portal = api.portal.get()
+?>
+<h3>權重調整 (<a href="${portal/absolute_url}/manage_list">回管理列表</a>)</h3>
+
+開始時間：<input type='date' id='start_date' style='width:20%;margin:0;border:1px solid' />
+結束時間：<input type='date' id='end_date' style='width:20%;margin:0;border:1px solid' />
+輸入版位名稱：<input type='text' id='item_name' />
+<br>
+預估曝光率:<input type='number' id='est_imp' step='1000' />
+預估點擊率(%)：<input type='number' id='est_ctr' />
+<button>計算</button>
+
+<div id='result'></div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script>
+jq = jQuery.noConflict(true);
+jq(function(){
+    jq('button').click(function(){
+        start_date = jq('#start_date').val()
+        end_date = jq('#end_date').val()
+        est_imp = jq('#est_imp').val()
+        est_ctr = jq('#est_ctr').val()
+        item_name = jq('#item_name').val()
+        data = {
+            'start_date': start_date,
+            'end_date': end_date,
+            'est_imp': est_imp,
+            'est_ctr': est_ctr,
+            'item_name': item_name
+        }
+        url = location.href.replace('show_calculate_weight', 'calculate_weight')
+        jq.ajax({
+            type: "post",
+            url: url,
+            data: data,
+            success: function (response) {
+                if(response == 'empty'){
+		    alert('查無資料')
+		}else{
+                    jq('#result').html(response)
+		}
+            }
+        });
+    })
+})
+
+
+</script>
+
+
+</body>
+</html>
+

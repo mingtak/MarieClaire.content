@@ -206,4 +206,28 @@
       permission="zope2.View"
       />
 
+ <browser:page
+      name="calculate_weight"
+      for="*"
+      class=".manage.CalculateWeight"
+      layer="zope.interface.Interface"
+      permission="zope2.View"
+      />
+
+ <browser:page
+      name="show_calculate_weight"
+      for="*"
+      class=".manage.ShowCalculateWeight"
+      layer="zope.interface.Interface"
+      permission="cmf.ManagePortal"
+      />
+
+ <browser:page
+      name="update_calculate_weight"
+      for="*"
+      class=".manage.UpdateCalculateWeight"
+      layer="zope.interface.Interface"
+      permission="cmf.ManagePortal"
+      />
+
 </configure>

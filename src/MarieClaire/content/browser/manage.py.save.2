@@ -16,9 +16,6 @@ import requests
 from requests.auth import HTTPBasicAuth
 import copy
 import time as TIME
-import math
-import sys
-
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
@@ -856,114 +853,40 @@ class IsManager(BrowserView):
 
 
 class CalculateWeight(ManaBasic):
-    template = ViewPageTemplateFile('template/result_calculate_weight.pt')
     def __call__(self):
         request = self.request
         start_date = request.get('start_date')
         end_date = request.get('end_date')
         est_imp = request.get('est_imp')
         est_ctr = request.get('est_ctr')
-        item_name = request.get('item_name')
-        execStr = """SELECT dfp_line_item.LINE_ITEM_NAME,dfp_ad_server.* FROM dfp_ad_server INNER JOIN dfp_line_item
- 	    on dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND
-            dfp_ad_server.DATE BETWEEN '{}' AND '{}'""".format(start_date, end_date)
+        execStr = """SELECT * FROM `dfp_ad_server` WHERE DATE BETWEEN '{}' AND '{}'""".format(start_date, end_date)
         result = self.execSql(execStr)
         data = {}
-        item_id_str = ''
 	for item in result:
 	    tmp = dict(item)
             order_id = tmp['ORDER_ID']
             imp = tmp['AD_SERVER_IMPRESSIONS']
             click = tmp['AD_SERVER_CLICKS']
-            im_weight = tmp['im_weight']
-            cli_weight = tmp['cli_weight']
-            line_item_id = tmp['LINE_ITEM_ID']
-            line_item_name = tmp['LINE_ITEM_NAME']
-            date = tmp['DATE'].strftime('%Y-%m-%d')
-            split_item_name = line_item_name.split('_')
-            if len(split_item_name) > 1 and split_item_name[1] == item_name:
-                # order的總權重在pt檔算，此處權重用再pt的input上
-                if data.has_key(line_item_id):
-                    data[line_item_id][0] += imp
-                    data[line_item_id][1] += click
-                else:
-                    item_id_str += line_item_id + ','
-                    data[line_item_id] = [imp, click, im_weight, cli_weight, line_item_name]
 
-        if not data:
-	    return 'empty'
-        # 初始min_imp 為int 最大值，再找出最小值
-        min_imp = sys.maxint
+            if data.has_key(order_id): 
+                data[order_id][0] += imp
+                data[order_id][1] += click
+            else:
+                data[order_id] = [imp, click]
+        # 初始min_val 為int 最大值，再找出最小值
+        min_val = 9223372036854775807
         for k,v in data.items():
-            if v[0] < min_imp:
-                min_imp = v[0]
-                min_clicks = v[1]
-        est_allpass_imp_weight = round(float(est_imp) / float(min_imp), 1)
-        est_allpass_tmp_imp = round(float(min_imp) * float(est_allpass_imp_weight))
-        est_allpass_clicks_weight = round( float(est_ctr) / 100 * float(est_allpass_tmp_imp) / float(min_clicks), 1)
+            if v[0] < min_val:
+                min_val = v[0]
 
-        allpass_data = {}
+        est_allpass = round(float(min_val) / float(est_imp), 2)
+        data_allpass = {}
         for k,v in data.items():
-            new_imp = round(float(v[0]) * est_allpass_imp_weight)
-            new_clicks = round(float(v[1]) * est_allpass_clicks_weight)
-            new_ctr = round(new_clicks / new_imp * 100, 1)
-            allpass_data[k] = [ new_imp, new_clicks, new_ctr]
+            data_allpass[k] = 
 
-        # 將data排序
-        tmp_mid_data = sorted(data.items(), key=lambda x:x[1][0])
-        # 抓mid_data的中位數,判斷長度若是否為1
-        if len(tmp_mid_data) > 1:
-            mid_index = math.ceil(float(len(tmp_mid_data)) / 2) - 1
-        else:
-            mid_index = 0
-        # 抓中位數的值
-        median_imp = tmp_mid_data[int(mid_index)][1][0]
-        median_clicks = tmp_mid_data[int(mid_index)][1][1]
-        mid_data = {}
-
-        est_mid_imp_weight = round(float(est_imp) / float(median_imp), 1)
-        est_mid_clicks_weight = round( float(est_ctr) /100 * median_imp * est_mid_imp_weight / median_clicks , 1)
-        for k,v in tmp_mid_data:
-            new_mid_imp = round(float(v[0]) * est_mid_imp_weight)
-            new_mid_clicks = round(float(v[1]) * est_mid_clicks_weight)
- 	    new_mid_ctr = round(new_mid_clicks / new_mid_imp * 100, 1)
-            mid_data[k] = [ new_mid_imp, new_mid_clicks, new_mid_ctr]
-
-        self.item_id_str = item_id_str
-        self.est_allpass_imp_weight = est_allpass_imp_weight
-        self.est_allpass_clicks_weight = est_allpass_clicks_weight
-        self.est_mid_imp_weight = est_mid_imp_weight
-        self.est_mid_clicks_weight = est_mid_clicks_weight
-        self.data = sorted(data.items(), key=lambda x:x[1][0])
-	self.item_name = item_name
-
-        return self.template()
 
 class ShowCalculateWeight(BrowserView):
     template = ViewPageTemplateFile('template/show_calculate_weight.pt')
     def __call__(self):
-        abs_url = api.portal.get().absolute_url()
-        if 'Manager' not in  api.user.get_current().getRoles():
-            self.request.response.redirect(abs_url)
-            api.portal.show_message(message='您無權限!', request=self.request, type='error')
+    
         return self.template()
-
-
-
-class UpdateCalculateWeight(ManaBasic):
-    def __call__(self):
-        request = self.request
-        try:
-            line_item_id = request.get('line_item_id').split(',')
-            weight = json.loads(request.get('weight'))
-	    action = request.get('action')
-            start_date = request.get('start_date')
-            end_date = request.get('end_date')
-            execStr = """UPDATE dfp_ad_server SET im_weight={}, cli_weight={}, status='disabled' WHERE DATE BETWEEN 
-               '{}' AND '{}' AND LINE_ITEM_ID in {}
-               """.format(weight[0], weight[1], start_date, end_date, tuple(line_item_id))
-            self.execSql(execStr)
-            return 'success'
-        except Exception as e:
-            print e
-            return 'error'

@@ -1,0 +1,69 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      i18n:domain="MarieClaire.content">
+
+
+<body>
+<style>
+#est_imp, #est_ctr{
+    padding-left: 5px;
+    border-radius: 5px;
+    background: white;
+    font-size: 16px;
+    border:1px solid;
+    line-height:34px;
+    margin-top: 20px;
+}
+@media (min-width: 1200px).container{
+    width:1250px;
+}
+
+</style>
+
+開始時間：<input type='date' id='start_date' style='width:20%;margin:0;border:1px solid' />
+結束時間：<input type='date' id='end_date' style='width:20%;margin:0;border:1px solid' />
+<br>
+預估曝光率:<input type='number' id='est_imp' />
+預估點擊率：<input type='number' id='est_ctr' />
+<button>計算</button>
+
+<div id='result'></div>
+
+
+<script>
+$(function(){
+    $('button').click(function(){
+        start_date = $('#start_date').val()
+        end_date = $('#end_date').val()
+        est_imp = $('#est_imp').val()
+        est_ctr = $('#est_ctr').val()
+        data = {
+            'start_date': start_date,
+            'end_date': end_date,
+            'est_imp': est_imp,
+            'est_ctr': est_ctr
+        }
+
+        url = location.href.replace('show_calculate_weight', 'calculate_weight')
+        $.ajax({
+            type: "post",
+            url: url,
+            data: data,
+            success: function (response) {
+                    $('#result').html(response)
+            }
+        });
+    })
+})
+
+
+</script>
+
+
+</body>
+</html>
+

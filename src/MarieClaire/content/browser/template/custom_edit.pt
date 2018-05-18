@@ -128,7 +128,6 @@
                   value="">${extra_edit_date}</textarea>
     </div>
 </div>
-
 <script>
 $('.order').click(function(){
     $(this).parent().siblings().slideToggle(550)

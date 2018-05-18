@@ -121,6 +121,28 @@ drawLine = function(dfpLine){
         resultArray = jQuery.parseJSON(value)
         dfpLine.xs = resultArray[0]
         selected = checkedSelect()
+        debugger
+        if( (select_type != 'nav_table' && select_type != 'nav_detail') &&
+	    (selected.length == 0 || value == "[{}, {}]")  )
+	    {
+            notify({
+                type: "warning", //alert | success | error | warning | info
+                title: "條件輸入不足",
+                position: {
+                    x: "right", //right | left | center
+                    y: "top" //top | bottom | center
+                },
+                size: "normal", //normal | full | small
+                overlay: false, //true | false
+                closeBtn: true, //true | false
+                overflowHide: false, //true | false
+                spacing: 20, //number px
+                theme: "default", //default | dark-theme
+                autoHide: true, //true | false
+                delay: 3000, //number ms
+                template: '<div class="notify"><div class="notify-text"></div></div>'
+            });
+	}
         //把勾選的 選光量、點擊量、CTR填入columns
         if (select_type == 'nav_pie'){
             for(key in resultArray[1]){
@@ -165,6 +187,7 @@ drawLine = function(dfpLine){
         alert('Fail')
     })
 }
+
 
 getDfpTable = function(){
     data = {

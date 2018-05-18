@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/bootstrap.min.css">
     <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/custom.css" />
     <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/c3.min.css" />
+    <link rel="stylesheet" href="${portal_url}/++plone++MarieClaire.content/jquery.notify.css" />
     <script src="${portal_url}/++plone++MarieClaire.content/d3.v3.min.js"></script>
     <script src="${portal_url}/++plone++MarieClaire.content/c3.min.js"></script>
     <script src="${portal_url}/++plone++MarieClaire.content/vue.min.js"></script>
@@ -136,6 +137,7 @@ roles = api.user.get_roles()
 </div>
 
     <script src="${portal_url}/++plone++MarieClaire.content/custom.js"></script>
+    <script src="${portal_url}/++plone++MarieClaire.content/jquery.notify.min.js"></script>
 </metal:block>
 </metal:content-core>
 
