@@ -35,10 +35,9 @@ portal = api.portal.get()
 
 開始時間：<input type='date' id='start_date' style='width:20%;margin:0;border:1px solid' />
 結束時間：<input type='date' id='end_date' style='width:20%;margin:0;border:1px solid' />
-輸入版位名稱：<input type='text' id='item_name' />
 <br>
-預估曝光率:<input type='number' id='est_imp' step='1000' />
-預估點擊率(%)：<input type='number' id='est_ctr' />
+檔案：<input type="file" id='file' />
+    <input type="hidden" id='csv_file' name="file_data"/>
 <button>計算</button>
 
 <div id='result'></div>
@@ -47,18 +46,25 @@ portal = api.portal.get()
 <script>
 jq = jQuery.noConflict(true);
 jq(function(){
+    jq('#file').change(function(e){
+       var file = this.files[0];
+        if(window.FileReader) {
+        var fr = new FileReader();
+        fr.onloadend = function(e) {
+            jq('#csv_file').val(e.currentTarget.result)
+        };
+        fr.readAsDataURL(file);
+      }
+    })
+
     jq('button').click(function(){
         start_date = jq('#start_date').val()
         end_date = jq('#end_date').val()
-        est_imp = jq('#est_imp').val()
-        est_ctr = jq('#est_ctr').val()
-        item_name = jq('#item_name').val()
+        csv_file = jq('#csv_file').val()
         data = {
             'start_date': start_date,
             'end_date': end_date,
-            'est_imp': est_imp,
-            'est_ctr': est_ctr,
-            'item_name': item_name
+            'csv_file': csv_file
         }
         url = location.href.replace('show_calculate_weight', 'calculate_weight')
         jq.ajax({

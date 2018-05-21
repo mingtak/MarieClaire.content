@@ -18,7 +18,7 @@ import copy
 import time as TIME
 import math
 import sys
-import base64
+
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
@@ -861,40 +861,34 @@ class CalculateWeight(ManaBasic):
         request = self.request
         start_date = request.get('start_date')
         end_date = request.get('end_date')
-        csv_file = request.get('csv_file').split('data:text/csv;base64,')[1]
-	csv_data = base64.b64decode(csv_file)
-	for data in csv.data.split('\n'):
-            data_line_item_name = data.split(',')[0].split('"')[1]
-	    data_est_imp = data.split(',')[1]
-	    data_est_cli = data.split(',')[2]
-            execStr = """SELECT dfp_line_item.LINE_ITEM_NAME,dfp_ad_server.* FROM dfp_line_item,dfp_ad_server 
-                      WHERE dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND dfp_line_item.LINE_ITEM_NAME 
-		      LIKE '%{}%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}'""".format(data_line_item_name,
-											  start_date, end_date)
-            result = self.execSql(execStr)
-            data = {}
-            item_id_str = ''
-	    for item in result:
-	        tmp = dict(item)
-                order_id = tmp['ORDER_ID']
-                imp = tmp['AD_SERVER_IMPRESSIONS']
-                click = tmp['AD_SERVER_CLICKS']
-                im_weight = tmp['im_weight']
-                cli_weight = tmp['cli_weight']
-                line_item_id = tmp['LINE_ITEM_ID']
-                line_item_name = tmp['LINE_ITEM_NAME']
-                date = tmp['DATE'].strftime('%Y-%m-%d')
-                split_item_name = line_item_name.split('_')
-                if len(split_item_name) > 1 and split_item_name[1] == item_name:
-                    # order的總權重在pt檔算，此處權重用再pt的input上
-		    channel_name = split_item_name[0]
-                    if data.has_key(channel_name):
-                        data[channel_name][0] += imp
-                        data[channel_name][1] += click
-		        item_id_str += line_item_id + ','
+        est_imp = request.get('est_imp')
+        est_ctr = request.get('est_ctr')
+        item_name = request.get('item_name')
+        execStr = """SELECT dfp_line_item.LINE_ITEM_NAME,dfp_ad_server.* FROM dfp_ad_server INNER JOIN dfp_line_item
+ 	    on dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND
+            dfp_ad_server.DATE BETWEEN '{}' AND '{}'""".format(start_date, end_date)
+        result = self.execSql(execStr)
+        data = {}
+        item_id_str = ''
+	for item in result:
+	    tmp = dict(item)
+            order_id = tmp['ORDER_ID']
+            imp = tmp['AD_SERVER_IMPRESSIONS']
+            click = tmp['AD_SERVER_CLICKS']
+            im_weight = tmp['im_weight']
+            cli_weight = tmp['cli_weight']
+            line_item_id = tmp['LINE_ITEM_ID']
+            line_item_name = tmp['LINE_ITEM_NAME']
+            date = tmp['DATE'].strftime('%Y-%m-%d')
+            split_item_name = line_item_name.split('_')
+            if len(split_item_name) > 1 and split_item_name[1] == item_name:
+                # order的總權重在pt檔算，此處權重用再pt的input上
+                if data.has_key(line_item_id):
+                    data[line_item_id][0] += imp
+                    data[line_item_id][1] += click
                 else:
                     item_id_str += line_item_id + ','
-                    data[channel_name] = [imp, click, im_weight, cli_weight, line_item_name]
+                    data[line_item_id] = [imp, click, im_weight, cli_weight, line_item_name]
 
         if not data:
 	    return 'empty'
