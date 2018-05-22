@@ -863,70 +863,27 @@ class CalculateWeight(ManaBasic):
         end_date = request.get('end_date')
         csv_file = request.get('csv_file').split('data:text/csv;base64,')[1]
 	csv_data = base64.b64decode(csv_file)
-        final_data = {}
-	for csv in csv_data.split('\n'):
-            data = {}
-            item_id_list = []
-	    if csv:
-                csv_line_item_name = csv.split(',')[0].split('"')[1]
-                csv_est_imp = csv.split(',')[1]
-                csv_est_ctr = csv.split(',')[2]
-                execStr = """SELECT dfp_line_item.LINE_ITEM_NAME,dfp_ad_server.* FROM dfp_line_item,dfp_ad_server 
+	for data in csv.data.split('\n'):
+            data_line_item_name = data.split(',')[0].split('"')[1]
+	    data_est_imp = data.split(',')[1]
+	    data_est_cli = data.split(',')[2]
+            execStr = """SELECT dfp_line_item.LINE_ITEM_NAME,dfp_ad_server.* FROM dfp_line_item,dfp_ad_server 
                       WHERE dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND dfp_line_item.LINE_ITEM_NAME 
-		      LIKE '%%{}%%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}'
-                      """.format(csv_line_item_name, start_date, end_date)
-                result = self.execSql(execStr)
-
-	        for item in result:
-	            tmp = dict(item)
-                    order_id = tmp['ORDER_ID']
-                    imp = tmp['AD_SERVER_IMPRESSIONS']
-                    click = tmp['AD_SERVER_CLICKS']
-                    im_weight = tmp['im_weight']
-                    cli_weight = tmp['cli_weight']
-                    line_item_id = tmp['LINE_ITEM_ID']
-                    line_item_name = tmp['LINE_ITEM_NAME']
-                    date = tmp['DATE'].strftime('%Y-%m-%d')
-                    if data.has_key(csv_line_item_name):
-                        data[csv_line_item_name].append( [imp, click] )
-                    else:
-                        data[csv_line_item_name] = [ [imp, click] ]
-                    if line_item_id not in item_id_list:
-                        item_id_list.append(line_item_id)
-            if data:
-                min_imp = sys.maxint
-                for v in data.values()[0]:
-                    if v[0] < min_imp:
-                        min_imp = v[0]
-                        min_clicks = v[1]
-                est_allpass_imp_weight = round(float(csv_est_imp) / float(min_imp), 1)
-                est_allpass_tmp_imp = round(float(min_imp) * float(est_allpass_imp_weight))
-                est_allpass_cli_weight = round( float(csv_est_ctr) / 100 * float(est_allpass_tmp_imp) /
-								float(min_clicks), 1)
-                final_data[csv_line_item_name] = [est_allpass_imp_weight, est_allpass_cli_weight]
-
-                # 將data排序
-                tmp_mid_data = sorted(data.values()[0], key= lambda x:x[0], reverse=True)
-                # 抓mid_data的中位數,判斷長度若是否為1
-                if len(tmp_mid_data) > 1:
-                    mid_index = math.ceil(float(len(tmp_mid_data)) / 2) - 1
-                else:
-                    mid_index = 0
-                # 抓中位數的值
-                median_imp = tmp_mid_data[int(mid_index)][0]
-                median_clicks = tmp_mid_data[int(mid_index)][1]
-
-                est_mid_imp_weight = round(float(csv_est_imp) / float(median_imp), 1)
-                est_mid_cli_weight = round( float(csv_est_ctr) /100 * median_imp * est_mid_imp_weight / median_clicks , 1)
-                final_data[csv_line_item_name].append(est_mid_imp_weight)
-                final_data[csv_line_item_name].append(est_mid_cli_weight)
-                final_data[csv_line_item_name].append(json.dumps(item_id_list))
-        self.final_data = final_data
-        return self.template()
-class ShowCalculateWeight(BrowserView):
-    template = ViewPageTemplateFile('template/show_calculate_weight.pt')
-    def __call__(self):
-        abs_url = api.portal.get().absolute_url()
+		      LIKE '%{}%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}'""".format(data_line_item_name,
+											  start_date, end_date)
+            result = self.execSql(execStr)
+            data = {}
+            item_id_str = ''
+	    for item in result:
+	        tmp = dict(item)
+                order_id = tmp['ORDER_ID']
+                imp = tmp['AD_SERVER_IMPRESSIONS']
+                click = tmp['AD_SERVER_CLICKS']
+                im_weight = tmp['im_weight']
+                cli_weight = tmp['cli_weight']
+                line_item_id = tmp['LINE_ITEM_ID']
+                line_item_name = tmp['LINE_ITEM_NAME']
+                date = tmp['DATE'].strftime('%Y-%m-%d')
         if 'Manager' not in  api.user.get_current().getRoles():
             self.request.response.redirect(abs_url)
             api.portal.show_message(message='您無權限!', request=self.request, type='error')
@@ -938,11 +895,8 @@ class UpdateCalculateWeight(ManaBasic):
     def __call__(self):
         request = self.request
         try:
-            line_item_id = json.loads(request.get('line_item_id'))
-            if len(line_item_id) == 1:
-                line_item_id.append('zzzz')
-	    line_item_id = map(lambda x:str(x), line_item_id)
-            weight = request.get('weight[]')
+            line_item_id = request.get('line_item_id').split(',')
+            weight = json.loads(request.get('weight'))
 	    action = request.get('action')
             start_date = request.get('start_date')
             end_date = request.get('end_date')
@@ -953,6 +907,4 @@ class UpdateCalculateWeight(ManaBasic):
             return 'success'
         except Exception as e:
             print e
-	    import pdb;pdb.set_trace()
             return 'error'
-

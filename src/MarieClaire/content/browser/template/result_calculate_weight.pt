@@ -21,10 +21,6 @@ td{
     vertical-align: middle !important;
     padding:10px 0;
 }
-.allpass,.mid,.manually{
-    float: right;
-    margin: 5px 5px;
-}
 .span_mid{
     padding-left: 10px;
     color: #3F72AF;
@@ -39,10 +35,10 @@ td{
     color: #F08A5D;
     padding-left: 10px;
 }
+.allpass_weight, .mid_weight, .line_item_id{
+    display: none;
+}
 </style>
-<button class='manually'   style='margin-bottom:20px;margin-right:230px;'>採用手動</button>
-<button class='mid'>採用中位數</button>
-<button class="allpass">採用全過</button>
 
 <table style='margin-top:20px;table-layout:fixed;width:100%' cellpadding="0" cellspacing="0" >
     <tr>
@@ -57,40 +53,34 @@ td{
         <th>版位名稱</th>
         <th style=''>全過權重(Imp/Clicks)</th>
 	<th style=''>中位數權重(Imp/Clicks)</th>
-        <th>手動調整</th>
+        <th></th>
     </tr>
-    <tr tal:repeat="item view/data">
-        <td>${python:item[1][4].split('_')[0]}</td>
-        <td>${python:item[1][4].split('_')[1]}</td>
+    <tr tal:repeat="item view/final_data">
+        <td>${python:item.split('_')[0]}</td>
+        <td>${python:item.split('_')[1]}</td>
         <td>
-           <span class='span_allpass' style='padding-right:3px'> ${view/est_allpass_imp_weight}</span> /
-	   <span class='span_allpass' style='padding-left:3px;padding-right:10px'> ${view/est_allpass_clicks_weight} </span>
-            
+           <span class='span_allpass' style='padding-right:3px'> ${python:view.final_data[item][0]}</span> /
+	   <span class='span_allpass' style='padding-left:3px;padding-right:10px'> 
+				${python:view.final_data[item][1]} </span>
         </td>
         <td>
-             <span class='span_mid' style='padding-right:3px'> ${view/est_mid_imp_weight}</span> /
-             <span class='span_mid' style='padding-left:3px'>${view/est_mid_clicks_weight}</span>
+            <span class='span_mid' style='padding-right:3px'> ${python:view.final_data[item][2]}</span> /
+            <span class='span_mid' style='padding-left:3px'>${python:view.final_data[item][3]}</span>
         </td>
-        <td tal:define="start repeat/item/start"
-            tal:condition="start"
-            rowspan="${repeat/item/length}"> 
-              Impression: <input type='number' style='width:35%;text-align:center;margin:5px 0 ' 
-                 class='manually_weight' id='manually_imp'/>
-              <br>
-              Click: <input type='number' style='width:35%;text-align:center;margin:5px 0'
-                 class='manually_weight' id='manually_cli' />
-        </td>
+	<td>
+	    <p class='allpass_weight'>${python:view.final_data[item][0]},${python:view.final_data[item][1]}</p>
+	    <p class='mid_weight'>${python:view.final_data[item][2]},${python:view.final_data[item][3]}</p>
+	    <p class='line_item_id'>${python:view.final_data[item][4]}</p>
+	    <button class="allpass">採用全過</button>
+	    <button class='mid'>採用中位數</button>
+	    <br/>
+	    <input type='number' class='manually_imp' style='text-align: center;width: 100px'/>
+            <input type='number' class='manually_cli' style='texy-align: center;width: 50px'/>
+	    <button class='manually' style=''>採用手動</button>
+	</td>
     </tr>
 
 </table>
-<?python
-import json
-?>
-<p id='line_item_id' style='display:none'>${python: view.item_id_str}</p>
-<p id='allpass_imp_weight' style='display:none'>${view/est_allpass_imp_weight}</p>
-<p id='allpass_clicks_weight' style='display:none'>${view/est_allpass_clicks_weight}</p>
-<p id='mid_imp_weight' style='display:none'>${view/est_mid_imp_weight}</p>
-<p id='mid_clicks_weight' style='display:none'>${view/est_mid_clicks_weight}</p> 
 
 <script>
 jq(function(){
@@ -98,22 +88,20 @@ jq(function(){
     if(confirm("確定要更新嘛?")){
         className = jq(this)[0].className
         if(className == 'allpass'){
-            imp_weight = jq('#allpass_imp_weight')[0].innerText
-            clicks_weight = jq('#allpass_clicks_weight')[0].innerText
+	    allpass_weight = jq(this).siblings('.allpass_weight').text()
+            imp_weight = allpass_weight.split(',')[0]
+            clicks_weight = allpass_weight.split(',')[1]
         }
         else if(className == 'mid'){
-            imp_weight = jq('#mid_imp_weight')[0].innerText
-            clicks_weight = jq('#mid_clicks_weight')[0].innerText
+            mid_weight = jq(this).siblings('.mid_weight').text()
+            imp_weight = mid_weight.split(',')[0]              
+            clicks_weight = mid_weight.split(',')[1]
         }else if(className == 'manually'){
-            imp_weight = jq('#manually_imp').val()
-            clicks_weight = jq('#manually_cli').val()
+            imp_weight = jq(this).siblings('.manually_imp').val()
+            clicks_weight = jq(this).siblings('.manually_cli').val()
         }
         weight = [imp_weight, clicks_weight]
-        
-        line_item_id = jq('#line_item_id')[0].innerText
-        start_date = jq('#start_date').val()
-        end_date = jq('#end_date').val()
-        weight = JSON.stringify(weight)
+	line_item_id = jq(this).siblings('.line_item_id').text()        
         url = location.href.replace('show_calculate_weight', 'update_calculate_weight')
         data = {
             'line_item_id': line_item_id,
