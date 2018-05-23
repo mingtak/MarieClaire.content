@@ -19,6 +19,8 @@ import time as TIME
 import math
 import sys
 import base64
+import re
+
 
 logger = logging.getLogger('MarieClaire.content')
 LIMIT=20
@@ -866,19 +868,18 @@ class CalculateWeight(ManaBasic):
 	f = StringIO(csv_data)
 	reader = csv.reader(f, delimiter=',')
         final_data = {}
-	for re in reader:
+	for red in reader:
             data = {}
             item_id_list = []
-	    if re:
-                csv_line_item_name = re[0]
-                csv_est_imp = re[1]
-                csv_est_ctr = re[2]
+	    if red:
+                csv_line_item_name = red[0]
+                csv_est_imp = red[1]
+                csv_est_ctr = red[2]
                 execStr = """SELECT dfp_line_item.LINE_ITEM_NAME,dfp_ad_server.* FROM dfp_line_item,dfp_ad_server 
                       WHERE dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND dfp_line_item.LINE_ITEM_NAME 
 		      LIKE '%%{}%%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}'
                       """.format(csv_line_item_name, start_date, end_date)
                 result = self.execSql(execStr)
-
 	        for item in result:
 	            tmp = dict(item)
                     order_id = tmp['ORDER_ID']
@@ -889,12 +890,14 @@ class CalculateWeight(ManaBasic):
                     line_item_id = tmp['LINE_ITEM_ID']
                     line_item_name = tmp['LINE_ITEM_NAME']
                     date = tmp['DATE'].strftime('%Y-%m-%d')
-                    if data.has_key(csv_line_item_name):
-                        data[csv_line_item_name].append( [imp, click] )
-                    else:
-                        data[csv_line_item_name] = [ [imp, click] ]
-                    if line_item_id not in item_id_list:
-                        item_id_list.append(line_item_id)
+		    search_result = re.search('test', line_item_name, re.IGNORECASE)
+		    if not search_result:
+                        if data.has_key(csv_line_item_name):
+                            data[csv_line_item_name].append( [imp, click] )
+                        else:
+                            data[csv_line_item_name] = [ [imp, click] ]
+                        if line_item_id not in item_id_list:
+                            item_id_list.append(line_item_id)
             if data:
                 min_imp = sys.maxint
                 for v in data.values()[0]:
@@ -925,6 +928,8 @@ class CalculateWeight(ManaBasic):
                 final_data[csv_line_item_name].append(json.dumps(item_id_list))
         self.final_data = final_data
         return self.template()
+
+
 class ShowCalculateWeight(BrowserView):
     template = ViewPageTemplateFile('template/show_calculate_weight.pt')
     def __call__(self):
