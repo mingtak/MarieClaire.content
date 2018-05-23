@@ -861,18 +861,16 @@ class CalculateWeight(ManaBasic):
         request = self.request
         start_date = request.get('start_date')
         end_date = request.get('end_date')
-        csv_file = request.get('csv_file').split(',')[1]
+        csv_file = request.get('csv_file').split('data:text/csv;base64,')[1]
 	csv_data = base64.b64decode(csv_file)
-	f = StringIO(csv_data)
-	reader = csv.reader(f, delimiter=',')
         final_data = {}
-	for re in reader:
+	for csv in csv_data.split('\n'):
             data = {}
             item_id_list = []
-	    if re:
-                csv_line_item_name = re[0]
-                csv_est_imp = re[1]
-                csv_est_ctr = re[2]
+	    if csv:
+                csv_line_item_name = csv.split(',')[0].split('"')[1]
+                csv_est_imp = csv.split(',')[1]
+                csv_est_ctr = csv.split(',')[2]
                 execStr = """SELECT dfp_line_item.LINE_ITEM_NAME,dfp_ad_server.* FROM dfp_line_item,dfp_ad_server 
                       WHERE dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND dfp_line_item.LINE_ITEM_NAME 
 		      LIKE '%%{}%%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}'
@@ -941,19 +939,15 @@ class UpdateCalculateWeight(ManaBasic):
         request = self.request
         try:
             line_item_id = json.loads(request.get('line_item_id'))
-            if len(line_item_id) == 1:
-                line_item_id.append('zzzz')
-	    line_item_id = map(lambda x:str(x), line_item_id)
             weight = request.get('weight[]')
 	    action = request.get('action')
             start_date = request.get('start_date')
             end_date = request.get('end_date')
-            execStr = """UPDATE dfp_ad_server SET im_weight={}, cli_weight={}, status='disabled' WHERE DATE BETWEEN 
+            import pdb;pdb.set_trace()
                '{}' AND '{}' AND LINE_ITEM_ID in {}
                """.format(weight[0], weight[1], start_date, end_date, tuple(line_item_id))
-            self.execSql(execStr)
+          #  self.execSql(execStr)
             return 'success'
         except Exception as e:
             print e
             return 'error'
-

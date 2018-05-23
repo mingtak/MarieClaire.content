@@ -44,8 +44,8 @@ td{
     <tr>
         <th style='width:200px;padding:0;'></th>
         <th style='width:200px;padding:0;'></th>
-        <th style='width:135px;padding:0;'></th>
-        <th style='width:185px;padding:0;'></th>
+        <th style='width:200px;padding:0;'></th>
+        <th style='width:205px;padding:0;'></th>
         <th style='width:400px;padding:0;'></th>
     </tr>
     <tr>
@@ -59,21 +59,22 @@ td{
         <td>${python:item.split('_')[0]}</td>
         <td>${python:item.split('_')[1]}</td>
         <td>
+	    <button class="allpass">採用全過</button>
            <span class='span_allpass' style='padding-right:3px'> ${python:view.final_data[item][0]}</span> /
 	   <span class='span_allpass' style='padding-left:3px;padding-right:10px'> 
 				${python:view.final_data[item][1]} </span>
+	   <p class='allpass_weight'>${python:view.final_data[item][0]},${python:view.final_data[item][1]}</p>
+           <p class='line_item_id'>${python:view.final_data[item][4]}</p>
         </td>
         <td>
+	    <button class='mid'>採用中位數</button>
             <span class='span_mid' style='padding-right:3px'> ${python:view.final_data[item][2]}</span> /
             <span class='span_mid' style='padding-left:3px'>${python:view.final_data[item][3]}</span>
-        </td>
-	<td>
-	    <p class='allpass_weight'>${python:view.final_data[item][0]},${python:view.final_data[item][1]}</p>
 	    <p class='mid_weight'>${python:view.final_data[item][2]},${python:view.final_data[item][3]}</p>
 	    <p class='line_item_id'>${python:view.final_data[item][4]}</p>
-	    <button class="allpass">採用全過</button>
-	    <button class='mid'>採用中位數</button>
-	    <br/>
+        </td>
+	<td>
+	    <p class='line_item_id'>${python:view.final_data[item][4]}</p>
 	    <input type='number' class='manually_imp' style='text-align: center;width: 100px'/>
             <input type='number' class='manually_cli' style='texy-align: center;width: 50px'/>
 	    <button class='manually' style=''>採用手動</button>
