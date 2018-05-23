@@ -38,7 +38,7 @@ portal = api.portal.get()
 <br>
 檔案：<input type="file" id='file' />
     <input type="hidden" id='csv_file' name="file_data"/>
-<button>計算</button>
+<button id='calculate'>計算</button>
 
 <div id='result'></div>
 
@@ -46,6 +46,19 @@ portal = api.portal.get()
 <script>
 jq = jQuery.noConflict(true);
 jq(function(){
+    date = new Date()
+    month = date.getMonth() + 1
+    if(month < 10 ){
+	month = '0' + month
+    }
+    start_month = month - 6
+    start_year = date.getFullYear()
+    if(start_month < 1){
+	start_month = 12 + start_month 
+	start_year = start_year -1
+    }
+    jq('#end_date').val(date.getFullYear() + '-' + month + '-' + date.getDate())
+    jq('#start_date').val(start_year + '-' + start_month + '-' + '01')
     jq('#file').change(function(e){
        var file = this.files[0];
         if(window.FileReader) {
@@ -57,7 +70,7 @@ jq(function(){
       }
     })
 
-    jq('button').click(function(){
+    jq('#calculate').click(function(){
         start_date = jq('#start_date').val()
         end_date = jq('#end_date').val()
         csv_file = jq('#csv_file').val()

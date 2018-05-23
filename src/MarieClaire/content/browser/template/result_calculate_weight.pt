@@ -42,32 +42,29 @@ td{
 
 <table style='margin-top:20px;table-layout:fixed;width:100%' cellpadding="0" cellspacing="0" >
     <tr>
-        <th style='width:200px;padding:0;'></th>
-        <th style='width:200px;padding:0;'></th>
-        <th style='width:200px;padding:0;'></th>
-        <th style='width:205px;padding:0;'></th>
-        <th style='width:400px;padding:0;'></th>
+        <th style='width:15%;padding:0;'></th>
+        <th style='width:30%;padding:0;'></th>
+        <th style='width:30%;padding:0;'></th>
+        <th style='width:25%;padding:0;'></th>
     </tr>
     <tr>
-        <th>頻道</th>
         <th>版位名稱</th>
         <th style=''>全過權重(Imp/Clicks)</th>
 	<th style=''>中位數權重(Imp/Clicks)</th>
         <th></th>
     </tr>
     <tr tal:repeat="item view/final_data">
-        <td>${python:item.split('_')[0]}</td>
-        <td>${python:item.split('_')[1]}</td>
-        <td>
-	    <button class="allpass">採用全過</button>
+        <td>${python:item}</td>
+        <td style='text-align:left'>
+	   <button class="allpass" style='margin-left:33%'>採用全過</button>
            <span class='span_allpass' style='padding-right:3px'> ${python:view.final_data[item][0]}</span> /
 	   <span class='span_allpass' style='padding-left:3px;padding-right:10px'> 
 				${python:view.final_data[item][1]} </span>
 	   <p class='allpass_weight'>${python:view.final_data[item][0]},${python:view.final_data[item][1]}</p>
            <p class='line_item_id'>${python:view.final_data[item][4]}</p>
         </td>
-        <td>
-	    <button class='mid'>採用中位數</button>
+        <td style='text-align:left'>
+	    <button class='mid' style='margin-left:33%'>採用中位數</button>
             <span class='span_mid' style='padding-right:3px'> ${python:view.final_data[item][2]}</span> /
             <span class='span_mid' style='padding-left:3px'>${python:view.final_data[item][3]}</span>
 	    <p class='mid_weight'>${python:view.final_data[item][2]},${python:view.final_data[item][3]}</p>
