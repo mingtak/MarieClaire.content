@@ -322,7 +322,7 @@ class UpdataGaTableData(ManaBasic):
     def __call__(self):
         SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
         DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
-        CLIENT_SECRETS_PATH = '/home/marieclaire/Plone/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
+        CLIENT_SECRETS_PATH = '/home/marieclaire/marieclaire/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
         
         parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -333,7 +333,7 @@ class UpdataGaTableData(ManaBasic):
             CLIENT_SECRETS_PATH, scope=SCOPES,
             message=tools.message_if_missing(CLIENT_SECRETS_PATH))
 
-        storage = file.Storage('/home/marieclaire/Plone/zeocluster/analyticsreporting.dat')
+        storage = file.Storage('/home/marieclaire/marieclaire/zeocluster/analyticsreporting.dat')
         credentials = storage.get()
         if credentials is None or credentials.invalid:
             credentials = tools.run_flow(flow, storage, flags)

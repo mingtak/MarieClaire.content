@@ -50,7 +50,7 @@ td{
     <tr>
         <th>版位名稱</th>
         <th style=''>全過權重(Imp/Clicks)</th>
-	<th style=''>中位數權重(Imp/Clicks)</th>
+	<th style=''>平均數權重(Imp/Clicks)</th>
         <th></th>
     </tr>
     <tr tal:repeat="item view/final_data">
@@ -64,7 +64,7 @@ td{
            <p class='line_item_id'>${python:view.final_data[item][4]}</p>
         </td>
         <td style='text-align:left'>
-	    <button class='mid' style='margin-left:33%'>採用中位數</button>
+	    <button class='mid' style='margin-left:33%'>採用平均數</button>
             <span class='span_mid' style='padding-right:3px'> ${python:view.final_data[item][2]}</span> /
             <span class='span_mid' style='padding-left:3px'>${python:view.final_data[item][3]}</span>
 	    <p class='mid_weight'>${python:view.final_data[item][2]},${python:view.final_data[item][3]}</p>

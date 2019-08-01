@@ -20,6 +20,7 @@ import math
 import sys
 import base64
 import re
+from decimal import *
 
 
 logger = logging.getLogger('MarieClaire.content')
@@ -874,58 +875,44 @@ class CalculateWeight(ManaBasic):
 	    if red:
                 csv_line_item_name = red[0]
                 csv_est_imp = red[1]
-                csv_est_ctr = red[2]
-                execStr = """SELECT dfp_line_item.LINE_ITEM_NAME,dfp_ad_server.* FROM dfp_line_item,dfp_ad_server 
-                      WHERE dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND dfp_line_item.LINE_ITEM_NAME 
-		      LIKE '%%{}%%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}' ORDER BY AD_SERVER_IMPRESSIONS desc
-                      """.format(csv_line_item_name, start_date, end_date)
-                result = self.execSql(execStr)
-	        for item in result:
-	            tmp = dict(item)
-                    order_id = tmp['ORDER_ID']
-                    imp = tmp['AD_SERVER_IMPRESSIONS']
-                    click = tmp['AD_SERVER_CLICKS']
-                    im_weight = tmp['im_weight']
-                    cli_weight = tmp['cli_weight']
-                    line_item_id = tmp['LINE_ITEM_ID']
-                    line_item_name = tmp['LINE_ITEM_NAME']
-                    date = tmp['DATE'].strftime('%Y-%m-%d')
-		    search_result = re.search('test', line_item_name, re.IGNORECASE)
-		    if not search_result:
-                        if data.has_key(csv_line_item_name):
-                            data[csv_line_item_name].append( [imp, click] )
-                        else:
-                            data[csv_line_item_name] = [ [imp, click] ]
-                        if line_item_id not in item_id_list:
-                            item_id_list.append(line_item_id)
-            if data:
-                min_imp = sys.maxint
-                for v in data.values()[0]:
-                    if v[0] < min_imp:
-                        min_imp = v[0]
-                        min_clicks = v[1]
-                est_allpass_imp_weight = round(float(csv_est_imp) / float(min_imp), 1)
-                est_allpass_tmp_imp = round(float(min_imp) * float(est_allpass_imp_weight))
-                est_allpass_cli_weight = round( float(csv_est_ctr) / 100 * float(est_allpass_tmp_imp) /
-								float(min_clicks), 1)
-                final_data[csv_line_item_name] = [est_allpass_imp_weight, est_allpass_cli_weight]
+                csv_est_cli = red[2]
 
-                # 將data排序
-                #tmp_mid_data = sorted(data.values()[0], key= lambda x:x[0], reverse=True)
-                # 抓mid_data的中位數,判斷長度若是否為1
-                # if len(tmp_mid_data) > 1:
-                #    mid_index = math.ceil(float(len(tmp_mid_data)) / 2) - 1
-                #else:
-                #    mid_index = 0
-                # 抓中位數的值
-                #median_imp = tmp_mid_data[int(mid_index)][0]
-                #median_clicks = tmp_mid_data[int(mid_index)][1]
+                execStr = """SELECT AVG(dfp_ad_server.AD_SERVER_IMPRESSIONS) as sum_imp, 
+			AVG(dfp_ad_server.AD_SERVER_CLICKS) as sum_cli 
+			FROM dfp_line_item,dfp_ad_server WHERE dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID 
+			AND dfp_line_item.LINE_ITEM_NAME LIKE '%%{}%%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}' 
+			AND dfp_line_item.LINE_ITEM_NAME NOT LIKE '%%test%%' 
+			""".format(csv_line_item_name, start_date, end_date)
+                avg_result = self.execSql(execStr)
 
-                #est_mid_imp_weight = round(float(csv_est_imp) / float(median_imp), 1)
-                #est_mid_cli_weight = round( float(csv_est_ctr) /100 * median_imp * est_mid_imp_weight / median_clicks , 1)
-                #final_data[csv_line_item_name].append(est_mid_imp_weight)
-                #final_data[csv_line_item_name].append(est_mid_cli_weight)
-                final_data[csv_line_item_name].append(json.dumps(item_id_list))
+		execStr = """SELECT dfp_ad_server.AD_SERVER_IMPRESSIONS as min_imp, dfp_ad_server.AD_SERVER_CLICKS 
+			as min_cli FROM dfp_line_item,dfp_ad_server WHERE dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID 
+			AND dfp_line_item.LINE_ITEM_NAME LIKE '%%{}%%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}' 
+			AND dfp_line_item.LINE_ITEM_NAME NOT LIKE '%%test%%' ORDER BY AD_SERVER_IMPRESSIONS ASC 
+			LIMIT 1""".format(csv_line_item_name, start_date, end_date)
+		min_result = self.execSql(execStr)
+
+		execStr = """SELECT DISTINCT(dfp_ad_server.LINE_ITEM_ID) as line_item_list  FROM dfp_line_item,dfp_ad_server 
+			WHERE dfp_line_item.LINE_ITEM_ID = dfp_ad_server.LINE_ITEM_ID AND dfp_line_item.LINE_ITEM_NAME 
+			LIKE '%%{}%%' AND dfp_ad_server.DATE BETWEEN '{}' AND '{}' AND dfp_line_item.LINE_ITEM_NAME 
+			NOT LIKE '%%test%%'""".format(csv_line_item_name, start_date, end_date)
+		item_list_result = self.execSql(execStr)
+		if min_result and avg_result and item_list_result:
+		    avg_imp_weight = str((int(csv_est_imp) / avg_result[0][0]).quantize(Decimal('.0'), rounding=ROUND_UP))
+		    tmp_cli_avg = Decimal(csv_est_cli) * avg_result[0][0] * Decimal(avg_imp_weight) / 100 / avg_result[0][1]
+		    avg_cli_weight = tmp_cli_avg.quantize(Decimal('.0'), rounding=ROUND_UP)
+
+      		    min_imp_weight = round(float(csv_est_imp) / float(min_result[0][0]), 1)
+		    min_cli_weight = round(float(csv_est_cli) / 100 * (min_result[0][0] * min_imp_weight) / min_result[0][1], 1)
+
+		    item_list = []
+		    for item in item_list_result:
+		        tmp = dict(item)
+		        line_item = tmp['line_item_list']
+		        item_list.append(line_item)
+
+		    final_data[red[0]] = [min_imp_weight, min_cli_weight, avg_imp_weight, avg_cli_weight, 
+			json.dumps(item_list)]
         self.final_data = final_data
         return self.template()
 

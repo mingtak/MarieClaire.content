@@ -8,6 +8,7 @@ from oauth2client import tools
 import datetime
 import requests
 from sqlalchemy import create_engine
+from oauth2client.service_account import ServiceAccountCredentials
 
 DBSTR = 'mysql+mysqldb://MarieClaire:MarieClaire@localhost/MarieClaire?charset=utf8mb4'
 ACCOUNT = {'id':'MarieClaire', 'pwd':'MarieClaire'}
@@ -15,8 +16,9 @@ ENGINE = create_engine(DBSTR, echo=True)
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
-CLIENT_SECRETS_PATH = '/home/marieclaire/Plone/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
+CLIENT_SECRETS_PATH = '/home/marieclaire/marieclaire/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/static/client_secrets.json'
 VIEW_ID = '5906876'
+#VIEW_ID = '166020368'
 
 EndDay = datetime.datetime.now()
 StartDay = EndDay - datetime.timedelta(days = 5)
@@ -29,30 +31,10 @@ def execSql(execStr):
         return execResult.fetchall()
 
 def initialize_analyticsreporting():
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(CLIENT_SECRETS_PATH, SCOPES)
 
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[tools.argparser])
-    flags = parser.parse_args([])
-
-    # Set up a Flow object to be used if we need to authenticate.
-    flow = client.flow_from_clientsecrets(
-        CLIENT_SECRETS_PATH, scope=SCOPES,
-        message=tools.message_if_missing(CLIENT_SECRETS_PATH))
-
-    # Prepare credentials, and authorize HTTP object with them.
-    # If the credentials don't exist or are invalid run through the native client
-    # flow. The Storage object will ensure that if successful the good
-    # credentials will get written back to a file.
-    storage = file.Storage('/home/marieclaire/Plone/zeocluster/src/MarieClaire.content/src/MarieClaire/content/browser/script/analyticsreporting.dat')
-    credentials = storage.get()
-    if credentials is None or credentials.invalid:
-        credentials = tools.run_flow(flow, storage, flags)
-    http = credentials.authorize(http=httplib2.Http())
-
-    # Build the service object.
-    analytics = build('analytics', 'v4', http=http, discoveryServiceUrl=DISCOVERY_URI)
-
+    analytics = build('analyticsreporting', 'v4', credentials=credentials)
+#    import pdb;pdb.set_trace()
     return analytics
 
 def get_report(analytics, index):
